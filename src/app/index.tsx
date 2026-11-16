@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { router } from 'expo-router';
 import { Alert, Animated, Easing, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -43,12 +44,12 @@ export default function TitleScreen() {
           </View>
 
           <View style={styles.buttons}>
-            <GameButton label="Start Game" onPress={() => comingSoon('Start Game', 3)} />
+            <GameButton label="Start Game" onPress={() => router.push('/overview')} />
             <GameButton label="Continue Game" variant="secondary" onPress={() => comingSoon('Continue Game', 6)} />
-            <GameButton label="Settings" variant="secondary" onPress={() => comingSoon('Settings', 2)} />
+            <GameButton label="Settings" variant="secondary" onPress={() => comingSoon('Settings', 6)} />
           </View>
 
-          <Text style={styles.footer}>Phase 1 · Foundation build</Text>
+          <Text style={styles.footer}>Phase 2 · Navigation preview</Text>
         </Animated.View>
       </SafeAreaView>
     </View>

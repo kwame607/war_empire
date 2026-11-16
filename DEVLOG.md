@@ -1,6 +1,16 @@
 # WAR EMPIRE Development Log
 
-## Phase 1: Foundation (complete, pending phone confirmation)
+## Phase 2: Navigation and design system (complete, pending phone confirmation)
+
+Done:
+- Bottom tab navigation (Overview, Economy, Knowledge, Military, Map) in `src/app/(game)/`. Profile opens from the header icon; Businesses will live inside Economy.
+- Reusable UI: GameScreen, ResourceBar, Panel, SectionHeader, StatTile, LockedNotice, GameButton.
+- Sample data in `src/data/previewState.ts` (temporary, replaced in Phases 3 to 6).
+- Start Game now opens the dashboard preview. Continue and Settings still show a "coming in Phase 6" message.
+- Added `@expo/vector-icons` for tab icons.
+- Passing: `tsc --noEmit`, `expo lint`, iOS bundle export.
+
+## Phase 1: Foundation (complete, confirmed on iPhone)
 
 Done:
 - Expo SDK 58 project created in `war-empire/` (TypeScript strict, Expo Router).
@@ -11,7 +21,6 @@ Done:
 - Passing: `tsc --noEmit`, `expo lint`, iOS bundle export.
 
 Remaining phases:
-2. Navigation and design system
 3. Character creation and civilisations
 4. World map and starting location
 5. Economy and businesses
