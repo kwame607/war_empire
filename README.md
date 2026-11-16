@@ -1,56 +1,71 @@
-# Welcome to your Expo app 👋
+# WAR EMPIRE
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+*The business of becoming a master strategist.*
 
-## Get started
+A mobile strategy, business and empire-management game built with React Native, Expo and TypeScript.
 
-1. Install dependencies
+## Requirements
 
-   ```bash
-   npm install
-   ```
+- Linux (or any OS) with **Node.js 20+** and npm (check with `node -v` and `npm -v`)
+- An iPhone with the **Expo Go** app (App Store)
+- Your computer and iPhone on the **same Wi-Fi network**
 
-2. Start the app
+No Mac, Xcode or Android tools are needed.
 
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Install
 
 ```bash
-npm run reset-project
+cd war-empire
+npm install
 ```
 
-This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
+## Run on your iPhone
 
-### Other setup steps
+```bash
+npx expo start
+```
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+A QR code appears in the terminal. Open the iPhone **Camera** app, point it at the QR code and tap the banner to open it in Expo Go.
 
-## Learn more
+If your phone cannot connect (some Wi-Fi networks block device-to-device traffic), use tunnel mode:
 
-To learn more about developing your project with Expo, look at the following resources:
+```bash
+npx expo start --tunnel
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+(Expo will offer to install `@expo/ngrok` the first time; say yes.)
 
-## Join the community
+## Run in the browser (optional preview)
 
-Join our community of developers creating universal apps.
+```bash
+npx expo start --web
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Quality checks
+
+```bash
+npx tsc --noEmit     # TypeScript type check
+npx expo lint        # code style / bug check
+npx expo-doctor      # project and dependency health
+```
+
+## Project structure
+
+```
+src/
+  app/          Screens and navigation (Expo Router: each file is a route)
+  components/   Reusable UI (brand/, ui/)
+  theme/        Colours, fonts, spacing: the single source of design tokens
+  data/         (coming) civilisations, businesses, knowledge entries
+  game/         (coming) pure game rules, no UI code
+  store/        (coming) game state
+  storage/      (coming) SQLite saves
+assets/         Images and icons
+DEVLOG.md       What is done and what remains
+```
+
+## Rules of the codebase
+
+- Game rules live apart from visual components.
+- Game content (civilisations, businesses, history) lives in data files, not inside screens.
+- Install packages with `npx expo install <package>` so versions match the Expo SDK.
