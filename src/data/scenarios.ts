@@ -45,7 +45,7 @@ export const SCENARIOS: Scenario[] = [
       basePosture: null,
     },
     rewards: { gold: 120, food: 30, wood: 25, stone: 0, reputation: 2 },
-    requiresReputation: 15,
+    requiresReputation: 10,
     recommendedArmy: 16,
   },
   {
@@ -67,7 +67,7 @@ export const SCENARIOS: Scenario[] = [
       basePosture: null,
     },
     rewards: { gold: 220, food: 50, wood: 30, stone: 10, reputation: 3 },
-    requiresReputation: 15,
+    requiresReputation: 10,
     recommendedArmy: 26,
   },
   {
@@ -89,7 +89,7 @@ export const SCENARIOS: Scenario[] = [
       basePosture: 'defensive',
     },
     rewards: { gold: 350, food: 40, wood: 40, stone: 40, reputation: 5 },
-    requiresReputation: 15,
+    requiresReputation: 10,
     recommendedArmy: 32,
   },
   {
@@ -111,7 +111,7 @@ export const SCENARIOS: Scenario[] = [
       basePosture: null,
     },
     rewards: { gold: 400, food: 60, wood: 0, stone: 0, reputation: 6 },
-    requiresReputation: 15,
+    requiresReputation: 10,
     recommendedArmy: 30,
   },
 ];

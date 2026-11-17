@@ -26,7 +26,7 @@ export const INSTITUTION_TYPES: InstitutionType[] = [
     buildSeconds: 90,
     upkeepPerHour: 18,
     maxLevel: 4,
-    requiresReputation: 15,
+    requiresReputation: 10,
     effects: [
       'Army of up to 20 soldiers; trains spearmen and archers',
       'Army of up to 40; training 25% faster',
@@ -44,7 +44,7 @@ export const INSTITUTION_TYPES: InstitutionType[] = [
     buildSeconds: 150,
     upkeepPerHour: 28,
     maxLevel: 3,
-    requiresReputation: 15,
+    requiresReputation: 10,
     requiresUnderstood: 1,
     effects: ['Employ 1 commander', 'Employ 2 commanders; recruits are better trained', 'Employ 3 commanders; recruits are better trained'],
   },
@@ -57,7 +57,7 @@ export const INSTITUTION_TYPES: InstitutionType[] = [
     buildSeconds: 120,
     upkeepPerHour: 22,
     maxLevel: 3,
-    requiresReputation: 15,
+    requiresReputation: 10,
     requiresInstitution: { id: 'barracks', level: 1 },
     effects: [
       'Soldiers fight 5% better; unlocks cavalry',
@@ -75,7 +75,7 @@ export const INSTITUTION_TYPES: InstitutionType[] = [
     buildSeconds: 100,
     upkeepPerHour: 20,
     maxLevel: 3,
-    requiresReputation: 15,
+    requiresReputation: 10,
     requiresInstitution: { id: 'library', level: 1 },
     effects: [
       'Employ 2 spies; enemy agents are less likely to learn your plans',

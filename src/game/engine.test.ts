@@ -1,3 +1,4 @@
+import { GOLD_INCOME_MULT } from './economy';
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
@@ -21,6 +22,8 @@ function must<T extends { ok: boolean }>(r: T): Extract<T, { ok: true }> {
   assert.equal(r.ok, true, JSON.stringify(r));
   return r as Extract<T, { ok: true }>;
 }
+
+const FARM_NET = 25 * 1.1 * GOLD_INCOME_MULT - 8;
 
 describe('new game', () => {
   it('applies civilisation, background and difficulty', () => {
@@ -48,8 +51,8 @@ describe('businesses', () => {
     const s1 = must(buyBusiness(createNewGame(cfg, T0), 'farm', T0)).state;
     const done = tick(s1, T0 + 20_000 + 3_600_000); // 20s build + 1h
     assert.equal(done.businesses[0].level, 1);
-    // farm: (25*1.10 - 8) = 19.5 gold/h for ~1h
-    assert.ok(Math.abs(done.resources.gold - (500 + 19.5)) < 0.01, String(done.resources.gold));
+    // farm: (25*1.10*pace - 8) gold/h for ~1h
+    assert.ok(Math.abs(done.resources.gold - (500 + FARM_NET)) < 0.01, String(done.resources.gold));
     assert.ok(Math.abs(done.resources.food - (150 + 20)) < 0.01);
   });
 
@@ -98,7 +101,7 @@ describe('offline progression', () => {
     const s1 = must(buyBusiness(rich, 'farm', T0)).state;
     const away = tick(s1, T0 + 100 * 3_600_000); // 100 hours away
     assert.equal(away.businesses[0].level, 1);
-    const expected = 5000 - 150 + 19.5 * (OFFLINE_CAP_SECONDS / 3600);
+    const expected = 5000 - 150 + FARM_NET * (OFFLINE_CAP_SECONDS / 3600);
     assert.ok(Math.abs(away.resources.gold - expected) < 0.01, `${away.resources.gold} vs ${expected}`);
     assert.equal(away.totalSeconds, OFFLINE_CAP_SECONDS);
   });

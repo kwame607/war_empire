@@ -50,7 +50,7 @@ Technical:
 
 Balance notes:
 - Army size dominates (as in real wars); doctrine matters most when forces are close to even, around the "recommended army" shown for each operation.
-- Reaching reputation 15 (Military unlock) takes roughly 40 hours of game time with greedy spending. Settings has a testing shortcut. Pacing may need tuning.
+- Pacing (tuned in v0.3): military unlocks at reputation 10 (was 15) and business gold income is x1.4 (`GOLD_INCOME_MULT` in economy.ts). A first army now takes roughly 20 game hours with greedy spending (was ~40).
 
 Not built yet:
 - Delegated operations that run on a timer while you are offline.

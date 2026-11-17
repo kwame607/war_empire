@@ -2,7 +2,7 @@
 export const PROGRESSION_STAGES = [
   { name: 'Ordinary Citizen', reputation: 0 },
   { name: 'Building a Foundation', reputation: 4 },
-  { name: 'Rising to Influence', reputation: 15 },
+  { name: 'Rising to Influence', reputation: 10 },
   { name: 'Becoming a Power Broker', reputation: 40 },
   { name: 'Establishing Independent Power', reputation: 100 },
   { name: 'Building an Empire', reputation: 250 },
