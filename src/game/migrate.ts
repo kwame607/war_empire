@@ -26,6 +26,13 @@ export function migrateState(raw: unknown): GameState | null {
     next.rngSeed = Math.floor(player.createdAt ?? Date.now()) % 2147483647;
   }
 
+  // v2 -> v3: intelligence
+  if (s.version < 3) {
+    next.intel = { spies: [], missions: [], reports: [] };
+    const battle = next.battle as Record<string, unknown> | null;
+    if (battle) next.battle = { ...battle, belief: {}, beliefSources: [], enemyInformed: false };
+  }
+
   next.version = SAVE_VERSION;
   return next as unknown as GameState;
 }

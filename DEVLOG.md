@@ -1,5 +1,24 @@
 # WAR EMPIRE Development Log
 
+## Version 0.3: Intelligence and Fog of Knowledge (complete, pending phone testing)
+
+Intelligence Bureau (Economy, Institutions; needs a Library and reputation 15):
+- Recruit agents (spy cap = bureau level + 1). Each has a skill rating and a track record (sound / unsound reports).
+- Military tab, new "Intel" segment: send an agent to watch a rival on one topic (Strength, Commander, Plans, Defences). Costs 80 gold, takes 90 seconds, and finishes even while you are away.
+- Agents can be caught and lost (chance falls with agent skill and bureau level).
+
+Reports can be wrong:
+- Each report is accurate, incomplete, outdated, misleading or fabricated. The quality is hidden; only clues are visible (confidence, "gathered weeks ago", ranges).
+- Better agents and a higher-level Bureau raise the odds of an honest report.
+- Independent reports from different agents are compared: "agree" / "conflict" chips help you spot lies.
+- Before battle, pick which reports to rely on. They shape the enemy estimate and the doctrine checklists (so a false report can mislead you).
+- After the battle the truth is revealed: reports are marked checked, agents' track records update, and the battle report gains an Intelligence section and lessons.
+- Counter-intelligence: the enemy may learn of your army beforehand (45% with no bureau, less per Bureau level, 0 at level 3), making cunning/cautious commanders always read your manoeuvres.
+
+Technical:
+- Save version 3 (migration adds the intel state and patches battles in progress).
+- New modules: intelCore.ts (pure rules), intel.ts (actions); 10 new tests (43 total).
+
 ## Version 0.2: Institutions and Military (complete, pending phone testing)
 
 Institutions (Economy tab, "Institutions" segment):
@@ -35,7 +54,6 @@ Balance notes:
 
 Not built yet:
 - Delegated operations that run on a timer while you are offline.
-- Intelligence Bureau, spies, counter-intelligence, false reports.
 - Capital and siege mechanics, formations beyond orders, naval warfare.
 - Diplomacy and the living world (AI kingdoms).
 - Mastery (knowledge stage 4), simulations, combining doctrines.

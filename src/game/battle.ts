@@ -320,7 +320,8 @@ function chooseEnemyStance(b: Battle, leader: Leader, rng: () => number): EnemyS
   const trait = b.enemy.trait;
   let s: EnemyStance = trait === 'impetuous' ? 'aggressive' : 'steady';
   if (b.enemy.basePosture) s = b.enemy.basePosture;
-  const detect = rng() < Math.max(0.1, 0.5 - 0.04 * leader.tactics);
+  // An enemy who learned of your army beforehand always reads your manoeuvres.
+  const detect = rng() < Math.max(0.1, 0.5 - 0.04 * leader.tactics) || (b.enemyInformed && trait !== 'impetuous');
 
   if (b.setup?.kind === 'feint') {
     s = trait === 'impetuous' ? 'aggressive' : trait === 'cautious' ? 'steady' : detect ? 'reserve' : 'aggressive';
@@ -516,6 +517,7 @@ export type EnemyEstimate = {
   total: [number, number];
   classes: Record<UnitClass, [number, number]> | null;
   units: UnitCounts | null;
+  source: 'rumour' | 'scouts' | 'spy' | 'report';
 };
 
 function rangeOf(n: number, spread: number): [number, number] {
@@ -527,7 +529,10 @@ export function estimateEnemy(b: Battle): EnemyEstimate {
   const byClass: Record<UnitClass, number> = { infantry: 0, ranged: 0, cavalry: 0 };
   for (const id of UNIT_IDS) byClass[getUnitType(id).unitClass] += u[id];
   const total = sumUnits(u);
-  if (b.intel >= 2) return { exact: true, total: [total, total], classes: null, units: u };
+  if (b.intel >= 2) return { exact: true, total: [total, total], classes: null, units: u, source: 'spy' };
+  if (b.intel === 0 && b.belief.size) {
+    return { exact: false, total: b.belief.size.total, classes: b.belief.size.classes ?? null, units: null, source: 'report' };
+  }
   const spread = b.intel === 1 ? 0.15 : 0.4;
   return {
     exact: false,
@@ -541,7 +546,19 @@ export function estimateEnemy(b: Battle): EnemyEstimate {
           }
         : null,
     units: null,
+    source: b.intel === 1 ? 'scouts' : 'rumour',
   };
+}
+
+/** What the player believes about the enemy's class shares, for the order checklist. */
+function believedShares(b: Battle): Shares | null {
+  if (b.intel >= 1) return classShares(b.enemy.units);
+  const c = b.belief.size?.classes;
+  if (!c) return null;
+  const mid = (r: [number, number]) => (r[0] + r[1]) / 2;
+  const i = mid(c.infantry), r = mid(c.ranged), v = mid(c.cavalry);
+  const t = Math.max(1, i + r + v);
+  return { infantry: i / t, ranged: r / t, cavalry: v / t } as Shares;
 }
 
 export type Check = { label: string; status: 'ok' | 'bad' | 'unknown' };
@@ -551,8 +568,11 @@ export function orderChecks(state: GameState, battle: Battle, order: OrderId): C
   const pShare = classShares(battle.player.units);
   const open = isOpen(battle.terrain);
   const seen = battle.enemy.lastStance;
-  const knowsEnemy = battle.intel >= 1;
-  const eShare = classShares(battle.enemy.units);
+  const believed = believedShares(battle);
+  const knowsEnemy = believed !== null;
+  const eShare = believed ?? classShares(battle.enemy.units);
+  const knownFort: boolean | null = battle.intel >= 1 ? battle.enemy.fortified : (battle.belief.fortified ?? null);
+  const knownSupply: number | null = battle.intel >= 2 ? battle.enemy.supply : (battle.belief.supply ?? null);
   void state;
 
   const yn = (ok: boolean): 'ok' | 'bad' => (ok ? 'ok' : 'bad');
@@ -563,7 +583,7 @@ export function orderChecks(state: GameState, battle: Battle, order: OrderId): C
       return [
         { label: 'Open ground', status: yn(open) },
         { label: 'Cavalry at least a sixth of your strength', status: yn(pShare.cavalry >= 1 / 6) },
-        { label: 'Enemy cavalry not stronger than yours', status: knowsEnemy ? yn(pCav >= 0.8 * eCav) : 'unknown' },
+        { label: 'Enemy cavalry not stronger than yours', status: !knowsEnemy ? 'unknown' : battle.intel >= 1 ? yn(pCav >= 0.8 * eCav) : yn(pShare.cavalry >= 0.8 * eShare.cavalry) },
         {
           label: 'Enemy commits to the centre',
           status: seen === null ? 'unknown' : yn(seen === 'aggressive' || seen === 'steady'),
@@ -574,7 +594,7 @@ export function orderChecks(state: GameState, battle: Battle, order: OrderId): C
       return [
         { label: 'Mostly infantry', status: yn(pShare.infantry >= 0.5) },
         { label: 'Not a river crossing', status: yn(battle.terrain !== 'river') },
-        { label: 'Enemy not fortified', status: knowsEnemy ? yn(!battle.enemy.fortified) : 'unknown' },
+        { label: 'Enemy not fortified', status: knownFort === null ? 'unknown' : yn(!knownFort) },
         { label: 'Enemy not mostly horsemen', status: knowsEnemy ? yn(eShare.cavalry < 0.5) : 'unknown' },
         {
           label: 'Enemy not holding reserves or defences',
@@ -592,7 +612,7 @@ export function orderChecks(state: GameState, battle: Battle, order: OrderId): C
       ];
     case 'scorch':
       return [
-        { label: 'Enemy supplies running low', status: battle.intel >= 2 ? yn(battle.enemy.supply <= 3) : 'unknown' },
+        { label: 'Enemy supplies running low', status: knownSupply === null ? 'unknown' : yn(knownSupply <= 3) },
         { label: 'You can survive several rounds', status: yn(totalStrength(battle.player.units) >= 0.6 * totalStrength(battle.enemy.units) || battle.intel < 1) },
       ];
     case 'concentrate':

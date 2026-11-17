@@ -1,4 +1,4 @@
-export const SAVE_VERSION = 2;
+export const SAVE_VERSION = 3;
 
 /** Production counts for at most this long while the player is away. */
 export const OFFLINE_CAP_SECONDS = 12 * 3600;
@@ -30,3 +30,9 @@ export const INTEL_COST_GOLD = [60, 120] as const;
 export const COMMANDER_BASE_COST_GOLD = 150;
 export const PROVISION_ROUNDS = { light: 3, standard: 5, ample: 7 } as const;
 export const FOOD_PER_MAN_PER_ROUND = 0.5;
+
+// --- Intelligence ---
+export const SPY_HIRE_COST_GOLD = 120;
+export const SPY_MISSION_COST_GOLD = 80;
+export const SPY_MISSION_SECONDS = 90;
+export const MAX_INTEL_REPORTS = 30;

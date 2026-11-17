@@ -65,6 +65,24 @@ export const INSTITUTION_TYPES: InstitutionType[] = [
       'Soldiers fight 15% better',
     ],
   },
+  {
+    id: 'bureau',
+    name: 'Intelligence Bureau',
+    description:
+      'Spies, informers and code clerks. Learn what rivals are really doing, and make it harder for them to learn about you. It needs scribes, so a Library comes first.',
+    icon: 'eye-outline',
+    cost: { gold: 400, wood: 60, stone: 80 },
+    buildSeconds: 100,
+    upkeepPerHour: 20,
+    maxLevel: 3,
+    requiresReputation: 15,
+    requiresInstitution: { id: 'library', level: 1 },
+    effects: [
+      'Employ 2 spies; enemy agents are less likely to learn your plans',
+      'Employ 3 spies; faster missions, better reports, stronger counter-intelligence',
+      'Employ 4 spies; faster missions, better reports, strongest counter-intelligence',
+    ],
+  },
 ];
 
 export function getInstitutionType(id: string): InstitutionType {

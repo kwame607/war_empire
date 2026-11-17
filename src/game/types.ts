@@ -149,6 +149,8 @@ export type GameState = {
   /** scenario id -> time (ms) when it can be fought again */
   scenarioReadyAt: Record<string, number>;
   rngSeed: number;
+  // --- added in save version 3 ---
+  intel: IntelState;
 };
 
 export type NewGameConfig = {
@@ -309,6 +311,11 @@ export type Battle = {
   rounds: RoundRecord[];
   seed: number;
   delegated: boolean;
+  /** What the player believes about the enemy from spy reports (may be wrong). */
+  belief: IntelClaims;
+  beliefSources: { reportId: string; spyName: string; topic: IntelTopic }[];
+  /** True if enemy agents learned of your army. Unknown to the player until the report. */
+  enemyInformed: boolean;
 };
 
 export type BattleResult = 'victory' | 'defeat' | 'withdrawn' | 'stalemate';
@@ -337,4 +344,65 @@ export type BattleReport = {
   logistics: string;
   lessons: string[];
   doctrinesPracticed: string[];
+  /** How good your intelligence turned out to be (added in v0.3). */
+  intelligence?: string[];
+};
+
+// ---------------------------------------------------------------------------
+// Intelligence
+// ---------------------------------------------------------------------------
+
+export type IntelTopic = 'strength' | 'commander' | 'plans' | 'defences';
+export type IntelQuality = 'accurate' | 'incomplete' | 'outdated' | 'misleading' | 'fabricated';
+
+export type Spy = {
+  id: string;
+  name: string;
+  skill: number;
+  missions: number;
+  /** Reports later verified as accurate, incomplete or merely outdated. */
+  sound: number;
+  /** Reports later verified as misleading or fabricated. */
+  unsound: number;
+};
+
+export type SpyMission = {
+  id: string;
+  spyId: string;
+  factionId: string;
+  topic: IntelTopic;
+  completesAt: number;
+};
+
+/** The facts a report claims. Ranges are inclusive [low, high]. */
+export type IntelClaims = {
+  size?: { total: [number, number]; classes?: Record<UnitClass, [number, number]> };
+  traits?: EnemyTrait[];
+  stance?: EnemyStance;
+  fortified?: boolean;
+  supply?: number;
+};
+
+export type IntelReport = {
+  id: string;
+  at: number;
+  factionId: string;
+  topic: IntelTopic;
+  spyId: string;
+  spyName: string;
+  /** The truth about this report. Hidden from the player until it is verified. */
+  quality: IntelQuality;
+  verified: boolean;
+  /** A visible clue on stale reports. */
+  ageLabel: string | null;
+  /** The spy's own confidence. Weakly informative at best. */
+  confidence: 'low' | 'medium' | 'high';
+  text: string;
+  claims: IntelClaims;
+};
+
+export type IntelState = {
+  spies: Spy[];
+  missions: SpyMission[];
+  reports: IntelReport[];
 };

@@ -1,6 +1,6 @@
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { UnitChips } from '@/components/military/UnitChips';
 import { Chip } from '@/components/ui/Chip';
@@ -13,6 +13,7 @@ import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { getOrder, ORDERS } from '@/data/orders';
 import { getScenario } from '@/data/scenarios';
 import { estimateEnemy, getLeader, orderChecks, type Check } from '@/game/battle';
+import { ReportCard } from '@/components/military/IntelTab';
 import { intelCost, provisionsFood } from '@/game/military';
 import { sumUnits } from '@/game/selectors';
 import type { ActionResult, Battle, GameState, OrderId, Provisions } from '@/game/types';
@@ -41,6 +42,8 @@ function Deploy({ state, scenarioId }: { state: GameState; scenarioId: string })
   const sc = getScenario(scenarioId);
   const [intel, setIntel] = useState<'0' | '1' | '2'>('0');
   const [prov, setProv] = useState<Provisions>('standard');
+  const [picked, setPicked] = useState<string[]>([]);
+  const available = state.intel.reports.filter((r) => r.factionId === scenarioId);
   const men = sumUnits(state.army.units);
   const leader = getLeader(state, state.army.commanderId);
 
@@ -82,6 +85,20 @@ function Deploy({ state, scenarioId }: { state: GameState; scenarioId: string })
             : 'You will know the enemy’s exact troops and supplies.'}
       </Text>
 
+      {available.length > 0 ? (
+        <>
+          <SectionHeader title="Spy reports" />
+          <Text style={styles.meta}>
+            Tap a report to rely on it. Reports can be wrong; reports from independent agents that agree are safer. Reports tell you only what the agent claims.
+          </Text>
+          {available.map((r) => (
+            <Pressable key={r.id} onPress={() => setPicked((p) => (p.includes(r.id) ? p.filter((x) => x !== r.id) : [...p, r.id]))}>
+              <ReportCard state={state} report={r} selected={picked.includes(r.id)} />
+            </Pressable>
+          ))}
+        </>
+      ) : null}
+
       <SectionHeader title="Provisions" />
       <Text style={styles.meta}>Each round of supplies costs food. When supplies run out, attack falls and morale sinks.</Text>
       <SegmentedControl
@@ -100,7 +117,7 @@ function Deploy({ state, scenarioId }: { state: GameState; scenarioId: string })
         <GameButton
           label="March to battle"
           onPress={() => {
-            const r = beginBattle(scenarioId, Number(intel) as 0 | 1 | 2, prov);
+            const r = beginBattle(scenarioId, Number(intel) as 0 | 1 | 2, prov, picked);
             if (!r.ok) Alert.alert('Cannot begin', r.reason);
           }}
         />
@@ -181,9 +198,14 @@ function Active({ state, battle, onLeave }: { state: GameState; battle: Battle; 
             .
           </Text>
         )}
-        {battle.intel === 0 ? <Text style={styles.meta}>You fought on rumour alone: composition and defences unknown.</Text> : null}
+        {est.source === 'report' ? (
+          <Text style={styles.meta}>Based on spy reports: {battle.beliefSources.map((x) => x.spyName).join(', ')}. They may be wrong.</Text>
+        ) : null}
+        {battle.intel === 0 && est.source === 'rumour' ? <Text style={styles.meta}>You fought on rumour alone: composition and defences unknown.</Text> : null}
         {battle.intel >= 1 ? (
           <Text style={styles.meta}>{battle.enemy.fortified ? 'They are fortified.' : 'They are not fortified.'}</Text>
+        ) : battle.belief.fortified !== undefined ? (
+          <Text style={styles.meta}>Reports say they are {battle.belief.fortified ? '' : 'not '}fortified.</Text>
         ) : null}
         <Text style={styles.meta}>Enemy morale</Text>
         <ProgressBar progress={battle.enemy.morale / 100} color={colors.burgundyBright} />

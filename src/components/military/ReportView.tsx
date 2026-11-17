@@ -94,6 +94,15 @@ export function ReportView({ report: r }: { report: BattleReport }) {
         <Text style={styles.body}>{r.logistics}</Text>
       </Panel>
 
+      {r.intelligence && r.intelligence.length > 0 ? (
+        <>
+          <SectionHeader title="Intelligence" />
+          <Panel>
+            <Bullets items={r.intelligence} />
+          </Panel>
+        </>
+      ) : null}
+
       <SectionHeader title="Lessons learned" />
       <Panel>
         <Bullets items={r.lessons} />

@@ -67,7 +67,7 @@ src/
   components/   Reusable UI (ui/, map/, brand/, BusinessCard)
   theme/        Colours, fonts, spacing: the single source of design tokens
   data/         Game content: civilisations, businesses, institutions, units, orders, scenarios, world, knowledge
-  game/         Pure game rules (no UI): types, economy, engine, battle, military, report, migrate, tests
+  game/         Pure game rules (no UI): types, economy, engine, battle, military, intel, report, migrate, tests
   store/        GameProvider: live state, ticking, autosave, offline catch-up
   storage/      SQLite save/load
 assets/         Images and icons

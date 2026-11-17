@@ -1,3 +1,4 @@
+import { resolveMissions } from './intelCore';
 import { getBackground, getDifficulty } from '../data/backgrounds';
 import { getBusinessType } from '../data/businesses';
 import { getCivilisation } from '../data/civilisations';
@@ -75,6 +76,7 @@ export function createNewGame(config: NewGameConfig, now: number): GameState {
     reports: [],
     scenarioReadyAt: {},
     rngSeed: Math.floor(now) % 2147483647,
+    intel: { spies: [], missions: [], reports: [] },
   };
 }
 
@@ -194,22 +196,25 @@ export function tick(state: GameState, now: number): GameState {
     scouting = null;
   }
 
-  return {
-    ...state,
-    resources,
-    reputation,
-    attributes,
-    knowledge,
-    businesses,
-    institutions,
-    army: { ...state.army, units: armyUnits, training },
-    study,
-    scouting,
-    explored,
-    log,
-    lastTickAt: now,
-    totalSeconds: state.totalSeconds + countedSeconds,
-  };
+  return resolveMissions(
+    {
+      ...state,
+      resources,
+      reputation,
+      attributes,
+      knowledge,
+      businesses,
+      institutions,
+      army: { ...state.army, units: armyUnits, training },
+      study,
+      scouting,
+      explored,
+      log,
+      lastTickAt: now,
+      totalSeconds: state.totalSeconds + countedSeconds,
+    },
+    now,
+  );
 }
 
 /** Compares a state before and after a tick, for the "welcome back" report. */
@@ -368,6 +373,7 @@ export function fastForward(state: GameState, seconds: number, now: number): Gam
       training: state.army.training.map((b) => ({ ...b, completesAt: b.completesAt - ms })),
     },
     scenarioReadyAt: Object.fromEntries(Object.entries(state.scenarioReadyAt).map(([k, v]) => [k, v - ms])),
+    intel: { ...state.intel, missions: state.intel.missions.map((m) => ({ ...m, completesAt: m.completesAt - ms })) },
   };
   return tick(shifted, now);
 }

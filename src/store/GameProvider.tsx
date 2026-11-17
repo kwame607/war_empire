@@ -22,6 +22,7 @@ import {
   tick,
   upgradeBusiness,
 } from '@/game/engine';
+import { hireSpy, sendSpy } from '@/game/intel';
 import {
   buyInstitution,
   delegateBattle,
@@ -33,7 +34,7 @@ import {
   startBattle,
   upgradeInstitution,
 } from '@/game/military';
-import type { ActionResult, GameState, NewGameConfig, OfflineSummary, OrderId, Provisions, UnitId } from '@/game/types';
+import type { ActionResult, GameState, IntelTopic, NewGameConfig, OfflineSummary, OrderId, Provisions, UnitId } from '@/game/types';
 import { deleteSave, loadSave, writeSave } from '@/storage/saveRepo';
 
 const AUTOSAVE_MS = 15_000;
@@ -62,7 +63,9 @@ type GameContextValue = {
   recruit: (unitId: UnitId, count: number) => ActionResult;
   hireCommander: () => ActionResult;
   assignCommander: (commanderId: string | null) => ActionResult;
-  beginBattle: (scenarioId: string, intel: 0 | 1 | 2, provisions: Provisions) => ActionResult;
+  beginBattle: (scenarioId: string, intel: 0 | 1 | 2, provisions: Provisions, reportIds?: string[]) => ActionResult;
+  hireSpy: () => ActionResult;
+  sendSpy: (spyId: string, factionId: string, topic: IntelTopic) => ActionResult;
   giveOrder: (order: OrderId) => ActionResult;
   delegate: () => ActionResult;
   /** Testing tool: simulates time passing. */
@@ -220,7 +223,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
       recruit: (unitId, count) => apply((s, now) => recruitUnits(s, unitId, count, now)),
       hireCommander: () => apply((s, now) => hireCommander(s, now)),
       assignCommander: (id) => apply((s, now) => setCommander(s, id, now)),
-      beginBattle: (scenarioId, intel, provisions) => apply((s, now) => startBattle(s, scenarioId, { intel, provisions }, now)),
+      beginBattle: (scenarioId, intel, provisions, reportIds) =>
+        apply((s, now) => startBattle(s, scenarioId, { intel, provisions, reportIds }, now)),
+      hireSpy: () => apply((s, now) => hireSpy(s, now)),
+      sendSpy: (spyId, factionId, topic) => apply((s, now) => sendSpy(s, spyId, factionId, topic, now)),
       giveOrder: (order) => apply((s, now) => issueOrder(s, order, now)),
       delegate: () => apply((s, now) => delegateBattle(s, now)),
       testBoost: () => {

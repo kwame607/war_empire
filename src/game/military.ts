@@ -4,7 +4,8 @@ import { namePool } from '../data/names';
 import { getOrder } from '../data/orders';
 import { getScenario } from '../data/scenarios';
 import { emptyUnits, getUnitType, UNIT_IDS } from '../data/units';
-import { autoOrder, availableOrders, getLeader, resolveRound } from './battle';
+import { autoOrder, availableOrders, getLeader, mulberry32, resolveRound } from './battle';
+import { assessIntelligence, beliefFromReports, verifyReports } from './intelCore';
 import {
   BATTLE_ROUNDS,
   BUILD_SLOTS,
@@ -21,6 +22,7 @@ import { tick } from './engine';
 import { addLog, fail } from './log';
 import { buildReport } from './report';
 import {
+  bureauLevel,
   commanderCap,
   getArmyCapacity,
   getArmySize,
@@ -214,7 +216,7 @@ export function scenarioReadyIn(state: GameState, scenarioId: string, now: numbe
 export function startBattle(
   input: GameState,
   scenarioId: string,
-  opts: { intel: 0 | 1 | 2; provisions: Provisions },
+  opts: { intel: 0 | 1 | 2; provisions: Provisions; reportIds?: string[] },
   now: number,
 ): ActionResult {
   const state = tick(input, now);
@@ -235,6 +237,9 @@ export function startBattle(
     PROVISION_ROUNDS[opts.provisions] + (leader.trait === 'quartermaster' ? 1 : 0) + (leader.logistics >= 7 ? 1 : 0);
   const seed = nextSeed(state.rngSeed);
   const e = scenario.enemy;
+  const chosen = state.intel.reports.filter((r) => (opts.reportIds ?? []).includes(r.id) && r.factionId === scenarioId);
+  const { belief, sources } = beliefFromReports(chosen);
+  const enemyInformed = mulberry32((seed + 424242) >>> 0)() < Math.max(0, 0.45 - 0.15 * bureauLevel(state));
 
   const battle: Battle = {
     id: `b-${now}-${seed % 1000}`,
@@ -270,6 +275,9 @@ export function startBattle(
     rounds: [],
     seed,
     delegated: false,
+    belief,
+    beliefSources: sources,
+    enemyInformed,
   };
 
   return {
@@ -299,6 +307,9 @@ export function concludeBattle(state: GameState, b: Battle, result: BattleResult
     rewards.stone = Math.round(scenario.rewards.stone / 2);
   } else if (result === 'defeat') rewards.reputation = -1;
   report.rewards = rewards;
+  const assessment = assessIntelligence(state, b);
+  report.intelligence = assessment.lines;
+  report.lessons = [...report.lessons, ...assessment.lessons].slice(0, 6);
 
   const units = { ...state.army.units };
   for (const id of UNIT_IDS) units[id] += b.player.units[id];
@@ -330,7 +341,7 @@ export function concludeBattle(state: GameState, b: Battle, result: BattleResult
   log = addLog(log, now, `You ${label} the ${scenario.name}.`);
 
   return {
-    ...state,
+    ...verifyReports(state, b.scenarioId),
     resources: {
       gold: state.resources.gold + rewards.gold,
       food: state.resources.food + rewards.food,

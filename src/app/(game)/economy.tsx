@@ -3,7 +3,6 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { AvailableBusinessCard, OwnedBusinessCard } from '@/components/BusinessCard';
 import { AvailableInstitutionCard, OwnedInstitutionCard } from '@/components/InstitutionCard';
-import { LockedNotice } from '@/components/ui/LockedNotice';
 import { GameScreen } from '@/components/ui/GameScreen';
 import { Panel } from '@/components/ui/Panel';
 import { ProgressBar } from '@/components/ui/ProgressBar';
@@ -53,11 +52,6 @@ export default function EconomyScreen() {
           {INSTITUTION_TYPES.filter((t) => !state.institutions.some((i) => i.typeId === t.id)).map((t) => (
             <AvailableInstitutionCard key={t.id} state={state} type={t} onBuy={buyInstitution} />
           ))}
-          <LockedNotice
-            title="Intelligence Bureau"
-            description="Spies, counter-intelligence and the means to know what rivals are really doing."
-            arrivesIn="a later milestone"
-          />
         </>
       ) : null}
       {tab === 'businesses' ? (

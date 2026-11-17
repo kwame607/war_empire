@@ -77,6 +77,15 @@ export function getManpowerCap(state: GameState): number {
   return Math.floor((getPopulation(state) + home) * 0.6);
 }
 
+export function bureauLevel(state: GameState): number {
+  return institutionLevel(state, 'bureau');
+}
+
+export function spyCap(state: GameState): number {
+  const l = bureauLevel(state);
+  return l === 0 ? 0 : l + 1;
+}
+
 export function trainingSpeed(state: GameState): number {
   return 1 + 0.25 * Math.max(0, institutionLevel(state, 'barracks') - 1);
 }

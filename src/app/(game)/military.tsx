@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { IntelTab } from '@/components/military/IntelTab';
 import { UnitChips } from '@/components/military/UnitChips';
 import { Chip } from '@/components/ui/Chip';
 import { GameButton } from '@/components/ui/GameButton';
@@ -36,7 +37,7 @@ import { useGame, useGameState } from '@/store/GameProvider';
 import { colors, fonts, spacing } from '@/theme';
 import { costText } from '@/utils/format';
 
-type Tab = 'army' | 'operations' | 'reports';
+type Tab = 'army' | 'operations' | 'intel' | 'reports';
 
 export default function MilitaryScreen() {
   const state = useGameState();
@@ -82,6 +83,7 @@ export default function MilitaryScreen() {
         options={[
           { value: 'army', label: 'Army' },
           { value: 'operations', label: 'Operations' },
+          { value: 'intel', label: 'Intel' },
           { value: 'reports', label: 'Reports' },
         ]}
         value={tab}
@@ -89,6 +91,7 @@ export default function MilitaryScreen() {
       />
       {tab === 'army' ? <ArmyTab state={state} /> : null}
       {tab === 'operations' ? <OperationsTab state={state} /> : null}
+      {tab === 'intel' ? <IntelTab state={state} /> : null}
       {tab === 'reports' ? <ReportsTab state={state} /> : null}
     </GameScreen>
   );
