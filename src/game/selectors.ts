@@ -1,3 +1,4 @@
+import { pactIncome } from './worldCore';
 import { getInstitutionType } from '../data/institutions';
 import { PROGRESSION_STAGES } from '../data/progression';
 import { getUnitType, UNIT_IDS } from '../data/units';
@@ -127,6 +128,7 @@ export function getRates(state: GameState): Rates {
     r.expenses += br.expenses;
     if (br.produces && br.produces.resource !== 'gold') r[br.produces.resource] += br.produces.perHour;
   }
+  r.income += pactIncome(state);
   const army = getArmyUpkeep(state);
   r.expenses += getInstitutionUpkeep(state) + army.gold;
   r.food -= army.food;

@@ -62,7 +62,7 @@ describe('save migration', () => {
     const v1 = { ...rest, version: 1, reputation: 7 };
     const migrated = migrateState(JSON.parse(JSON.stringify(v1)));
     assert.ok(migrated);
-    assert.equal(migrated.version, 3);
+    assert.equal(migrated.version, 4);
     assert.equal(migrated.reputation, 7);
     assert.deepEqual(migrated.institutions, []);
     assert.equal(migrated.army.units.spearmen, 0);

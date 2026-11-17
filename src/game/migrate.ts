@@ -1,5 +1,6 @@
 import { emptyUnits } from '../data/units';
 import { SAVE_VERSION } from './constants';
+import { initWorld } from './worldCore';
 import type { GameState } from './types';
 
 /**
@@ -31,6 +32,13 @@ export function migrateState(raw: unknown): GameState | null {
     next.intel = { spies: [], missions: [], reports: [] };
     const battle = next.battle as Record<string, unknown> | null;
     if (battle) next.battle = { ...battle, belief: {}, beliefSources: [], enemyInformed: false };
+  }
+
+  // v3 -> v4: living world
+  if (s.version < 4) {
+    const player = next.player as { civId: string; createdAt?: number };
+    const seed = (next.rngSeed as number) ?? 1;
+    next.world = initWorld(player.civId, seed, (next.lastTickAt as number) ?? Date.now());
   }
 
   next.version = SAVE_VERSION;

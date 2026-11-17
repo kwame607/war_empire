@@ -1,5 +1,22 @@
 # WAR EMPIRE Development Log
 
+## Version 0.4: Living World and Diplomacy (complete, pending phone testing)
+
+Four rival kingdoms (the other civilisations) now act on their own, even while you are away:
+- The world takes a turn every 30 real minutes (half a game day); long absences replay at most 24 turns.
+- Each kingdom has a hidden temperament (Expansionist, Mercantile, Honourable, Treacherous), shuffled per game so it is not tied to any culture. You learn it by sending an envoy (or seeing its behaviour).
+- Rival power grows over time; you only see a rumour ("stronger than you"), or a rough range if you own an Intelligence Bureau.
+- Relations (-100 to +100) drift, and respond to your choices.
+
+Map tab, new "Diplomacy" segment:
+- Envoys (2 minutes): send gifts (+relations), propose a trade pact (needs relations 15), propose an alliance (relations 45, reputation 25). Success depends on relations, your Negotiation attribute and their temperament.
+- Pacts pay gold per hour (trade 18, alliance 10) and each ally adds +3 morale at the start of your battles. You can break a pact, at a cost to relations and reputation.
+- Messages from kingdoms: trade and alliance offers, tribute demands from stronger expansionists. Ignoring or refusing a demand sours relations; hostile, stronger kingdoms may raid your gold (a larger army deters them). Treacherous kingdoms may break pacts without warning.
+- Overview shows a notice when messages await.
+
+Technical: save version 4 (migration adds the world); worldCore.ts (pure rules), diplomacy.ts (actions); 14 new tests (57 total).
+Not yet: war between you and a kingdom, diplomatic consequences of battles, kingdoms fighting each other.
+
 ## Version 0.3: Intelligence and Fog of Knowledge (complete, pending phone testing)
 
 Intelligence Bureau (Economy, Institutions; needs a Library and reputation 15):

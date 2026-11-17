@@ -5,6 +5,7 @@ import { getOrder } from '../data/orders';
 import { getScenario } from '../data/scenarios';
 import { emptyUnits, getUnitType, UNIT_IDS } from '../data/units';
 import { autoOrder, availableOrders, getLeader, mulberry32, resolveRound } from './battle';
+import { allyCount } from './worldCore';
 import { assessIntelligence, beliefFromReports, verifyReports } from './intelCore';
 import {
   BATTLE_ROUNDS,
@@ -251,7 +252,7 @@ export function startBattle(
     player: {
       units: { ...state.army.units },
       initial: { ...state.army.units },
-      morale: Math.min(95, Math.max(40, 55 + leader.leadership * 4)),
+      morale: Math.min(95, Math.max(40, 55 + leader.leadership * 4 + 3 * allyCount(state))),
       supply,
       leaderId: state.army.commanderId,
       provisions: opts.provisions,

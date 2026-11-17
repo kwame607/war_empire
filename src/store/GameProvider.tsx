@@ -22,6 +22,7 @@ import {
   tick,
   upgradeBusiness,
 } from '@/game/engine';
+import { breakPact, respondToOffer, sendEnvoy } from '@/game/diplomacy';
 import { hireSpy, sendSpy } from '@/game/intel';
 import {
   buyInstitution,
@@ -34,7 +35,7 @@ import {
   startBattle,
   upgradeInstitution,
 } from '@/game/military';
-import type { ActionResult, GameState, IntelTopic, NewGameConfig, OfflineSummary, OrderId, Provisions, UnitId } from '@/game/types';
+import type { ActionResult, EnvoyKind, GameState, IntelTopic, NewGameConfig, OfflineSummary, OrderId, Provisions, UnitId } from '@/game/types';
 import { deleteSave, loadSave, writeSave } from '@/storage/saveRepo';
 
 const AUTOSAVE_MS = 15_000;
@@ -65,6 +66,9 @@ type GameContextValue = {
   assignCommander: (commanderId: string | null) => ActionResult;
   beginBattle: (scenarioId: string, intel: 0 | 1 | 2, provisions: Provisions, reportIds?: string[]) => ActionResult;
   hireSpy: () => ActionResult;
+  sendEnvoy: (rivalId: string, kind: EnvoyKind) => ActionResult;
+  respondToOffer: (offerId: string, accept: boolean) => ActionResult;
+  breakPact: (rivalId: string) => ActionResult;
   sendSpy: (spyId: string, factionId: string, topic: IntelTopic) => ActionResult;
   giveOrder: (order: OrderId) => ActionResult;
   delegate: () => ActionResult;
@@ -226,6 +230,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
       beginBattle: (scenarioId, intel, provisions, reportIds) =>
         apply((s, now) => startBattle(s, scenarioId, { intel, provisions, reportIds }, now)),
       hireSpy: () => apply((s, now) => hireSpy(s, now)),
+      sendEnvoy: (rivalId, kind) => apply((s, now) => sendEnvoy(s, rivalId, kind, now)),
+      respondToOffer: (offerId, accept) => apply((s, now) => respondToOffer(s, offerId, accept, now)),
+      breakPact: (rivalId) => apply((s, now) => breakPact(s, rivalId, now)),
       sendSpy: (spyId, factionId, topic) => apply((s, now) => sendSpy(s, spyId, factionId, topic, now)),
       giveOrder: (order) => apply((s, now) => issueOrder(s, order, now)),
       delegate: () => apply((s, now) => delegateBattle(s, now)),

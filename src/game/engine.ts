@@ -1,4 +1,5 @@
 import { resolveMissions } from './intelCore';
+import { advanceWorld, initWorld, pactIncome } from './worldCore';
 import { getBackground, getDifficulty } from '../data/backgrounds';
 import { getBusinessType } from '../data/businesses';
 import { getCivilisation } from '../data/civilisations';
@@ -77,6 +78,7 @@ export function createNewGame(config: NewGameConfig, now: number): GameState {
     scenarioReadyAt: {},
     rngSeed: Math.floor(now) % 2147483647,
     intel: { spies: [], missions: [], reports: [] },
+    world: initWorld(civ.id, Math.floor(now) % 2147483647, now),
   };
 }
 
@@ -174,6 +176,7 @@ export function tick(state: GameState, now: number): GameState {
     }
   }
 
+  resources.gold += pactIncome(state) * (countedSeconds / 3600);
   resources.gold = Math.max(0, resources.gold);
   resources.food = Math.max(0, resources.food);
 
@@ -196,7 +199,8 @@ export function tick(state: GameState, now: number): GameState {
     scouting = null;
   }
 
-  return resolveMissions(
+  return advanceWorld(
+    resolveMissions(
     {
       ...state,
       resources,
@@ -213,6 +217,8 @@ export function tick(state: GameState, now: number): GameState {
       lastTickAt: now,
       totalSeconds: state.totalSeconds + countedSeconds,
     },
+    now,
+    ),
     now,
   );
 }
@@ -374,6 +380,11 @@ export function fastForward(state: GameState, seconds: number, now: number): Gam
     },
     scenarioReadyAt: Object.fromEntries(Object.entries(state.scenarioReadyAt).map(([k, v]) => [k, v - ms])),
     intel: { ...state.intel, missions: state.intel.missions.map((m) => ({ ...m, completesAt: m.completesAt - ms })) },
+    world: {
+      ...state.world,
+      nextTurnAt: state.world.nextTurnAt - ms,
+      envoys: state.world.envoys.map((e) => ({ ...e, completesAt: e.completesAt - ms })),
+    },
   };
   return tick(shifted, now);
 }

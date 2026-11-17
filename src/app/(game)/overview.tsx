@@ -84,6 +84,17 @@ export default function OverviewScreen() {
         <Text style={styles.meta}>Home: {home.name}</Text>
       </Panel>
 
+      {state.world.offers.length > 0 ? (
+        <Panel>
+          <Text style={styles.meta}>
+            {state.world.offers.length} message{state.world.offers.length > 1 ? 's' : ''} from other kingdoms await your reply.
+          </Text>
+          <View style={{ marginTop: spacing.sm }}>
+            <GameButton compact label="Open diplomacy" onPress={() => router.push('/map')} />
+          </View>
+        </Panel>
+      ) : null}
+
       <View style={styles.tiles}>
         <StatTile icon="ribbon-outline" label="Reputation" value={String(Math.floor(state.reputation))} />
         <StatTile icon="people-outline" label="Population" value={String(getPopulation(state))} />

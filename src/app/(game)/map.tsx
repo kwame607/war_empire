@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { SettlementPanel } from '@/components/map/SettlementPanel';
+import { DiplomacyPanel } from '@/components/map/DiplomacyPanel';
 import { WorldMap } from '@/components/map/WorldMap';
 import { GameScreen } from '@/components/ui/GameScreen';
 import { Panel } from '@/components/ui/Panel';
+import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { CONTINENTS, SETTLEMENTS } from '@/data/world';
 import { useGame, useGameState } from '@/store/GameProvider';
@@ -12,6 +14,7 @@ import { colors, fonts, spacing } from '@/theme';
 
 export default function MapScreen() {
   const state = useGameState();
+  const [tab, setTab] = useState<'map' | 'diplomacy'>('map');
   const { scout } = useGame();
   const [selected, setSelected] = useState<string | null>(null);
   const shownId = selected ?? state.player.startSettlementId;
@@ -19,6 +22,17 @@ export default function MapScreen() {
 
   return (
     <GameScreen title="World Map" subtitle={`${explored.size} of ${SETTLEMENTS.length} settlements explored`}>
+      <SegmentedControl
+        options={[
+          { value: 'map', label: 'Map' },
+          { value: 'diplomacy', label: `Diplomacy${state.world.offers.length ? ` (${state.world.offers.length})` : ''}` },
+        ]}
+        value={tab}
+        onChange={setTab}
+      />
+      {tab === 'diplomacy' ? <DiplomacyPanel state={state} /> : null}
+      {tab === 'map' ? (
+        <>
       <WorldMap state={state} selectedId={shownId} onSelect={setSelected} />
       <View style={styles.legend}>
         <Text style={styles.legendText}>● Explored   ◌ Unexplored (fog)   ◎ Home</Text>
@@ -43,6 +57,8 @@ export default function MapScreen() {
           );
         })}
       </Panel>
+        </>
+      ) : null}
     </GameScreen>
   );
 }

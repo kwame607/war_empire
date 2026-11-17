@@ -151,6 +151,8 @@ export type GameState = {
   rngSeed: number;
   // --- added in save version 3 ---
   intel: IntelState;
+  // --- added in save version 4 ---
+  world: WorldState;
 };
 
 export type NewGameConfig = {
@@ -405,4 +407,48 @@ export type IntelState = {
   spies: Spy[];
   missions: SpyMission[];
   reports: IntelReport[];
+};
+
+// ---------------------------------------------------------------------------
+// Living world and diplomacy (save version 4)
+// ---------------------------------------------------------------------------
+
+export type RivalTrait = 'expansionist' | 'mercantile' | 'honourable' | 'treacherous';
+export type PactKind = 'none' | 'trade' | 'alliance';
+
+export type Rival = {
+  /** Same id as the civilisation this kingdom is based on. */
+  id: string;
+  name: string;
+  /** Hidden until you have dealt with them (or run a Bureau). */
+  trait: RivalTrait;
+  traitKnown: boolean;
+  /** Rough size of their armies, in soldiers. Only an estimate is shown to the player. */
+  power: number;
+  /** -100 (hostile) to +100 (devoted). */
+  relation: number;
+  pact: PactKind;
+  lastRaidTurn: number;
+};
+
+export type EnvoyKind = 'goodwill' | 'trade' | 'alliance';
+export type Envoy = { id: string; rivalId: string; kind: EnvoyKind; completesAt: number };
+
+export type OfferKind = 'trade' | 'alliance' | 'tribute';
+export type DiplomacyOffer = {
+  id: string;
+  rivalId: string;
+  kind: OfferKind;
+  /** Gold demanded (tribute only). */
+  gold: number;
+  text: string;
+  expiresAt: number;
+};
+
+export type WorldState = {
+  turn: number;
+  nextTurnAt: number;
+  rivals: Rival[];
+  envoys: Envoy[];
+  offers: DiplomacyOffer[];
 };
