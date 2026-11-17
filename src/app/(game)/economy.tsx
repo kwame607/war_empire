@@ -2,24 +2,27 @@ import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { AvailableBusinessCard, OwnedBusinessCard } from '@/components/BusinessCard';
+import { AvailableInstitutionCard, OwnedInstitutionCard } from '@/components/InstitutionCard';
+import { LockedNotice } from '@/components/ui/LockedNotice';
 import { GameScreen } from '@/components/ui/GameScreen';
 import { Panel } from '@/components/ui/Panel';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { BUSINESS_TYPES, getBusinessType } from '@/data/businesses';
+import { INSTITUTION_TYPES } from '@/data/institutions';
 import { OFFLINE_CAP_SECONDS, BUILD_SLOTS } from '@/game/constants';
 import { businessRates } from '@/game/economy';
-import { formatDuration, getRates, pendingCount } from '@/game/selectors';
+import { formatDuration, getArmyUpkeep, getInstitutionUpkeep, getRates, pendingCount } from '@/game/selectors';
 import { useGame, useGameState } from '@/store/GameProvider';
 import { colors, fonts, spacing } from '@/theme';
 import { perHour } from '@/utils/format';
 
-type Tab = 'finances' | 'businesses';
+type Tab = 'finances' | 'businesses' | 'institutions';
 
 export default function EconomyScreen() {
   const state = useGameState();
-  const { buy, upgrade } = useGame();
+  const { buy, upgrade, buyInstitution, upgradeInstitution } = useGame();
   const [tab, setTab] = useState<Tab>('finances');
 
   return (
@@ -28,11 +31,35 @@ export default function EconomyScreen() {
         options={[
           { value: 'finances', label: 'Finances' },
           { value: 'businesses', label: 'Businesses' },
+          { value: 'institutions', label: 'Institutions' },
         ]}
         value={tab}
         onChange={setTab}
       />
       {tab === 'finances' ? <Finances /> : null}
+      {tab === 'institutions' ? (
+        <>
+          <Text style={styles.note}>
+            Businesses make money. Institutions create capabilities: faster study, an army, officers, better arms. Some need more than gold.
+          </Text>
+          <Text style={styles.note}>
+            Builders busy: {pendingCount(state)} / {BUILD_SLOTS}
+          </Text>
+          {state.institutions.length > 0 ? <SectionHeader title="Your institutions" /> : null}
+          {state.institutions.map((i) => (
+            <OwnedInstitutionCard key={i.typeId} state={state} instance={i} onUpgrade={upgradeInstitution} />
+          ))}
+          <SectionHeader title="Available to found" />
+          {INSTITUTION_TYPES.filter((t) => !state.institutions.some((i) => i.typeId === t.id)).map((t) => (
+            <AvailableInstitutionCard key={t.id} state={state} type={t} onBuy={buyInstitution} />
+          ))}
+          <LockedNotice
+            title="Intelligence Bureau"
+            description="Spies, counter-intelligence and the means to know what rivals are really doing."
+            arrivesIn="a later milestone"
+          />
+        </>
+      ) : null}
       {tab === 'businesses' ? (
         <>
           <Text style={styles.note}>
@@ -69,6 +96,8 @@ function Row({ label, value, strong }: { label: string; value: string; strong?: 
 function Finances() {
   const state = useGameState();
   const rates = getRates(state);
+  const army = getArmyUpkeep(state);
+  const inst = getInstitutionUpkeep(state);
   const producing = state.businesses.filter((b) => b.level > 0);
   const nets = producing.map((b) => {
     const r = businessRates(state, b.typeId, b.level);
@@ -83,6 +112,9 @@ function Finances() {
         <Row label="Gold in the treasury" value={String(Math.floor(state.resources.gold))} strong />
         <Row label="Income" value={`${perHour(rates.income)} gold/h`} />
         <Row label="Running costs" value={`-${Math.round(rates.expenses * 10) / 10} gold/h`} />
+        {army.gold > 0 || inst > 0 ? (
+          <Row label="  of which institutions and army" value={`-${Math.round((inst + army.gold) * 10) / 10} gold/h`} />
+        ) : null}
         <Row label="Net" value={`${perHour(rates.net)} gold/h`} strong />
       </Panel>
 

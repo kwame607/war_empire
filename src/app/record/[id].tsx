@@ -10,9 +10,16 @@ import { Panel } from '@/components/ui/Panel';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { getKnowledgeEntry, KNOWLEDGE_STAGE_NAMES } from '@/data/knowledge';
 import { studyCost } from '@/game/engine';
-import { formatDuration } from '@/game/selectors';
+import { formatDuration, studyTimeMult } from '@/game/selectors';
 import { useGame } from '@/store/GameProvider';
 import { colors, fonts, spacing } from '@/theme';
+
+const DOCTRINE_ORDER: Record<string, string> = {
+  cannae: 'Double envelopment',
+  'buffalo-horns': 'Horns of the buffalo',
+  'feigned-retreat': 'Feigned retreat',
+  'russia-1812': 'Strategic withdrawal',
+};
 
 export default function RecordScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -56,7 +63,7 @@ export default function RecordScreen() {
           <Text style={styles.heading}>Study this record</Text>
           {studyingThis && state.study ? (
             <View style={{ gap: 6 }}>
-              <ProgressBar progress={1 - (state.study.completesAt - state.lastTickAt) / 1000 / entry.studySeconds} />
+              <ProgressBar progress={1 - (state.study.completesAt - state.lastTickAt) / 1000 / (state.study.totalSeconds ?? entry.studySeconds)} />
               <Text style={styles.body}>Scholars are working: {formatDuration((state.study.completesAt - state.lastTickAt) / 1000)} left</Text>
             </View>
           ) : (
@@ -68,7 +75,7 @@ export default function RecordScreen() {
                 <GameButton
                   compact
                   muted={studyingOther || state.resources.gold < cost}
-                  label={`Study · ${cost} gold · ${formatDuration(entry.studySeconds)}`}
+                  label={`Study · ${cost} gold · ${formatDuration(Math.max(10, Math.round(entry.studySeconds * studyTimeMult(state))))}`}
                   onPress={() => {
                     const r = study(entry.id);
                     if (!r.ok) Alert.alert('Cannot study yet', r.reason);
@@ -80,7 +87,24 @@ export default function RecordScreen() {
         </Panel>
       ) : (
         <>
-          <LockedNotice title="Practical Experience" description="Apply this doctrine in simulations and real battles to gain experience." arrivesIn="the military milestone" />
+          {stage >= 3 ? (
+            <Panel>
+              <Text style={styles.heading}>Practical Experience</Text>
+              <Text style={styles.body}>
+                You have applied this doctrine successfully in battle. Its effects are 15% stronger, and your commanders know what to look for.
+              </Text>
+            </Panel>
+          ) : (
+            <LockedNotice
+              title="Practical Experience"
+              description={
+                DOCTRINE_ORDER[entry.id]
+                  ? `Use the order "${DOCTRINE_ORDER[entry.id]}" successfully in battle (Military → Operations) to turn understanding into experience.`
+                  : 'Apply this doctrine in battle to gain experience.'
+              }
+              arrivesIn="your first successful use"
+            />
+          )}
           <LockedNotice title="Mastery" description="Combine mastered principles into doctrines of your own." arrivesIn="a later milestone" />
         </>
       )}

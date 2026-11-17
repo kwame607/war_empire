@@ -1,7 +1,7 @@
 import { getBusinessType } from '../data/businesses';
 import { getCivilisation } from '../data/civilisations';
 import { getDifficulty } from '../data/backgrounds';
-import type { BusinessInstance, BusinessType, GameState, ResourceKey, Resources } from './types';
+import type { BusinessInstance, GameState, ResourceKey, Resources } from './types';
 
 export const RESOURCE_KEYS: ResourceKey[] = ['gold', 'food', 'wood', 'stone'];
 
@@ -36,7 +36,7 @@ export function businessRates(state: GameState, typeId: string, level: number): 
 }
 
 /** Resource cost of upgrading from `level` to `level + 1`. */
-export function upgradeCost(type: BusinessType, level: number): Partial<Resources> {
+export function upgradeCost(type: { cost: Partial<Resources> }, level: number): Partial<Resources> {
   const scale = 0.8 * Math.pow(1.7, level - 1);
   const out: Partial<Resources> = {};
   for (const key of RESOURCE_KEYS) {
@@ -47,7 +47,7 @@ export function upgradeCost(type: BusinessType, level: number): Partial<Resource
 }
 
 /** Seconds to build level `targetLevel` (1 = first construction). */
-export function buildSeconds(state: GameState, type: BusinessType, targetLevel: number): number {
+export function buildSeconds(state: GameState, type: { buildSeconds: number }, targetLevel: number): number {
   const civ = getCivilisation(state.player.civId);
   const raw = type.buildSeconds * Math.pow(1.5, targetLevel - 1) * civ.modifiers.buildTimeMult;
   return Math.max(5, Math.round(raw));

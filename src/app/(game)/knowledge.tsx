@@ -25,7 +25,7 @@ export default function KnowledgeScreen() {
             <ProgressBar
               progress={
                 1 -
-                (state.study.completesAt - now) / 1000 / (KNOWLEDGE_ENTRIES.find((e) => e.id === state.study!.entryId)?.studySeconds ?? 60)
+                (state.study.completesAt - now) / 1000 / (state.study.totalSeconds ?? KNOWLEDGE_ENTRIES.find((e) => e.id === state.study!.entryId)?.studySeconds ?? 60)
               }
             />
           </View>

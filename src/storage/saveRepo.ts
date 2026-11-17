@@ -1,6 +1,6 @@
 import * as SQLite from 'expo-sqlite';
 
-import { SAVE_VERSION } from '@/game/constants';
+import { migrateState } from '@/game/migrate';
 import type { GameState } from '@/game/types';
 
 /**
@@ -40,12 +40,7 @@ async function getDb(): Promise<SQLite.SQLiteDatabase> {
 
 function parseSave(json: string): GameState | null {
   try {
-    const raw = JSON.parse(json) as Partial<GameState>;
-    if (!raw || typeof raw !== 'object') return null;
-    if (typeof raw.version !== 'number' || raw.version > SAVE_VERSION) return null;
-    if (!raw.player || !raw.resources || !Array.isArray(raw.businesses)) return null;
-    // Future save-format migrations go here, keyed on raw.version.
-    return raw as GameState;
+    return migrateState(JSON.parse(json));
   } catch {
     return null;
   }

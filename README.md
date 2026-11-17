@@ -46,7 +46,7 @@ npx expo start --web
 ```bash
 npm run typecheck    # TypeScript type check
 npx expo lint        # code style / bug check
-npm test             # game engine tests (economy, timers, offline progression, knowledge)
+npm test             # game rule tests (economy, timers, offline, knowledge, institutions, army, battles, balance)
 npx expo-doctor      # project and dependency health
 ```
 
@@ -63,10 +63,11 @@ src/
   app/          Screens and navigation (Expo Router: each file is a route)
     (game)/     The five main tabs (overview, economy, knowledge, military, map) and profile
     record/     Historical record detail page
+    report/     Battle report page; battle.tsx is the battle screen
   components/   Reusable UI (ui/, map/, brand/, BusinessCard)
   theme/        Colours, fonts, spacing: the single source of design tokens
-  data/         Game content: civilisations, backgrounds, businesses, world, knowledge
-  game/         Pure game rules (no UI): types, economy, engine, selectors, tests
+  data/         Game content: civilisations, businesses, institutions, units, orders, scenarios, world, knowledge
+  game/         Pure game rules (no UI): types, economy, engine, battle, military, report, migrate, tests
   store/        GameProvider: live state, ticking, autosave, offline catch-up
   storage/      SQLite save/load
 assets/         Images and icons

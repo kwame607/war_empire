@@ -133,13 +133,22 @@ export type GameState = {
   businesses: BusinessInstance[];
   /** knowledge entry id -> stage (see KnowledgeStage) */
   knowledge: Record<string, number>;
-  study: { entryId: string; completesAt: number } | null;
+  study: { entryId: string; completesAt: number; totalSeconds?: number } | null;
   scouting: { settlementId: string; completesAt: number } | null;
   explored: string[];
   lastTickAt: number;
   /** Seconds of game time that have passed (offline time is capped). Drives the calendar. */
   totalSeconds: number;
   log: LogEntry[];
+  // --- added in save version 2 ---
+  institutions: InstitutionInstance[];
+  army: ArmyState;
+  commanders: Commander[];
+  battle: Battle | null;
+  reports: BattleReport[];
+  /** scenario id -> time (ms) when it can be fought again */
+  scenarioReadyAt: Record<string, number>;
+  rngSeed: number;
 };
 
 export type NewGameConfig = {
@@ -156,4 +165,176 @@ export type OfflineSummary = {
   secondsCounted: number;
   gained: Resources;
   events: string[];
+};
+
+// ---------------------------------------------------------------------------
+// Institutions
+// ---------------------------------------------------------------------------
+
+export type InstitutionType = {
+  id: string;
+  name: string;
+  description: string;
+  icon: string; // Ionicons glyph name
+  cost: Partial<Resources>;
+  buildSeconds: number;
+  upkeepPerHour: number;
+  maxLevel: number;
+  requiresReputation: number;
+  /** Number of historical records the player must have reached "Understanding" on. */
+  requiresUnderstood?: number;
+  requiresInstitution?: { id: string; level: number };
+  /** What the institution does at each level (index 0 = level 1). Shown in the UI. */
+  effects: string[];
+};
+
+export type InstitutionInstance = {
+  typeId: string;
+  level: number;
+  pending: { completesAt: number; targetLevel: number } | null;
+};
+
+// ---------------------------------------------------------------------------
+// Army
+// ---------------------------------------------------------------------------
+
+export type UnitId = 'spearmen' | 'archers' | 'cavalry' | 'heavy';
+export type UnitClass = 'infantry' | 'ranged' | 'cavalry';
+export type UnitCounts = Record<UnitId, number>;
+
+export type UnitType = {
+  id: UnitId;
+  name: string;
+  description: string;
+  unitClass: UnitClass;
+  attack: number;
+  defence: number;
+  cost: Partial<Resources>;
+  trainSecondsEach: number;
+  upkeepGold: number; // per hour
+  upkeepFood: number; // per hour
+  requires: { institution: string; level: number };
+};
+
+export type TrainingBatch = { unitId: UnitId; count: number; completesAt: number };
+
+export type ArmyState = {
+  /** Soldiers at home, ready to deploy. */
+  units: UnitCounts;
+  training: TrainingBatch[];
+  /** Commander leading the army, or null if the player leads in person. */
+  commanderId: string | null;
+};
+
+export type CommanderTrait = 'bold' | 'cautious' | 'quartermaster' | 'scholar';
+
+export type Commander = {
+  id: string;
+  name: string;
+  tactics: number;
+  logistics: number;
+  leadership: number;
+  trait: CommanderTrait;
+  xp: number;
+  battles: number;
+  victories: number;
+};
+
+// ---------------------------------------------------------------------------
+// Battle
+// ---------------------------------------------------------------------------
+
+export type Terrain = 'plain' | 'forest' | 'hills' | 'river' | 'desert';
+export type Weather = 'clear' | 'rain' | 'fog' | 'heat';
+export type EnemyStance = 'aggressive' | 'steady' | 'defensive' | 'reserve';
+export type EnemyTrait = 'impetuous' | 'cautious' | 'cunning';
+export type OrderId =
+  | 'hold'
+  | 'advance'
+  | 'concentrate'
+  | 'fortify'
+  | 'retreat'
+  | 'envelop'
+  | 'horns'
+  | 'feint'
+  | 'scorch';
+export type Provisions = 'light' | 'standard' | 'ample';
+export type Setup = { kind: 'envelop' | 'feint' } | null;
+
+export type RoundRecord = {
+  round: number;
+  order: OrderId;
+  stance: EnemyStance;
+  playerLoss: number;
+  enemyLoss: number;
+  playerMorale: number;
+  enemyMorale: number;
+  /** null for orders that have no success condition */
+  success: boolean | null;
+  notes: string[];
+};
+
+export type Battle = {
+  id: string;
+  scenarioId: string;
+  round: number;
+  maxRounds: number;
+  terrain: Terrain;
+  weather: Weather;
+  player: {
+    units: UnitCounts;
+    initial: UnitCounts;
+    morale: number;
+    supply: number;
+    leaderId: string | null;
+    provisions: Provisions;
+  };
+  enemy: {
+    name: string;
+    commander: string;
+    trait: EnemyTrait;
+    units: UnitCounts;
+    initial: UnitCounts;
+    morale: number;
+    supply: number;
+    fortified: boolean;
+    basePosture: EnemyStance | null;
+    lastStance: EnemyStance | null;
+  };
+  /** 0 = rumours only, 1 = scouted, 2 = thoroughly scouted */
+  intel: 0 | 1 | 2;
+  setup: Setup;
+  lastOrder: OrderId | null;
+  repeatCount: number;
+  rounds: RoundRecord[];
+  seed: number;
+  delegated: boolean;
+};
+
+export type BattleResult = 'victory' | 'defeat' | 'withdrawn' | 'stalemate';
+
+export type BattleReport = {
+  id: string;
+  at: number;
+  scenarioId: string;
+  scenarioName: string;
+  result: BattleResult;
+  terrain: Terrain;
+  weather: Weather;
+  delegated: boolean;
+  leader: { name: string; isPlayer: boolean; performance: string };
+  enemyName: string;
+  playerInitial: UnitCounts;
+  playerFinal: UnitCounts;
+  enemyInitial: UnitCounts;
+  enemyFinal: UnitCounts;
+  rounds: RoundRecord[];
+  rewards: { gold: number; food: number; wood: number; stone: number; reputation: number };
+  decisions: string[];
+  enemyStrengths: string[];
+  exploited: string[];
+  terrainWeather: string;
+  logistics: string;
+  lessons: string[];
+  doctrinesPracticed: string[];
 };

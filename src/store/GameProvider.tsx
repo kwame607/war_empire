@@ -22,7 +22,18 @@ import {
   tick,
   upgradeBusiness,
 } from '@/game/engine';
-import type { ActionResult, GameState, NewGameConfig, OfflineSummary } from '@/game/types';
+import {
+  buyInstitution,
+  delegateBattle,
+  grantTestBoost,
+  hireCommander,
+  issueOrder,
+  recruitUnits,
+  setCommander,
+  startBattle,
+  upgradeInstitution,
+} from '@/game/military';
+import type { ActionResult, GameState, NewGameConfig, OfflineSummary, OrderId, Provisions, UnitId } from '@/game/types';
 import { deleteSave, loadSave, writeSave } from '@/storage/saveRepo';
 
 const AUTOSAVE_MS = 15_000;
@@ -46,8 +57,18 @@ type GameContextValue = {
   discover: (entryId: string) => void;
   study: (entryId: string) => ActionResult;
   scout: (settlementId: string) => ActionResult;
+  buyInstitution: (typeId: string) => ActionResult;
+  upgradeInstitution: (typeId: string) => ActionResult;
+  recruit: (unitId: UnitId, count: number) => ActionResult;
+  hireCommander: () => ActionResult;
+  assignCommander: (commanderId: string | null) => ActionResult;
+  beginBattle: (scenarioId: string, intel: 0 | 1 | 2, provisions: Provisions) => ActionResult;
+  giveOrder: (order: OrderId) => ActionResult;
+  delegate: () => ActionResult;
   /** Testing tool: simulates time passing. */
   advanceTime: (seconds: number) => void;
+  /** Testing tool: some gold, materials and reputation. */
+  testBoost: () => void;
 };
 
 const GameContext = createContext<GameContextValue | null>(null);
@@ -191,6 +212,21 @@ export function GameProvider({ children }: { children: ReactNode }) {
         const cur = stateRef.current;
         if (!cur || (cur.knowledge[entryId] ?? 0) >= 1) return;
         const next = discoverKnowledge(cur, entryId, Date.now());
+        commit(next);
+        void persist(next);
+      },
+      buyInstitution: (typeId) => apply((s, now) => buyInstitution(s, typeId, now)),
+      upgradeInstitution: (typeId) => apply((s, now) => upgradeInstitution(s, typeId, now)),
+      recruit: (unitId, count) => apply((s, now) => recruitUnits(s, unitId, count, now)),
+      hireCommander: () => apply((s, now) => hireCommander(s, now)),
+      assignCommander: (id) => apply((s, now) => setCommander(s, id, now)),
+      beginBattle: (scenarioId, intel, provisions) => apply((s, now) => startBattle(s, scenarioId, { intel, provisions }, now)),
+      giveOrder: (order) => apply((s, now) => issueOrder(s, order, now)),
+      delegate: () => apply((s, now) => delegateBattle(s, now)),
+      testBoost: () => {
+        const cur = stateRef.current;
+        if (!cur) return;
+        const next = grantTestBoost(cur, Date.now());
         commit(next);
         void persist(next);
       },

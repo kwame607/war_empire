@@ -8,7 +8,10 @@ import { ProgressBar } from '@/components/ui/ProgressBar';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { StatTile } from '@/components/ui/StatTile';
 import { getBusinessType } from '@/data/businesses';
+import { getInstitutionType } from '@/data/institutions';
 import { getKnowledgeEntry } from '@/data/knowledge';
+import { getUnitType } from '@/data/units';
+import { recruitSeconds } from '@/game/military';
 import { PROGRESSION_STAGES } from '@/data/progression';
 import { getSettlement } from '@/data/world';
 import { buildSeconds } from '@/game/economy';
@@ -43,8 +46,29 @@ export default function OverviewScreen() {
   if (state.study) {
     const entry = getKnowledgeEntry(state.study.entryId);
     const remaining = (state.study.completesAt - now) / 1000;
-    jobs.push({ key: 'study', text: `Studying: ${entry?.title ?? 'record'}`, progress: 1 - remaining / (entry?.studySeconds ?? 60), remaining });
+    jobs.push({ key: 'study', text: `Studying: ${entry?.title ?? 'record'}`, progress: 1 - remaining / (state.study.totalSeconds ?? entry?.studySeconds ?? 60), remaining });
   }
+  state.institutions.forEach((inst) => {
+    if (!inst.pending) return;
+    const type = getInstitutionType(inst.typeId);
+    const total = buildSeconds(state, type, inst.pending.targetLevel);
+    const remaining = (inst.pending.completesAt - now) / 1000;
+    jobs.push({
+      key: `inst-${inst.typeId}`,
+      text: inst.pending.targetLevel === 1 ? `Founding the ${type.name}` : `Upgrading the ${type.name} to level ${inst.pending.targetLevel}`,
+      progress: 1 - remaining / total,
+      remaining,
+    });
+  });
+  state.army.training.forEach((b, i) => {
+    const remaining = (b.completesAt - now) / 1000;
+    jobs.push({
+      key: `train-${i}`,
+      text: `Training ${b.count} ${getUnitType(b.unitId).name.toLowerCase()}`,
+      progress: 1 - remaining / recruitSeconds(state, b.unitId, b.count),
+      remaining,
+    });
+  });
   if (state.scouting) {
     const remaining = (state.scouting.completesAt - now) / 1000;
     jobs.push({ key: 'scout', text: `Scouting ${getSettlement(state.scouting.settlementId).name}`, progress: 1 - remaining / 45, remaining });

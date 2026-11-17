@@ -11,7 +11,7 @@ import { useGame } from '@/store/GameProvider';
 import { colors, fonts, spacing } from '@/theme';
 
 export default function SettingsScreen() {
-  const { state, hasSave, saveError, saveNow, removeSave, advanceTime } = useGame();
+  const { state, hasSave, saveError, saveNow, removeSave, advanceTime, testBoost } = useGame();
 
   const confirmDelete = () =>
     Alert.alert('Delete saved game?', 'This permanently erases your progress. It cannot be undone.', [
@@ -72,6 +72,17 @@ export default function SettingsScreen() {
                 <GameButton compact variant="secondary" label="+8 hours" onPress={() => advanceTime(8 * 3600)} />
               </View>
             </View>
+            <View style={styles.gap}>
+              <GameButton
+                compact
+                variant="secondary"
+                label="+1500 gold, +20 reputation"
+                onPress={() => {
+                  testBoost();
+                  Alert.alert('Boost applied', 'Gold, materials and reputation added so you can try institutions and battles quickly.');
+                }}
+              />
+            </View>
           </Panel>
         </>
       ) : null}
@@ -79,7 +90,7 @@ export default function SettingsScreen() {
       <SectionHeader title="Danger zone" />
       <GameButton label="Delete saved game" variant="danger" muted={!hasSave} onPress={() => (hasSave ? confirmDelete() : Alert.alert('Nothing to delete', 'There is no saved game.'))} />
 
-      <Text style={styles.footer}>WAR EMPIRE · Version 0.1 (MVP)</Text>
+      <Text style={styles.footer}>WAR EMPIRE · Version 0.2 (Institutions and Military)</Text>
     </PlainScreen>
   );
 }

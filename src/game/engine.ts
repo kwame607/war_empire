@@ -1,36 +1,32 @@
 import { getBackground, getDifficulty } from '../data/backgrounds';
 import { getBusinessType } from '../data/businesses';
 import { getCivilisation } from '../data/civilisations';
+import { getInstitutionType } from '../data/institutions';
 import { getKnowledgeEntry } from '../data/knowledge';
+import { emptyUnits, getUnitType } from '../data/units';
 import { getSettlement } from '../data/world';
 import {
   BUILD_SLOTS,
-  MAX_LOG_ENTRIES,
   OFFLINE_CAP_SECONDS,
   SAVE_VERSION,
   SCOUT_COST_GOLD,
   SCOUT_SECONDS,
 } from './constants';
 import { buildSeconds, businessRates, canAfford, emptyResources, pay, RESOURCE_KEYS, upgradeCost } from './economy';
-import { pendingCount } from './selectors';
+import { addLog, fail } from './log';
+import { getArmyUpkeep, pendingCount, studyTimeMult } from './selectors';
 import type {
   ActionResult,
   Attributes,
   BusinessInstance,
   GameState,
-  LogEntry,
+  InstitutionInstance,
   NewGameConfig,
   OfflineSummary,
   Resources,
 } from './types';
 
 
-
-const fail = (reason: string): ActionResult => ({ ok: false, reason });
-
-function addLog(log: LogEntry[], at: number, text: string): LogEntry[] {
-  return [...log, { at, text }].slice(-MAX_LOG_ENTRIES);
-}
 
 // ---------------------------------------------------------------------------
 // New game
@@ -72,6 +68,13 @@ export function createNewGame(config: NewGameConfig, now: number): GameState {
     lastTickAt: now,
     totalSeconds: 0,
     log: [{ at: now, text: `${config.name.trim()} begins a new life in ${start.name}.` }],
+    institutions: [],
+    army: { units: emptyUnits(), training: [], commanderId: null },
+    commanders: [],
+    battle: null,
+    reports: [],
+    scenarioReadyAt: {},
+    rngSeed: Math.floor(now) % 2147483647,
   };
 }
 
@@ -131,7 +134,46 @@ export function tick(state: GameState, now: number): GameState {
     return inst;
   });
 
+  // Institutions: upkeep only (their value is capability, not income).
+  const institutions: InstitutionInstance[] = state.institutions.map((inst) => {
+    const pend = inst.pending;
+    const type = getInstitutionType(inst.typeId);
+    const done = pend && pend.completesAt <= now ? pend : null;
+    const split = done ? Math.max(windowStart, Math.min(done.completesAt, now)) : now;
+    const beforeSeconds = done ? (split - windowStart) / 1000 : countedSeconds;
+    const afterSeconds = done ? (now - split) / 1000 : 0;
+    if (inst.level > 0) resources.gold -= (type.upkeepPerHour * beforeSeconds) / 3600;
+    if (done) {
+      resources.gold -= (type.upkeepPerHour * afterSeconds) / 3600;
+      log = addLog(
+        log,
+        done.completesAt,
+        done.targetLevel === 1 ? `${type.name} is complete.` : `${type.name} upgraded to level ${done.targetLevel}.`,
+      );
+      return { ...inst, level: done.targetLevel, pending: null };
+    }
+    return inst;
+  });
+
+  // Army upkeep for the soldiers that exist at the start of the window.
+  const upkeep = getArmyUpkeep(state);
+  resources.gold -= (upkeep.gold * countedSeconds) / 3600;
+  resources.food -= (upkeep.food * countedSeconds) / 3600;
+
+  // Finished training batches join the army.
+  const armyUnits = { ...state.army.units };
+  const training = [];
+  for (const batch of state.army.training) {
+    if (batch.completesAt <= now) {
+      armyUnits[batch.unitId] += batch.count;
+      log = addLog(log, batch.completesAt, `${batch.count} ${getUnitType(batch.unitId).name} have finished training.`);
+    } else {
+      training.push(batch);
+    }
+  }
+
   resources.gold = Math.max(0, resources.gold);
+  resources.food = Math.max(0, resources.food);
 
   let study = state.study;
   if (study && study.completesAt <= now) {
@@ -159,6 +201,8 @@ export function tick(state: GameState, now: number): GameState {
     attributes,
     knowledge,
     businesses,
+    institutions,
+    army: { ...state.army, units: armyUnits, training },
     study,
     scouting,
     explored,
@@ -273,12 +317,13 @@ export function startStudy(input: GameState, entryId: string, now: number): Acti
   if (state.study) return fail('Your scholars are already studying another record.');
   const cost = studyCost(state, entryId);
   if (state.resources.gold < cost) return fail('Not enough gold.');
+  const seconds = Math.max(10, Math.round(entry.studySeconds * studyTimeMult(state)));
   return {
     ok: true,
     state: {
       ...state,
       resources: { ...state.resources, gold: state.resources.gold - cost },
-      study: { entryId, completesAt: now + entry.studySeconds * 1000 },
+      study: { entryId, completesAt: now + seconds * 1000, totalSeconds: seconds },
       log: addLog(state.log, now, `Scholars begin studying: ${entry.title}.`),
     },
   };
@@ -315,6 +360,14 @@ export function fastForward(state: GameState, seconds: number, now: number): Gam
     ),
     study: state.study ? { ...state.study, completesAt: state.study.completesAt - ms } : null,
     scouting: state.scouting ? { ...state.scouting, completesAt: state.scouting.completesAt - ms } : null,
+    institutions: state.institutions.map((i) =>
+      i.pending ? { ...i, pending: { ...i.pending, completesAt: i.pending.completesAt - ms } } : i,
+    ),
+    army: {
+      ...state.army,
+      training: state.army.training.map((b) => ({ ...b, completesAt: b.completesAt - ms })),
+    },
+    scenarioReadyAt: Object.fromEntries(Object.entries(state.scenarioReadyAt).map(([k, v]) => [k, v - ms])),
   };
   return tick(shifted, now);
 }
