@@ -5,21 +5,27 @@ import { colors, fonts, radius } from '@/theme';
 type Props = {
   label: string;
   onPress: () => void;
-  variant?: 'primary' | 'secondary';
+  variant?: 'primary' | 'secondary' | 'danger';
+  /** Smaller button for use inside cards. */
+  compact?: boolean;
+  /** Looks dimmed (e.g. you cannot afford it) but still explains why when pressed. */
+  muted?: boolean;
 };
 
-export function GameButton({ label, onPress, variant = 'primary' }: Props) {
-  const primary = variant === 'primary';
+export function GameButton({ label, onPress, variant = 'primary', compact, muted }: Props) {
+  const textColor = variant === 'primary' ? colors.charcoal : colors.parchment;
   return (
     <Pressable
       accessibilityRole="button"
       onPress={onPress}
       style={({ pressed }) => [
         styles.base,
-        primary ? styles.primary : styles.secondary,
+        compact && styles.compact,
+        variants[variant],
+        muted && { opacity: 0.5 },
         pressed && { opacity: 0.75, transform: [{ scale: 0.98 }] },
       ]}>
-      <Text style={[styles.label, { color: primary ? colors.charcoal : colors.parchment }]}>{label}</Text>
+      <Text style={[styles.label, compact && styles.labelCompact, { color: textColor }]}>{label}</Text>
     </Pressable>
   );
 }
@@ -33,7 +39,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     borderWidth: 1.5,
   },
+  compact: { minHeight: 44, paddingHorizontal: 14 },
+  label: { fontFamily: fonts.serif, fontSize: 17, fontWeight: '700', letterSpacing: 2, textTransform: 'uppercase', textAlign: 'center' },
+  labelCompact: { fontSize: 14, letterSpacing: 1 },
+});
+
+const variants = StyleSheet.create({
   primary: { backgroundColor: colors.gold, borderColor: colors.goldBright },
   secondary: { backgroundColor: 'transparent', borderColor: colors.bronze },
-  label: { fontFamily: fonts.serif, fontSize: 17, fontWeight: '700', letterSpacing: 2, textTransform: 'uppercase' },
+  danger: { backgroundColor: colors.burgundy, borderColor: colors.burgundyBright },
 });

@@ -1,19 +1,21 @@
-/** The seven stages of a player's rise, in order (from the game design). */
+/** The seven stages of a player's rise, in order, with the reputation needed to reach each. */
 export const PROGRESSION_STAGES = [
-  'Ordinary Citizen',
-  'Building a Foundation',
-  'Rising to Influence',
-  'Becoming a Power Broker',
-  'Establishing Independent Power',
-  'Building an Empire',
-  'Becoming a Major World Power',
+  { name: 'Ordinary Citizen', reputation: 0 },
+  { name: 'Building a Foundation', reputation: 4 },
+  { name: 'Rising to Influence', reputation: 15 },
+  { name: 'Becoming a Power Broker', reputation: 40 },
+  { name: 'Establishing Independent Power', reputation: 100 },
+  { name: 'Building an Empire', reputation: 250 },
+  { name: 'Becoming a Major World Power', reputation: 600 },
 ] as const;
 
-export const ATTRIBUTES = [
-  'Intelligence',
-  'Leadership',
-  'Negotiation',
-  'Military Knowledge',
-  'Administration',
-  'Reputation',
-] as const;
+/** The stage index at which the Military section opens. */
+export const MILITARY_UNLOCK_STAGE = 2;
+
+export const ATTRIBUTE_LABELS = {
+  intelligence: 'Intelligence',
+  leadership: 'Leadership',
+  negotiation: 'Negotiation',
+  military: 'Military Knowledge',
+  administration: 'Administration',
+} as const;

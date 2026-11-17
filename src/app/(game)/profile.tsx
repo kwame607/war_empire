@@ -1,32 +1,76 @@
+import { router } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
+import { GameButton } from '@/components/ui/GameButton';
 import { GameScreen } from '@/components/ui/GameScreen';
 import { Panel } from '@/components/ui/Panel';
+import { ProgressBar } from '@/components/ui/ProgressBar';
 import { SectionHeader } from '@/components/ui/SectionHeader';
-import { previewPlayer as p } from '@/data/previewState';
-import { ATTRIBUTES } from '@/data/progression';
+import { getBackground, getDifficulty } from '@/data/backgrounds';
+import { getCivilisation } from '@/data/civilisations';
+import { ATTRIBUTE_LABELS, PROGRESSION_STAGES } from '@/data/progression';
+import { getSettlement } from '@/data/world';
+import type { AttributeKey } from '@/game/types';
+import { getGameDate, getStageIndex } from '@/game/selectors';
+import { useGameState } from '@/store/GameProvider';
 import { colors, fonts, spacing } from '@/theme';
 
 export default function ProfileScreen() {
+  const state = useGameState();
+  const civ = getCivilisation(state.player.civId);
+  const bg = getBackground(state.player.backgroundId);
+  const diff = getDifficulty(state.player.difficultyId);
+  const stage = PROGRESSION_STAGES[getStageIndex(state)];
+
   return (
-    <GameScreen title="Profile" subtitle={`${p.name} · ${p.status}`}>
+    <GameScreen title="Profile" subtitle={`${state.player.name} · ${stage.name}`}>
       <SectionHeader title="Attributes" />
       <Panel>
-        {ATTRIBUTES.map((a) => (
-          <View key={a} style={styles.row}>
-            <Text style={styles.label}>{a}</Text>
-            <Text style={styles.value}>{a === 'Reputation' ? p.reputation : 1}</Text>
+        {(Object.keys(ATTRIBUTE_LABELS) as AttributeKey[]).map((k) => (
+          <View key={k} style={styles.attr}>
+            <View style={styles.row}>
+              <Text style={styles.label}>{ATTRIBUTE_LABELS[k]}</Text>
+              <Text style={styles.value}>{state.attributes[k].toFixed(1)}</Text>
+            </View>
+            <ProgressBar progress={state.attributes[k] / 10} />
           </View>
         ))}
+        <View style={styles.row}>
+          <Text style={styles.label}>Reputation</Text>
+          <Text style={styles.value}>{Math.floor(state.reputation)}</Text>
+        </View>
       </Panel>
-      <Text style={styles.note}>Attributes will grow through your actions, education and decisions.</Text>
+      <Text style={styles.note}>Attributes grow through what you do: administering businesses, negotiating at markets and studying history.</Text>
+
+      <SectionHeader title="Origins" />
+      <Panel>
+        <Fact label="Civilisation" value={civ.name} />
+        <Fact label="Background" value={bg.name} />
+        <Fact label="Home" value={getSettlement(state.player.startSettlementId).name} />
+        <Fact label="Difficulty" value={diff.name} />
+        <Fact label="Time played" value={getGameDate(state).label} />
+      </Panel>
+
+      <View style={{ marginTop: spacing.md }}>
+        <GameButton variant="secondary" label="Settings" onPress={() => router.push('/settings')} />
+      </View>
     </GameScreen>
   );
 }
 
+function Fact({ label, value }: { label: string; value: string }) {
+  return (
+    <View style={styles.row}>
+      <Text style={styles.label}>{label}</Text>
+      <Text style={[styles.value, { flexShrink: 1, textAlign: 'right' }]}>{value}</Text>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: spacing.sm },
-  label: { fontFamily: fonts.sans, fontSize: 16, color: colors.parchmentDim },
+  attr: { paddingVertical: 4, gap: 4 },
+  row: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 5, gap: spacing.md },
+  label: { fontFamily: fonts.sans, fontSize: 15, color: colors.parchmentDim },
   value: { fontFamily: fonts.serif, fontSize: 16, fontWeight: '700', color: colors.parchment },
-  note: { fontFamily: fonts.sans, fontSize: 13, color: colors.bronze, marginTop: spacing.md, textAlign: 'center' },
+  note: { fontFamily: fonts.sans, fontSize: 13, lineHeight: 19, color: colors.bronze, marginTop: spacing.sm },
 });

@@ -1,43 +1,112 @@
+import { router } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { GameScreen } from '@/components/ui/GameScreen';
+import { GameButton } from '@/components/ui/GameButton';
 import { Panel } from '@/components/ui/Panel';
+import { ProgressBar } from '@/components/ui/ProgressBar';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { StatTile } from '@/components/ui/StatTile';
-import { previewPlayer as p } from '@/data/previewState';
+import { getBusinessType } from '@/data/businesses';
+import { getKnowledgeEntry } from '@/data/knowledge';
 import { PROGRESSION_STAGES } from '@/data/progression';
+import { getSettlement } from '@/data/world';
+import { buildSeconds } from '@/game/economy';
+import { formatDuration, getGameDate, getPopulation, getRates, getStageIndex } from '@/game/selectors';
+import { useGameState } from '@/store/GameProvider';
 import { colors, fonts, spacing } from '@/theme';
+import { perHour } from '@/utils/format';
 
 export default function OverviewScreen() {
-  const currentIndex = PROGRESSION_STAGES.indexOf(p.status as (typeof PROGRESSION_STAGES)[number]);
+  const state = useGameState();
+  const now = state.lastTickAt;
+  const stageIdx = getStageIndex(state);
+  const stage = PROGRESSION_STAGES[stageIdx];
+  const next = PROGRESSION_STAGES[stageIdx + 1];
+  const rates = getRates(state);
+  const home = getSettlement(state.player.startSettlementId);
+  const date = getGameDate(state);
+
+  const jobs: { key: string; text: string; progress: number; remaining: number }[] = [];
+  for (const b of state.businesses) {
+    if (!b.pending) continue;
+    const type = getBusinessType(b.typeId);
+    const total = buildSeconds(state, type, b.pending.targetLevel);
+    const remaining = (b.pending.completesAt - now) / 1000;
+    jobs.push({
+      key: b.typeId,
+      text: b.pending.targetLevel === 1 ? `Building ${type.name}` : `Upgrading ${type.name} to level ${b.pending.targetLevel}`,
+      progress: 1 - remaining / total,
+      remaining,
+    });
+  }
+  if (state.study) {
+    const entry = getKnowledgeEntry(state.study.entryId);
+    const remaining = (state.study.completesAt - now) / 1000;
+    jobs.push({ key: 'study', text: `Studying: ${entry?.title ?? 'record'}`, progress: 1 - remaining / (entry?.studySeconds ?? 60), remaining });
+  }
+  if (state.scouting) {
+    const remaining = (state.scouting.completesAt - now) / 1000;
+    jobs.push({ key: 'scout', text: `Scouting ${getSettlement(state.scouting.settlementId).name}`, progress: 1 - remaining / 45, remaining });
+  }
+
+  const nextProgress = next ? (state.reputation - stage.reputation) / (next.reputation - stage.reputation) : 1;
 
   return (
-    <GameScreen title="Overview" subtitle={p.dateLabel}>
+    <GameScreen title="Overview" subtitle={date.label}>
       <Panel tone="burgundy">
-        <Text style={styles.name}>{p.name}</Text>
-        <Text style={styles.status}>{p.status}</Text>
-        <Text style={styles.meta}>Location: {p.location}</Text>
+        <Text style={styles.name}>{state.player.name}</Text>
+        <Text style={styles.status}>{stage.name}</Text>
+        <Text style={styles.meta}>Home: {home.name}</Text>
       </Panel>
 
       <View style={styles.tiles}>
-        <StatTile icon="ribbon-outline" label="Reputation" value={String(p.reputation)} />
-        <StatTile icon="people-outline" label="Population" value={String(p.resources.population)} />
+        <StatTile icon="ribbon-outline" label="Reputation" value={String(Math.floor(state.reputation))} />
+        <StatTile icon="people-outline" label="Population" value={String(getPopulation(state))} />
+        <StatTile icon="cash-outline" label="Gold / hour" value={perHour(rates.net)} />
       </View>
 
       <SectionHeader title="Path to power" />
       <Panel>
-        {PROGRESSION_STAGES.map((stage, i) => {
-          const reached = i <= currentIndex;
-          return (
-            <View key={stage} style={styles.stageRow}>
-              <View style={[styles.dot, reached && styles.dotActive]} />
-              <Text style={[styles.stage, reached ? styles.stageActive : styles.stageLocked]}>{stage}</Text>
-            </View>
-          );
-        })}
+        <Text style={styles.stageLine}>
+          {next ? `Next: ${next.name}` : 'You have reached the highest stage'}
+        </Text>
+        <ProgressBar progress={nextProgress} />
+        {next ? (
+          <Text style={styles.meta}>
+            Reputation {Math.floor(state.reputation)} / {next.reputation}. Earn it by building, upgrading and studying.
+          </Text>
+        ) : null}
       </Panel>
 
-      <Text style={styles.note}>Preview build: figures shown are sample data until character creation arrives.</Text>
+      <SectionHeader title="In progress" />
+      {jobs.length === 0 ? (
+        <Panel>
+          <Text style={styles.body}>Nothing is under way. Start a build, a study or a scouting mission.</Text>
+          <View style={{ marginTop: spacing.md }}>
+            <GameButton compact label="Go to Economy" onPress={() => router.push('/economy')} />
+          </View>
+        </Panel>
+      ) : (
+        <Panel>
+          {jobs.map((j) => (
+            <View key={j.key} style={styles.job}>
+              <Text style={styles.body}>{j.text}</Text>
+              <ProgressBar progress={j.progress} />
+              <Text style={styles.meta}>{formatDuration(j.remaining)} left</Text>
+            </View>
+          ))}
+        </Panel>
+      )}
+
+      <SectionHeader title="Recent events" />
+      <Panel>
+        {[...state.log].reverse().slice(0, 6).map((e, i) => (
+          <Text key={`${e.at}-${i}`} style={styles.event}>
+            • {e.text}
+          </Text>
+        ))}
+      </Panel>
     </GameScreen>
   );
 }
@@ -45,13 +114,10 @@ export default function OverviewScreen() {
 const styles = StyleSheet.create({
   name: { fontFamily: fonts.serif, fontSize: 24, fontWeight: '800', color: colors.parchment },
   status: { fontFamily: fonts.serif, fontSize: 16, fontStyle: 'italic', color: colors.goldBright, marginTop: 2 },
-  meta: { fontFamily: fonts.sans, fontSize: 14, color: colors.parchmentDim, marginTop: spacing.sm },
-  tiles: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.md },
-  stageRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: 7 },
-  dot: { width: 12, height: 12, borderRadius: 6, borderWidth: 1.5, borderColor: colors.bronze },
-  dotActive: { backgroundColor: colors.gold, borderColor: colors.goldBright },
-  stage: { fontFamily: fonts.serif, fontSize: 16 },
-  stageActive: { color: colors.parchment, fontWeight: '700' },
-  stageLocked: { color: colors.parchmentDim },
-  note: { fontFamily: fonts.sans, fontSize: 13, color: colors.bronze, marginTop: spacing.lg, textAlign: 'center' },
+  meta: { fontFamily: fonts.sans, fontSize: 13, lineHeight: 19, color: colors.parchmentDim, marginTop: 4 },
+  tiles: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm },
+  stageLine: { fontFamily: fonts.serif, fontSize: 16, color: colors.parchment, marginBottom: spacing.sm },
+  body: { fontFamily: fonts.sans, fontSize: 15, lineHeight: 22, color: colors.parchment },
+  job: { gap: 6, paddingVertical: spacing.sm },
+  event: { fontFamily: fonts.sans, fontSize: 14, lineHeight: 22, color: colors.parchmentDim },
 });

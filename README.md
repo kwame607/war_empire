@@ -44,22 +44,31 @@ npx expo start --web
 ## Quality checks
 
 ```bash
-npx tsc --noEmit     # TypeScript type check
+npm run typecheck    # TypeScript type check
 npx expo lint        # code style / bug check
+npm test             # game engine tests (economy, timers, offline progression, knowledge)
 npx expo-doctor      # project and dependency health
 ```
+
+## Updating to a newer version
+
+If a new zip only changes files, unzip it over your `war-empire` folder and reload the app
+(shake the phone, tap Reload). Run `npm install` again only when the update says
+`package.json` changed. Your saved game lives on the phone and is not touched.
 
 ## Project structure
 
 ```
 src/
   app/          Screens and navigation (Expo Router: each file is a route)
-  components/   Reusable UI (brand/, ui/)
+    (game)/     The five main tabs (overview, economy, knowledge, military, map) and profile
+    record/     Historical record detail page
+  components/   Reusable UI (ui/, map/, brand/, BusinessCard)
   theme/        Colours, fonts, spacing: the single source of design tokens
-  data/         (coming) civilisations, businesses, knowledge entries
-  game/         (coming) pure game rules, no UI code
-  store/        (coming) game state
-  storage/      (coming) SQLite saves
+  data/         Game content: civilisations, backgrounds, businesses, world, knowledge
+  game/         Pure game rules (no UI): types, economy, engine, selectors, tests
+  store/        GameProvider: live state, ticking, autosave, offline catch-up
+  storage/      SQLite save/load
 assets/         Images and icons
 DEVLOG.md       What is done and what remains
 ```

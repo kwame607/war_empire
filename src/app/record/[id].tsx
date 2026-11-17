@@ -1,0 +1,95 @@
+import { Redirect, useLocalSearchParams } from 'expo-router';
+import { useEffect } from 'react';
+import { Alert, StyleSheet, Text, View } from 'react-native';
+
+import { Chip } from '@/components/ui/Chip';
+import { GameButton } from '@/components/ui/GameButton';
+import { GameScreen } from '@/components/ui/GameScreen';
+import { LockedNotice } from '@/components/ui/LockedNotice';
+import { Panel } from '@/components/ui/Panel';
+import { ProgressBar } from '@/components/ui/ProgressBar';
+import { getKnowledgeEntry, KNOWLEDGE_STAGE_NAMES } from '@/data/knowledge';
+import { studyCost } from '@/game/engine';
+import { formatDuration } from '@/game/selectors';
+import { useGame } from '@/store/GameProvider';
+import { colors, fonts, spacing } from '@/theme';
+
+export default function RecordScreen() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const { state, discover, study } = useGame();
+  const entry = getKnowledgeEntry(String(id));
+  const stage = state && entry ? (state.knowledge[entry.id] ?? 0) : 0;
+
+  // Opening a record for the first time discovers it (free).
+  useEffect(() => {
+    if (entry && state && stage === 0) discover(entry.id);
+  }, [entry, state, stage, discover]);
+
+  if (!state) return <Redirect href="/" />;
+  if (!entry) return <Redirect href="/knowledge" />;
+
+  const studyingThis = state.study?.entryId === entry.id;
+  const studyingOther = !!state.study && !studyingThis;
+  const cost = studyCost(state, entry.id);
+
+  return (
+    <GameScreen title={entry.title} subtitle={entry.era} showBack>
+      <View style={styles.stages}>
+        {KNOWLEDGE_STAGE_NAMES.slice(1).map((name, i) => (
+          <Chip key={name} label={name} tone={stage >= i + 1 ? 'gold' : 'muted'} />
+        ))}
+      </View>
+
+      {entry.sections.map((s) =>
+        stage >= s.unlocksAtStage ? (
+          <Panel key={s.heading}>
+            <Text style={styles.heading}>{s.heading}</Text>
+            <Text style={styles.body}>{s.body}</Text>
+          </Panel>
+        ) : (
+          <LockedNotice key={s.heading} title={s.heading} description="Study this record to understand it fully." arrivesIn="Understanding stage" />
+        ),
+      )}
+
+      {stage < 2 ? (
+        <Panel tone="burgundy">
+          <Text style={styles.heading}>Study this record</Text>
+          {studyingThis && state.study ? (
+            <View style={{ gap: 6 }}>
+              <ProgressBar progress={1 - (state.study.completesAt - state.lastTickAt) / 1000 / entry.studySeconds} />
+              <Text style={styles.body}>Scholars are working: {formatDuration((state.study.completesAt - state.lastTickAt) / 1000)} left</Text>
+            </View>
+          ) : (
+            <>
+              <Text style={styles.body}>
+                Hire scholars to analyse the sources and move from Discovery to Understanding. This also earns reputation.
+              </Text>
+              <View style={{ marginTop: spacing.md }}>
+                <GameButton
+                  compact
+                  muted={studyingOther || state.resources.gold < cost}
+                  label={`Study · ${cost} gold · ${formatDuration(entry.studySeconds)}`}
+                  onPress={() => {
+                    const r = study(entry.id);
+                    if (!r.ok) Alert.alert('Cannot study yet', r.reason);
+                  }}
+                />
+              </View>
+            </>
+          )}
+        </Panel>
+      ) : (
+        <>
+          <LockedNotice title="Practical Experience" description="Apply this doctrine in simulations and real battles to gain experience." arrivesIn="the military milestone" />
+          <LockedNotice title="Mastery" description="Combine mastered principles into doctrines of your own." arrivesIn="a later milestone" />
+        </>
+      )}
+    </GameScreen>
+  );
+}
+
+const styles = StyleSheet.create({
+  stages: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  heading: { fontFamily: fonts.serif, fontSize: 13, letterSpacing: 2, color: colors.gold, textTransform: 'uppercase', marginBottom: 6 },
+  body: { fontFamily: fonts.sans, fontSize: 16, lineHeight: 24, color: colors.parchment },
+});

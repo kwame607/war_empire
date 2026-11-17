@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Tabs } from 'expo-router';
+import { Redirect, Tabs } from 'expo-router';
 
+import { useGame } from '@/store/GameProvider';
 import { colors, fonts } from '@/theme';
 
 type IconName = keyof typeof Ionicons.glyphMap;
@@ -15,10 +16,15 @@ const TABS: { name: string; title: string; icon: IconName }[] = [
 
 /**
  * Bottom tab bar for the main game.
- * Businesses live inside the Economy tab (Phase 5) and Profile opens from the
- * person icon in each screen header, so the bar stays at 5 comfortable thumb targets.
+ * Businesses live inside the Economy tab and Profile opens from the person icon in each
+ * screen header, so the bar stays at 5 comfortable thumb targets.
+ * If there is no active game (for example after deleting the save) we go back to the title.
  */
 export default function GameLayout() {
+  const { ready, state } = useGame();
+  if (!ready) return null;
+  if (!state) return <Redirect href="/" />;
+
   return (
     <Tabs
       screenOptions={{
@@ -41,7 +47,6 @@ export default function GameLayout() {
           }}
         />
       ))}
-      {/* Reachable from the header icon, but not shown in the tab bar */}
       <Tabs.Screen name="profile" options={{ href: null, title: 'Profile' }} />
     </Tabs>
   );
