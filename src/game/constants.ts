@@ -1,4 +1,4 @@
-export const SAVE_VERSION = 8;
+export const SAVE_VERSION = 9;
 
 /** Production counts for at most this long while the player is away. */
 export const OFFLINE_CAP_SECONDS = 12 * 3600;
@@ -63,3 +63,10 @@ export const WAR_ENEMY_SHARE = 0.6;
 export const ANNEX_WINS_REQUIRED = 2;
 export const GARRISON_PER_PROVINCE = 18;
 export const REVOLT_CHANCE = 0.15;
+
+// --- Navy (v0.9) ---
+export const SHIP_COST = { gold: 120, wood: 40 } as const;
+export const SHIP_SECONDS = 20;
+export const SHIP_UPKEEP_GOLD = 1.5;
+export const FLEET_CAPACITY_PER_LEVEL = [4, 12, 20] as const;
+export const FLEET_DETERS_RAIDS_AT = 3;

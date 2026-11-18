@@ -16,6 +16,7 @@ import {
   SAVE_VERSION,
   SCOUT_COST_GOLD,
   SCOUT_SECONDS,
+  SHIP_UPKEEP_GOLD,
 } from './constants';
 import { buildSeconds, businessRates, canAfford, emptyResources, pay, RESOURCE_KEYS, upgradeCost } from './economy';
 import { addLog, fail } from './log';
@@ -87,6 +88,7 @@ export function createNewGame(config: NewGameConfig, now: number): GameState {
     simulation: null,
     war: null,
     territories: [],
+    fleet: { ships: 0, training: [], lastEngagement: null },
   };
 }
 
@@ -185,6 +187,17 @@ export function tick(state: GameState, now: number): GameState {
     }
   }
 
+  // Finished ships join the fleet; ships cost upkeep.
+  let ships = state.fleet.ships;
+  const shipTraining = [];
+  for (const batch of state.fleet.training) {
+    if (batch.completesAt <= now) {
+      ships += batch.count;
+      log = addLog(log, batch.completesAt, `${batch.count} warship${batch.count > 1 ? 's' : ''} launched.`);
+    } else shipTraining.push(batch);
+  }
+  resources.gold -= (SHIP_UPKEEP_GOLD * state.fleet.ships * countedSeconds) / 3600;
+
   resources.gold += pactIncome(state) * (countedSeconds / 3600);
   const land = territoryIncome(state);
   for (const k of RESOURCE_KEYS) resources[k] += land[k] * (countedSeconds / 3600);
@@ -222,6 +235,7 @@ export function tick(state: GameState, now: number): GameState {
       businesses,
       institutions,
       army: { ...state.army, units: armyUnits, training },
+      fleet: { ...state.fleet, ships, training: shipTraining },
       study,
       scouting,
       explored,
@@ -392,6 +406,7 @@ export function fastForward(state: GameState, seconds: number, now: number): Gam
       ...state.army,
       training: state.army.training.map((b) => ({ ...b, completesAt: b.completesAt - ms })),
     },
+    fleet: { ...state.fleet, training: state.fleet.training.map((b) => ({ ...b, completesAt: b.completesAt - ms })) },
     scenarioReadyAt: Object.fromEntries(Object.entries(state.scenarioReadyAt).map(([k, v]) => [k, v - ms])),
     intel: { ...state.intel, missions: state.intel.missions.map((m) => ({ ...m, completesAt: m.completesAt - ms })) },
     expedition: state.expedition ? { ...state.expedition, endsAt: state.expedition.endsAt - ms } : null,

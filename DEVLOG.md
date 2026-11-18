@@ -1,5 +1,14 @@
 # WAR EMPIRE Development Log
 
+## Version 0.9: Naval Warfare (complete, pending phone testing)
+
+- New institution: Shipyard (Economy → Institutions; needs a Barracks and reputation 10). Levels raise fleet capacity (4 / 12 / 20) and shipbuilding speed.
+- Military → Navy: build warships (120 gold + 40 wood each, 1.5 gold/h upkeep). Ships finish while you are away. A fleet of 3 or more halves raids on your coasts.
+- Island kingdoms (the Serene Republic) cannot be reached by land: during a war with them you must first win command of the sea. You choose a tactic for each of three rounds (line beats boarding, boarding beats screens, screens beat the line). Their fleet size is only a rumour, and their habits are hidden until you have dealt with them (envoy). Losing costs ships, and you can try again.
+- Winning the sea unlocks the land campaign for the rest of that war.
+- Save version 9; navalCore.ts / naval.ts; 8 new tests (89 total).
+- Not yet: naval raids and blockades on your own ports, sea trade routes, ship types, naval doctrines in the knowledge library (Salamis, Lepanto and others).
+
 ## Version 0.8: Conquest and Territory (complete, pending phone testing)
 
 - Each kingdom now holds real settlements from the world map (a capital plus provinces; e.g. the Aurelian Republic holds Aurelia, Veridian Fields and Port Calder).

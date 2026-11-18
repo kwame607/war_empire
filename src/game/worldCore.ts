@@ -3,6 +3,7 @@ import { getSettlement } from '../data/world';
 import { mulberry32 } from './battle';
 import {
   ALLIANCE_GOLD_PER_HOUR,
+  FLEET_DETERS_RAIDS_AT,
   OFFER_LIFETIME_TURNS,
   REVOLT_CHANCE,
   TRADE_PACT_GOLD_PER_HOUR,
@@ -169,8 +170,8 @@ function runTurn(state: GameState, at: number): GameState {
   let log = state.log;
   let gold = state.resources.gold;
   const mine = Math.max(1, playerPower(state));
-  let allyLeft = false;
-  void allyLeft;
+  // A fleet in being makes raiders think twice.
+  const deterrence = state.fleet.ships >= FLEET_DETERS_RAIDS_AT ? 0.5 : 1;
 
   // Expired tribute demands count as refusals.
   for (const o of w.offers) {
@@ -212,8 +213,8 @@ function runTurn(state: GameState, at: number): GameState {
     } else if (
       r.pact === 'none' &&
       turn - r.lastRaidTurn >= (state.war?.rivalId === r.id ? 3 : 6) &&
-      ((state.war?.rivalId === r.id && r.power > mine * 0.5 && rng() < 0.4) ||
-        (r.relation <= -40 && r.power > mine * 0.8 && rng() < 0.35))
+      ((state.war?.rivalId === r.id && r.power > mine * 0.5 && rng() < 0.4 * deterrence) ||
+        (r.relation <= -40 && r.power > mine * 0.8 && rng() < 0.35 * deterrence))
     ) {
       const loot = Math.round(Math.min(gold * 0.15, 300));
       gold -= loot;

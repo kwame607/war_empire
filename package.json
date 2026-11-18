@@ -45,7 +45,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "test": "tsx --test src/game/engine.test.ts src/game/military.test.ts src/game/intel.test.ts src/game/world.test.ts src/game/expedition.test.ts src/game/mastery.test.ts src/game/war.test.ts src/game/territory.test.ts",
+    "test": "tsx --test src/game/engine.test.ts src/game/military.test.ts src/game/intel.test.ts src/game/world.test.ts src/game/expedition.test.ts src/game/mastery.test.ts src/game/war.test.ts src/game/territory.test.ts src/game/naval.test.ts",
     "typecheck": "tsc --noEmit"
   },
   "private": true

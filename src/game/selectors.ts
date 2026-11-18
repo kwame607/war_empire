@@ -4,7 +4,14 @@ import { getInstitutionType } from '../data/institutions';
 import { PROGRESSION_STAGES } from '../data/progression';
 import { getUnitType, UNIT_IDS } from '../data/units';
 import { getSettlement } from '../data/world';
-import { ARMY_CAPACITY_PER_BARRACKS_LEVEL, DAYS_PER_SEASON, SECONDS_PER_GAME_DAY, SEASONS } from './constants';
+import {
+  ARMY_CAPACITY_PER_BARRACKS_LEVEL,
+  DAYS_PER_SEASON,
+  FLEET_CAPACITY_PER_LEVEL,
+  SECONDS_PER_GAME_DAY,
+  SEASONS,
+  SHIP_UPKEEP_GOLD,
+} from './constants';
 import { businessRates, employeesOf } from './economy';
 import type { GameState, UnitCounts } from './types';
 
@@ -79,6 +86,15 @@ export function getManpowerCap(state: GameState): number {
   return Math.floor((getPopulation(state) + home) * 0.6);
 }
 
+export function shipyardLevel(state: GameState): number {
+  return institutionLevel(state, 'shipyard');
+}
+
+export function fleetCapacity(state: GameState): number {
+  const l = shipyardLevel(state);
+  return l <= 0 ? 0 : FLEET_CAPACITY_PER_LEVEL[Math.min(l, 3) - 1];
+}
+
 export function bureauLevel(state: GameState): number {
   return institutionLevel(state, 'bureau');
 }
@@ -136,7 +152,7 @@ export function getRates(state: GameState): Rates {
   r.wood += land.wood;
   r.stone += land.stone;
   const army = getArmyUpkeep(state);
-  r.expenses += getInstitutionUpkeep(state) + army.gold;
+  r.expenses += getInstitutionUpkeep(state) + army.gold + state.fleet.ships * SHIP_UPKEEP_GOLD;
   r.food -= army.food;
   r.net = r.income - r.expenses;
   return r;

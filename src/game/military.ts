@@ -6,6 +6,7 @@ import { getScenario } from '../data/scenarios';
 import { emptyUnits, getUnitType, UNIT_IDS } from '../data/units';
 import { autoOrder, availableOrders, getLeader, mulberry32, resolveRound } from './battle';
 import { recordRealSuccess } from './masteryCore';
+import { seaControlBlocker } from './navalCore';
 import { allyCount } from './worldCore';
 import { assessIntelligence, beliefFromReports, verifyReports } from './intelCore';
 import {
@@ -227,6 +228,8 @@ export function startBattle(
   if (state.battle || state.expedition) return fail(state.expedition ? 'Your army is away on an expedition.' : 'A battle is already under way.');
   if (state.reputation < scenario.requiresReputation) return fail(`Requires reputation ${scenario.requiresReputation}.`);
   if (scenarioReadyIn(state, scenarioId, now) > 0) return fail('The enemy has withdrawn for now. Try again later.');
+  const seaBlock = seaControlBlocker(state, scenarioId);
+  if (seaBlock) return fail(seaBlock);
   const men = sumUnits(state.army.units);
   if (men <= 0) return fail('You have no soldiers ready. Recruit some first.');
 

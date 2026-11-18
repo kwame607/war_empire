@@ -165,6 +165,8 @@ export type GameState = {
   // --- added in save version 8 ---
   /** Settlement ids you hold besides your home. */
   territories: string[];
+  // --- added in save version 9 ---
+  fleet: Fleet;
 };
 
 export type NewGameConfig = {
@@ -509,4 +511,30 @@ export type War = {
   wins: number;
   losses: number;
   startedAt: number;
+  /** True once your fleet has won command of the sea (needed to reach island kingdoms). */
+  seaControl?: boolean;
+};
+
+// ---------------------------------------------------------------------------
+// Navy (save version 9)
+// ---------------------------------------------------------------------------
+
+export type Fleet = {
+  ships: number;
+  training: { count: number; completesAt: number }[];
+  /** Report of the most recent naval engagement. */
+  lastEngagement: NavalReport | null;
+};
+
+export type NavalTactic = 'line' | 'board' | 'screen';
+
+export type NavalReport = {
+  at: number;
+  rivalName: string;
+  won: boolean;
+  shipsBefore: number;
+  shipsLost: number;
+  enemyBefore: number;
+  enemyLost: number;
+  lines: string[];
 };

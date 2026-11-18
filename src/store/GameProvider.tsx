@@ -24,6 +24,7 @@ import {
 } from '@/game/engine';
 import { breakPact, respondToOffer, sendEnvoy } from '@/game/diplomacy';
 import { hireSpy, sendSpy } from '@/game/intel';
+import { buildShips, fightNaval } from '@/game/naval';
 import { declareWar, makePeace } from '@/game/war';
 import { claimMastery, runSimulation } from '@/game/mastery';
 import {
@@ -38,7 +39,7 @@ import {
   startExpedition,
   upgradeInstitution,
 } from '@/game/military';
-import type { ActionResult, EnvoyKind, GameState, IntelTopic, NewGameConfig, OfflineSummary, OrderId, Provisions, UnitId } from '@/game/types';
+import type { ActionResult, EnvoyKind, GameState, IntelTopic, NavalTactic, NewGameConfig, OfflineSummary, OrderId, Provisions, UnitId } from '@/game/types';
 import { deleteSave, loadSave, writeSave } from '@/storage/saveRepo';
 
 const AUTOSAVE_MS = 15_000;
@@ -73,6 +74,8 @@ type GameContextValue = {
   claimMastery: (doctrine: string) => ActionResult;
   declareWar: (rivalId: string) => ActionResult;
   makePeace: (annexId?: string) => ActionResult;
+  buildShips: (count: number) => ActionResult;
+  fightNaval: (plan: NavalTactic[]) => ActionResult;
   hireSpy: () => ActionResult;
   sendEnvoy: (rivalId: string, kind: EnvoyKind) => ActionResult;
   respondToOffer: (offerId: string, accept: boolean) => ActionResult;
@@ -243,6 +246,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
       claimMastery: (doctrine) => apply((s, now) => claimMastery(s, doctrine, now)),
       declareWar: (rivalId) => apply((s, now) => declareWar(s, rivalId, now)),
       makePeace: (annexId) => apply((s, now) => makePeace(s, now, annexId)),
+      buildShips: (count) => apply((s, now) => buildShips(s, count, now)),
+      fightNaval: (plan) => apply((s, now) => fightNaval(s, plan, now)),
       hireSpy: () => apply((s, now) => hireSpy(s, now)),
       sendEnvoy: (rivalId, kind) => apply((s, now) => sendEnvoy(s, rivalId, kind, now)),
       respondToOffer: (offerId, accept) => apply((s, now) => respondToOffer(s, offerId, accept, now)),

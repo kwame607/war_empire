@@ -61,6 +61,9 @@ export function migrateState(raw: unknown): GameState | null {
     w.rivals = w.rivals.map((r) => ({ ...r, holdings: [...(START_HOLDINGS[r.id as string] ?? [])] }));
   }
 
+  // v8 -> v9: navy
+  if (s.version < 9) next.fleet = { ships: 0, training: [], lastEngagement: null };
+
   next.version = SAVE_VERSION;
   return next as unknown as GameState;
 }

@@ -83,6 +83,24 @@ export const INSTITUTION_TYPES: InstitutionType[] = [
       'Employ 4 spies; faster missions, better reports, strongest counter-intelligence',
     ],
   },
+  {
+    id: 'shipyard',
+    name: 'Shipyard',
+    description:
+      'Slipways and timber stores where warships are built. Without a fleet, islands and sea lanes belong to others. It needs a Barracks for the shipwrights\u2019 guild and the crews.',
+    icon: 'boat-outline',
+    cost: { gold: 600, wood: 200, stone: 60 },
+    buildSeconds: 150,
+    upkeepPerHour: 25,
+    maxLevel: 3,
+    requiresReputation: 10,
+    requiresInstitution: { id: 'barracks', level: 1 },
+    effects: [
+      'Build warships; a small fleet deters raiders',
+      'Faster shipbuilding; fleet capacity 12',
+      'Fastest shipbuilding; fleet capacity 20',
+    ],
+  },
 ];
 
 export function getInstitutionType(id: string): InstitutionType {
