@@ -3,12 +3,14 @@ import { Redirect, useLocalSearchParams } from 'expo-router';
 import { useEffect } from 'react';
 import { Alert, StyleSheet, Text, View } from 'react-native';
 
+import { BattleDiagram } from '@/components/art/BattleDiagram';
 import { Chip } from '@/components/ui/Chip';
 import { GameButton } from '@/components/ui/GameButton';
 import { GameScreen } from '@/components/ui/GameScreen';
 import { LockedNotice } from '@/components/ui/LockedNotice';
 import { Panel } from '@/components/ui/Panel';
 import { ProgressBar } from '@/components/ui/ProgressBar';
+import { getDiagram } from '@/data/diagrams';
 import { getKnowledgeEntry, KNOWLEDGE_STAGE_NAMES } from '@/data/knowledge';
 import { studyCost } from '@/game/engine';
 import { formatDuration, studyTimeMult } from '@/game/selectors';
@@ -69,6 +71,7 @@ export default function RecordScreen() {
   const studyingThis = state.study?.entryId === entry.id;
   const studyingOther = !!state.study && !studyingThis;
   const cost = studyCost(state, entry.id);
+  const diagram = getDiagram(entry.id);
 
   return (
     <GameScreen title={entry.title} subtitle={entry.era} showBack>
@@ -77,6 +80,13 @@ export default function RecordScreen() {
           <Chip key={name} label={name} tone={stage >= i + 1 ? 'gold' : 'muted'} />
         ))}
       </View>
+
+      {diagram ? (
+        <Panel>
+          <Text style={styles.heading}>Watch how it unfolded</Text>
+          <BattleDiagram diagram={diagram} stage={stage} />
+        </Panel>
+      ) : null}
 
       {entry.sections.map((s) =>
         stage >= s.unlocksAtStage ? (

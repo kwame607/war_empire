@@ -3,6 +3,7 @@ import { Alert, StyleSheet, Text, View } from 'react-native';
 
 import { Chip } from '@/components/ui/Chip';
 import { GameButton } from '@/components/ui/GameButton';
+import { Illustration } from '@/components/art/Illustration';
 import { Panel } from '@/components/ui/Panel';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { getBusinessType } from '@/data/businesses';
@@ -29,11 +30,14 @@ function Row({ label, value }: { label: string; value: string }) {
 
 function Header({ type, right }: { type: BusinessType; right: React.ReactNode }) {
   return (
+    <>
+    <Illustration id={type.id} />
     <View style={styles.header}>
       <Ionicons name={type.icon as keyof typeof Ionicons.glyphMap} size={26} color={colors.gold} />
       <Text style={styles.name}>{type.name}</Text>
       {right}
     </View>
+    </>
   );
 }
 

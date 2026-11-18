@@ -199,3 +199,9 @@ Not yet built (next milestones):
 Known notes:
 - `npm audit` reports a few moderate advisories in dev tooling; not a runtime concern.
 - Web preview has no SQLite; it falls back to memory (no persistence).
+
+## v0.14 Illustrated
+- Shape DSL (`src/utils/shapes.ts`) drawn with react-native-svg (`components/art`) and also exportable as plain SVG for previews/tests.
+- Illustrated banners for every business and institution (`data/illustrations.ts`), shown on their cards.
+- Animated, step-through battle diagrams with captions for Cannae, Horns of the Buffalo, Feigned Retreat (Kalka), Russia 1812, Salamis and Lepanto (`data/diagrams.ts`, `BattleDiagram`). Early steps unlock at Discovery, the rest at Understanding. Captions flag disputed numbers.
+- Tests for illustration coverage and diagram integrity (101 tests).

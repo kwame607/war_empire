@@ -3,6 +3,7 @@ import { Alert, StyleSheet, Text, View } from 'react-native';
 
 import { Chip } from '@/components/ui/Chip';
 import { GameButton } from '@/components/ui/GameButton';
+import { Illustration } from '@/components/art/Illustration';
 import { Panel } from '@/components/ui/Panel';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { getInstitutionType } from '@/data/institutions';
@@ -16,11 +17,14 @@ type Icon = keyof typeof Ionicons.glyphMap;
 
 function Header({ type, right }: { type: InstitutionType; right: React.ReactNode }) {
   return (
+    <>
+    <Illustration id={type.id} />
     <View style={styles.header}>
       <Ionicons name={type.icon as Icon} size={26} color={colors.gold} />
       <Text style={styles.name}>{type.name}</Text>
       {right}
     </View>
+    </>
   );
 }
 
