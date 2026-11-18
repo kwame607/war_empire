@@ -2,7 +2,8 @@ import { WAR_RELATION_ON_DECLARE } from './constants';
 import { tick } from './engine';
 import { addLog, fail } from './log';
 import { getStageIndex, sumUnits } from './selectors';
-import { buildWarScenario, peaceTerms } from './warCore';
+import { getSettlement } from '../data/world';
+import { annexable, buildWarScenario, peaceTerms } from './warCore';
 import type { ActionResult, GameState } from './types';
 
 const clamp = (n: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, n));
@@ -42,13 +43,35 @@ export function declareWar(input: GameState, rivalId: string, now: number): Acti
   };
 }
 
-export function makePeace(input: GameState, now: number): ActionResult {
+export function makePeace(input: GameState, now: number, annexId?: string): ActionResult {
   const state = tick(input, now);
   const war = state.war;
   if (!war) return fail('You are not at war.');
   if (state.battle || state.expedition) return fail('Finish the fighting first.');
   const rival = state.world.rivals.find((x) => x.id === war.rivalId);
   if (!rival) return fail('Unknown kingdom.');
+  if (annexId) {
+    if (!annexable(war, rival).includes(annexId)) return fail('You cannot take that province.');
+    const name = getSettlement(annexId).name;
+    return {
+      ok: true,
+      state: {
+        ...state,
+        war: null,
+        territories: [...state.territories, annexId],
+        reputation: state.reputation + 3,
+        world: {
+          ...state.world,
+          rivals: state.world.rivals.map((x) =>
+            x.id === rival.id
+              ? { ...x, relation: -40, power: Math.round(x.power * 0.9 * 10) / 10, holdings: x.holdings.filter((h) => h !== annexId) }
+              : x,
+          ),
+        },
+        log: addLog(state.log, now, `Peace with ${rival.name}. ${name} is now yours. Keep a garrison there, or it may rise in revolt.`),
+      },
+    };
+  }
   const t = peaceTerms(war, rival);
   if (t.kind === 'tribute' && state.resources.gold < t.gold) return fail(`You cannot afford the ${t.gold} gold they demand.`);
   const gold = t.kind === 'reparations' ? state.resources.gold + t.gold : t.kind === 'tribute' ? state.resources.gold - t.gold : state.resources.gold;

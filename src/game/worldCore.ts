@@ -1,15 +1,22 @@
 import { CIVILISATIONS } from '../data/civilisations';
+import { getSettlement } from '../data/world';
 import { mulberry32 } from './battle';
 import {
   ALLIANCE_GOLD_PER_HOUR,
   OFFER_LIFETIME_TURNS,
+  REVOLT_CHANCE,
   TRADE_PACT_GOLD_PER_HOUR,
   WORLD_MAX_CATCHUP_TURNS,
   WORLD_TURN_SECONDS,
 } from './constants';
+import { START_HOLDINGS, garrisonNeeded } from './territoryCore';
 import { addLog } from './log';
 import { bureauLevel, sumUnits } from './selectors';
 import type { Envoy, GameState, Rival, RivalTrait, WorldState } from './types';
+
+const START_OWNER: Record<string, string> = Object.fromEntries(
+  Object.entries(START_HOLDINGS).flatMap(([civ, ids]) => ids.map((id) => [id, civ])),
+);
 
 const clamp = (n: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, n));
 const TRAITS: RivalTrait[] = ['expansionist', 'mercantile', 'honourable', 'treacherous'];
@@ -53,6 +60,7 @@ export function initWorld(playerCivId: string, seed: number, now: number): World
     relation: Math.round(rng() * 20 - 5),
     pact: 'none',
     lastRaidTurn: -99,
+    holdings: [...(START_HOLDINGS[c.id] ?? [])],
   }));
   return { turn: 0, nextTurnAt: now + WORLD_TURN_SECONDS * 1000, rivals, envoys: [], offers: [] };
 }
@@ -214,8 +222,23 @@ function runTurn(state: GameState, at: number): GameState {
     }
   }
 
+  // Provinces held without enough soldiers may rise up.
+  let territories = state.territories;
+  if (territories.length > 0 && mine < garrisonNeeded(state)) {
+    const id = territories[Math.floor(rng() * territories.length)];
+    if (rng() < REVOLT_CHANCE) {
+      territories = territories.filter((t) => t !== id);
+      const lost = getSettlement(id).name;
+      const owner = START_OWNER[id];
+      const r = owner ? rivals.find((x) => x.id === owner) : undefined;
+      if (r) r.holdings = [...r.holdings, id];
+      log = addLog(log, at, `${lost} rose in revolt against your thin garrison and is lost. A larger army would have held it.`);
+    }
+  }
+
   return {
     ...state,
+    territories,
     resources: { ...state.resources, gold },
     log,
     world: { ...w, turn, nextTurnAt: w.nextTurnAt + WORLD_TURN_SECONDS * 1000, rivals, offers },

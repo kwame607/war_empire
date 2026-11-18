@@ -1,4 +1,4 @@
-export const SAVE_VERSION = 7;
+export const SAVE_VERSION = 8;
 
 /** Production counts for at most this long while the player is away. */
 export const OFFLINE_CAP_SECONDS = 12 * 3600;
@@ -58,3 +58,8 @@ export const PRACTICAL_BOOST = 1.15;
 // --- War (v0.7) ---
 export const WAR_RELATION_ON_DECLARE = -50;
 export const WAR_ENEMY_SHARE = 0.6;
+
+// --- Territory (v0.8) ---
+export const ANNEX_WINS_REQUIRED = 2;
+export const GARRISON_PER_PROVINCE = 18;
+export const REVOLT_CHANCE = 0.15;

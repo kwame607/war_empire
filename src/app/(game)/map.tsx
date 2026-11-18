@@ -8,7 +8,9 @@ import { GameScreen } from '@/components/ui/GameScreen';
 import { Panel } from '@/components/ui/Panel';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { SectionHeader } from '@/components/ui/SectionHeader';
-import { CONTINENTS, SETTLEMENTS } from '@/data/world';
+import { CONTINENTS, getSettlement, SETTLEMENTS } from '@/data/world';
+import { sumUnits } from '@/game/selectors';
+import { garrisonNeeded, holdingYield } from '@/game/territoryCore';
 import { useGame, useGameState } from '@/store/GameProvider';
 import { colors, fonts, spacing } from '@/theme';
 
@@ -38,6 +40,29 @@ export default function MapScreen() {
         <Text style={styles.legendText}>● Explored   ◌ Unexplored (fog)   ◎ Home</Text>
       </View>
       <SettlementPanel state={state} settlementId={shownId} onScout={scout} />
+
+      {state.territories.length > 0 ? (
+        <>
+          <SectionHeader title="Your provinces" />
+          <Panel>
+            {state.territories.map((id) => {
+              const st = getSettlement(id);
+              const y = holdingYield(id);
+              return (
+                <View key={id} style={styles.cont}>
+                  <Text style={styles.contName}>{st.name}</Text>
+                  <Text style={styles.contBlurb}>
+                    {y.gold >= 0 ? '+' : ''}{y.gold} gold{y.food ? `, +${y.food} food` : ''}{y.wood ? `, +${y.wood} wood` : ''}{y.stone ? `, +${y.stone} stone` : ''} per hour
+                  </Text>
+                </View>
+              );
+            })}
+            <Text style={styles.contBlurb}>
+              Garrison needed: {garrisonNeeded(state)} soldiers. You have {sumUnits(state.army.units)}. Thin garrisons invite revolt.
+            </Text>
+          </Panel>
+        </>
+      ) : null}
 
       <SectionHeader title="Continents" />
       <Panel>

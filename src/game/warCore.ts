@@ -1,7 +1,8 @@
 import type { Scenario } from '../data/scenarios';
 import { emptyUnits } from '../data/units';
 import { mulberry32 } from './battle';
-import { WAR_ENEMY_SHARE } from './constants';
+import { ANNEX_WINS_REQUIRED, WAR_ENEMY_SHARE } from './constants';
+import { capitalOf } from './territoryCore';
 import type { EnemyTrait, GameState, Rival, Terrain, War, Weather } from './types';
 
 const TRAIT_OF: Record<Rival['trait'], EnemyTrait> = {
@@ -54,6 +55,12 @@ export function warScore(war: War): number {
 }
 
 /** What peace would look like right now. */
+/** Provinces you could take instead of gold. The capital is never on offer. */
+export function annexable(war: War, rival: Rival): string[] {
+  if (war.wins < ANNEX_WINS_REQUIRED || warScore(war) < 1) return [];
+  return rival.holdings.filter((id) => id !== capitalOf(rival.id));
+}
+
 export function peaceTerms(war: War, rival: Rival): { kind: 'reparations' | 'white' | 'tribute'; gold: number; text: string } {
   const score = warScore(war);
   if (score >= 1) {

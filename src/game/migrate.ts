@@ -1,5 +1,6 @@
 import { emptyUnits } from '../data/units';
 import { SAVE_VERSION } from './constants';
+import { START_HOLDINGS } from './territoryCore';
 import { initWorld } from './worldCore';
 import type { GameState } from './types';
 
@@ -52,6 +53,13 @@ export function migrateState(raw: unknown): GameState | null {
 
   // v6 -> v7: war
   if (s.version < 7) next.war = null;
+
+  // v7 -> v8: territory
+  if (s.version < 8) {
+    next.territories = [];
+    const w = next.world as { rivals: Record<string, unknown>[] };
+    w.rivals = w.rivals.map((r) => ({ ...r, holdings: [...(START_HOLDINGS[r.id as string] ?? [])] }));
+  }
 
   next.version = SAVE_VERSION;
   return next as unknown as GameState;

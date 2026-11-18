@@ -1,4 +1,5 @@
 import { registerScenario } from '../data/scenarios';
+import { territoryIncome } from './territoryCore';
 import { resolveExpedition } from './expedition';
 import { resolveMissions } from './intelCore';
 import { advanceWorld, initWorld, pactIncome } from './worldCore';
@@ -85,6 +86,7 @@ export function createNewGame(config: NewGameConfig, now: number): GameState {
     mastery: {},
     simulation: null,
     war: null,
+    territories: [],
   };
 }
 
@@ -184,6 +186,8 @@ export function tick(state: GameState, now: number): GameState {
   }
 
   resources.gold += pactIncome(state) * (countedSeconds / 3600);
+  const land = territoryIncome(state);
+  for (const k of RESOURCE_KEYS) resources[k] += land[k] * (countedSeconds / 3600);
   resources.gold = Math.max(0, resources.gold);
   resources.food = Math.max(0, resources.food);
 

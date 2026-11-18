@@ -5,9 +5,10 @@ import { GameButton } from '@/components/ui/GameButton';
 import { Panel } from '@/components/ui/Panel';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { SectionHeader } from '@/components/ui/SectionHeader';
-import { ENVOY_COST_GOLD } from '@/game/constants';
+import { ENVOY_COST_GOLD, GARRISON_PER_PROVINCE } from '@/game/constants';
 import { envoyBlocker } from '@/game/diplomacy';
-import { peaceTerms, warScore } from '@/game/warCore';
+import { getSettlement } from '@/data/world';
+import { annexable, peaceTerms, warScore } from '@/game/warCore';
 import { warBlocker } from '@/game/war';
 import { formatDuration } from '@/game/selectors';
 import type { ActionResult, EnvoyKind, GameState } from '@/game/types';
@@ -31,7 +32,7 @@ export function DiplomacyPanel({ state }: { state: GameState }) {
       </Text>
       {pactIncome(state) > 0 ? <Text style={styles.gold}>Pacts bring in {pactIncome(state)} gold per hour.</Text> : null}
 
-      {state.war ? <WarPanel state={state} onPeace={() => say(makePeace(), 'Cannot make peace')} /> : null}
+      {state.war ? <WarPanel state={state} onPeace={(annexId) => say(makePeace(annexId), 'Cannot make peace')} /> : null}
 
       {state.world.offers.length > 0 ? <SectionHeader title="Messages" /> : null}
       {state.world.offers.map((o) => {
@@ -62,6 +63,7 @@ export function DiplomacyPanel({ state }: { state: GameState }) {
               {r.pact !== 'none' ? <Chip label={r.pact === 'trade' ? 'Trade pact' : 'Alliance'} /> : null}
             </View>
             <Text style={styles.meta}>{powerEstimate(state, r)}</Text>
+            <Text style={styles.meta}>Holds {r.holdings.length} {r.holdings.length === 1 ? 'settlement' : 'settlements'}.</Text>
             <Text style={styles.meta}>
               Relations: {relationLabel(r.relation)} ({Math.round(r.relation)})
             </Text>
@@ -120,7 +122,7 @@ export function DiplomacyPanel({ state }: { state: GameState }) {
   );
 }
 
-function WarPanel({ state, onPeace }: { state: GameState; onPeace: () => void }) {
+function WarPanel({ state, onPeace }: { state: GameState; onPeace: (annexId?: string) => void }) {
   const war = state.war!;
   const rival = state.world.rivals.find((r) => r.id === war.rivalId);
   if (!rival) return null;
@@ -133,8 +135,14 @@ function WarPanel({ state, onPeace }: { state: GameState; onPeace: () => void })
       </Text>
       <Text style={styles.meta}>Fight the campaign in Military → Operations. Victories shrink their army; defeats embolden them.</Text>
       <Text style={styles.meta}>Peace today: {terms.text}</Text>
-      <View style={{ marginTop: spacing.md }}>
-        <GameButton compact variant="secondary" label="Sue for peace" onPress={onPeace} />
+      {annexable(war, rival).length > 0 ? (
+        <Text style={styles.meta}>You may take a province instead of gold. Provinces pay income but need a garrison of {GARRISON_PER_PROVINCE} soldiers each.</Text>
+      ) : null}
+      <View style={{ marginTop: spacing.md, gap: spacing.sm }}>
+        {annexable(war, rival).map((id) => (
+          <GameButton key={id} compact label={`Take ${getSettlement(id).name}`} onPress={() => onPeace(id)} />
+        ))}
+        <GameButton compact variant="secondary" label="Sue for peace" onPress={() => onPeace()} />
       </View>
     </Panel>
   );

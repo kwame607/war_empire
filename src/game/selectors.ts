@@ -1,3 +1,4 @@
+import { territoryIncome } from './territoryCore';
 import { pactIncome } from './worldCore';
 import { getInstitutionType } from '../data/institutions';
 import { PROGRESSION_STAGES } from '../data/progression';
@@ -129,6 +130,11 @@ export function getRates(state: GameState): Rates {
     if (br.produces && br.produces.resource !== 'gold') r[br.produces.resource] += br.produces.perHour;
   }
   r.income += pactIncome(state);
+  const land = territoryIncome(state);
+  r.income += land.gold;
+  r.food += land.food;
+  r.wood += land.wood;
+  r.stone += land.stone;
   const army = getArmyUpkeep(state);
   r.expenses += getInstitutionUpkeep(state) + army.gold;
   r.food -= army.food;

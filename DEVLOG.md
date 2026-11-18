@@ -1,5 +1,14 @@
 # WAR EMPIRE Development Log
 
+## Version 0.8: Conquest and Territory (complete, pending phone testing)
+
+- Each kingdom now holds real settlements from the world map (a capital plus provinces; e.g. the Aurelian Republic holds Aurelia, Veridian Fields and Port Calder).
+- After winning at least 2 battles of a war (and being ahead), "Sue for peace" offers a choice: take reparations in gold, or take one of their provinces instead. Capitals can never be taken, and a kingdom with only a capital (the Serene Republic) can only pay reparations.
+- Provinces pay income by kind (cities and ports gold, farmland food, villages wood, mines stone; minus 3 gold/h garrison cost), visible in your rates and in Map → Your provinces.
+- The price: each province needs 18 soldiers in your army. If your army is too thin, a province may rise in revolt on a world turn and return to its former owner. The former owner's relations drop and its strength falls 10%.
+- Save version 8; territoryCore.ts; 6 new tests (81 total).
+- Not yet: kingdoms retaking land, allies joining wars, unowned settlements to colonise, naval warfare.
+
 ## Version 0.7: War and Consequences (complete, pending phone testing)
 
 - Map → Diplomacy: "Declare war" on a rival kingdom (needs the Military stage, soldiers ready, and no pact with them). Only one war at a time.

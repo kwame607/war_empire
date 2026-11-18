@@ -162,6 +162,9 @@ export type GameState = {
   simulation: SimulationResult | null;
   // --- added in save version 7 ---
   war: War | null;
+  // --- added in save version 8 ---
+  /** Settlement ids you hold besides your home. */
+  territories: string[];
 };
 
 export type NewGameConfig = {
@@ -438,6 +441,8 @@ export type Rival = {
   relation: number;
   pact: PactKind;
   lastRaidTurn: number;
+  /** Settlements this kingdom holds (its capital is the one matching its id's start settlement). */
+  holdings: string[];
 };
 
 export type EnvoyKind = 'goodwill' | 'trade' | 'alliance';
