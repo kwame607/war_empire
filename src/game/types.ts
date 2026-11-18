@@ -526,7 +526,7 @@ export type Fleet = {
   lastEngagement: NavalReport | null;
 };
 
-export type NavalTactic = 'line' | 'board' | 'screen';
+export type NavalTactic = 'line' | 'board' | 'screen' | 'narrows' | 'galleass';
 
 export type NavalReport = {
   at: number;

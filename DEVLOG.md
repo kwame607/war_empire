@@ -1,5 +1,15 @@
 # WAR EMPIRE Development Log
 
+## Version 0.10: Naval Doctrines (complete, pending phone testing)
+
+- Two new historical records in the Knowledge library: Themistocles and the Narrows of Salamis (480 BC) and The Galleasses of Lepanto (1571), with the same Discovery / Understanding stages. Casualty and fleet figures are given as contested estimates.
+- Understanding a record unlocks a naval tactic in Military → Navy:
+  - Lure into the narrows (Salamis): only works against a clearly larger fleet (their attack is cut sharply); against an equal fleet it wastes the round.
+  - Galleass guns (Lepanto): a heavy salvo, strongest against a fleet about your size.
+- Winning an engagement in which the doctrine worked earns Practical Experience (+15% effect).
+- Naval doctrines have no Mastery path yet (the record page says so).
+- 93 tests (4 new).
+
 ## Version 0.9: Naval Warfare (complete, pending phone testing)
 
 - New institution: Shipyard (Economy → Institutions; needs a Barracks and reputation 10). Levels raise fleet capacity (4 / 12 / 20) and shipbuilding speed.

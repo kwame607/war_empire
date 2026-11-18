@@ -9,11 +9,13 @@ import { SectionHeader } from '@/components/ui/SectionHeader';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { FLEET_DETERS_RAIDS_AT, SHIP_COST, SHIP_UPKEEP_GOLD } from '@/game/constants';
 import { pendingShips, shipSeconds } from '@/game/naval';
-import { enemyFleetSize, habitOf, NAVAL_TACTICS, needsSeaControl } from '@/game/navalCore';
+import { availableTactics, enemyFleetSize, habitOf, needsSeaControl } from '@/game/navalCore';
 import { fleetCapacity, formatDuration, shipyardLevel } from '@/game/selectors';
 import type { GameState, NavalTactic } from '@/game/types';
 import { useGame } from '@/store/GameProvider';
 import { colors, fonts, spacing } from '@/theme';
+
+const SHORT: Record<NavalTactic, string> = { line: 'Line', board: 'Board', screen: 'Screen', narrows: 'Narrows', galleass: 'Guns' };
 
 export function NavyTab({ state }: { state: GameState }) {
   const { buildShips, fightNaval } = useGame();
@@ -82,11 +84,14 @@ export function NavyTab({ state }: { state: GameState }) {
                   {rival.traitKnown ? `They tend to fight by ${habitOf(rival) === 'line' ? 'the line of battle' : habitOf(rival) === 'board' ? 'boarding' : 'fast screens'}.` : 'Their naval habits are unknown. Send an envoy to learn their character.'}
                 </Text>
                 <Text style={styles.meta}>Choose a tactic for each of three rounds. Line beats boarding, boarding beats screens, screens beat the line.</Text>
+                {availableTactics(state).filter((t) => t.doctrine).map((t) => (
+                  <Text key={t.id} style={styles.meta}>{t.name}: {t.text}</Text>
+                ))}
                 {[0, 1, 2].map((i) => (
                   <View key={i} style={{ marginTop: spacing.sm }}>
                     <Text style={styles.meta}>Round {i + 1}</Text>
                     <SegmentedControl
-                      options={NAVAL_TACTICS.map((t) => ({ value: t.id, label: t.id === 'line' ? 'Line' : t.id === 'board' ? 'Board' : 'Screen' }))}
+                      options={availableTactics(state).map((t) => ({ value: t.id, label: SHORT[t.id] }))}
                       value={plan[i]}
                       onChange={(v) => setPlan((p) => p.map((x, j) => (j === i ? v : x)))}
                     />

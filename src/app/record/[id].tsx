@@ -20,7 +20,10 @@ const DOCTRINE_ORDER: Record<string, string> = {
   'buffalo-horns': 'Horns of the buffalo',
   'feigned-retreat': 'Feigned retreat',
   'russia-1812': 'Strategic withdrawal',
+  salamis: 'Lure into the narrows (Military → Navy)',
+  lepanto: 'Galleass guns (Military → Navy)',
 };
+const NAVAL = new Set(['salamis', 'lepanto']);
 
 function MasteryPanel({ doctrine }: { doctrine: string }) {
   const { state, claimMastery } = useGame();
@@ -128,7 +131,7 @@ export default function RecordScreen() {
               title="Practical Experience"
               description={
                 DOCTRINE_ORDER[entry.id]
-                  ? `Use the order "${DOCTRINE_ORDER[entry.id]}" successfully in battle (Military → Operations) to turn understanding into experience.`
+                  ? `Use "${DOCTRINE_ORDER[entry.id]}" successfully in battle to turn understanding into experience.`
                   : 'Apply this doctrine in battle to gain experience.'
               }
               arrivesIn="your first successful use"
@@ -141,6 +144,8 @@ export default function RecordScreen() {
                 You have drilled this doctrine until it is second nature. Its effects are 28% stronger.
               </Text>
             </Panel>
+          ) : stage >= 3 && NAVAL.has(entry.id) ? (
+            <LockedNotice title="Mastery" description="Naval doctrines do not yet have a path to Mastery." arrivesIn="a later milestone" />
           ) : stage >= 3 ? (
             <MasteryPanel doctrine={entry.id} />
           ) : (

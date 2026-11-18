@@ -3,7 +3,7 @@ import { tick } from './engine';
 import { addLog, fail } from './log';
 import { canAfford, pay } from './economy';
 import { fleetCapacity, shipyardLevel } from './selectors';
-import { resolveNaval } from './navalCore';
+import { availableTactics, resolveNaval } from './navalCore';
 import type { ActionResult, GameState, NavalTactic } from './types';
 
 export function shipSeconds(state: GameState): number {
@@ -41,9 +41,11 @@ export function fightNaval(input: GameState, plan: NavalTactic[], now: number): 
   if (war.seaControl) return fail('You already command the sea.');
   if (state.fleet.ships <= 0) return fail('You have no ships.');
   if (plan.length !== 3) return fail('Choose a tactic for each of the three rounds.');
+  const allowed = availableTactics(state).map((t) => t.id);
+  if (plan.some((t) => !allowed.includes(t))) return fail('You have not studied that tactic.');
   const rival = state.world.rivals.find((r) => r.id === war.rivalId);
   if (!rival) return fail('Unknown kingdom.');
-  const { report, shipsLeft } = resolveNaval(state, rival, plan, state.rngSeed + now, now);
+  const { report, shipsLeft, doctrinesProven } = resolveNaval(state, rival, plan, state.rngSeed + now, now);
   return {
     ok: true,
     state: {
@@ -51,6 +53,7 @@ export function fightNaval(input: GameState, plan: NavalTactic[], now: number): 
       rngSeed: (state.rngSeed * 1103515245 + 12345) >>> 0,
       fleet: { ...state.fleet, ships: shipsLeft, lastEngagement: report },
       war: report.won ? { ...war, seaControl: true } : war,
+      knowledge: doctrinesProven.reduce((k, id) => ((k[id] ?? 0) === 2 ? { ...k, [id]: 3 } : k), state.knowledge),
       reputation: state.reputation + (report.won ? 1 : 0),
       log: addLog(state.log, now, report.won ? `Your fleet won command of the sea against ${rival.name}.` : `Your fleet was beaten back by ${rival.name}.`),
     },

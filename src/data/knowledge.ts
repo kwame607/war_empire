@@ -207,6 +207,96 @@ export const KNOWLEDGE_ENTRIES: KnowledgeEntry[] = [
       },
     ],
   },
+  {
+    id: 'salamis',
+    title: 'Themistocles and the Narrows of Salamis',
+    era: 'Salamis, 480 BC',
+    summary: 'A smaller fleet draws a larger one into cramped waters where its numbers become a handicap.',
+    studyCost: 100,
+    studySeconds: 75,
+    sections: [
+      {
+        heading: 'Where and when',
+        unlocksAtStage: 1,
+        body: 'The narrow strait between the island of Salamis and the coast of Attica, near Athens, in late September 480 BC, during the Persian invasion of Greece.',
+      },
+      {
+        heading: 'The battle',
+        unlocksAtStage: 1,
+        body: 'After Persian land forces took Athens, the allied Greek fleet gathered at Salamis. Herodotus, our main source, gives the Greeks about 370 ships (triremes) against a far larger Persian fleet. His figures for the Persians, around 1,200 ships, are widely doubted, and modern estimates are lower, though the Persians clearly had the larger fleet.',
+      },
+      {
+        heading: 'Commanders and forces',
+        unlocksAtStage: 1,
+        body: 'Greeks: a coalition led nominally by the Spartan Eurybiades, with the Athenian Themistocles supplying much of the strategy and about half the ships. Persians: the fleet of King Xerxes, drawn from Phoenician, Egyptian, Ionian Greek and other contingents.',
+      },
+      {
+        heading: 'How it worked',
+        unlocksAtStage: 2,
+        body: 'Themistocles wanted to fight in the confined waters, where the Persian advantage in numbers and manoeuvre would count for less. According to Herodotus he sent a messenger to Xerxes suggesting the Greeks were divided and about to flee, tempting the Persians to enter the strait at night and at dawn. Packed into the narrows, the Persian ships struggled to turn and row in order, collided with each other, and were rammed by Greek ships that held their formation. Ancient accounts give Persian losses of around 200 ships against roughly 40 Greek, though the exact numbers are uncertain.',
+      },
+      {
+        heading: 'Conditions that helped',
+        unlocksAtStage: 2,
+        body: 'A strait narrow enough to cancel a numerical edge, an enemy keen to finish the war at once, local knowledge of the waters, and winds and swells that accounts say troubled the larger Persian ships.',
+      },
+      {
+        heading: 'Weaknesses',
+        unlocksAtStage: 2,
+        body: 'It depends on an enemy who will enter the trap, and the lure may fail if the opposing commander scouts the waters or waits you out. If your own fleet is not disciplined enough to hold formation in tight water, the confusion hurts you too. And the victory did not end the war by itself: the Persian army remained on land until Plataea the next year.',
+      },
+      {
+        heading: 'In WAR EMPIRE',
+        unlocksAtStage: 2,
+        body: 'Unlocks the naval tactic "Lure into the narrows". It works only when the enemy fleet is clearly larger than yours: their numbers choke and their attack is sharply reduced. Against an equal or smaller fleet it achieves nothing.',
+      },
+    ],
+  },
+  {
+    id: 'lepanto',
+    title: 'The Galleasses of Lepanto',
+    era: 'Lepanto, 1571',
+    summary: 'Heavy gun platforms placed ahead of the line break up an enemy formation before the fleets close.',
+    studyCost: 120,
+    studySeconds: 90,
+    sections: [
+      {
+        heading: 'Where and when',
+        unlocksAtStage: 1,
+        body: 'The Gulf of Patras, off western Greece, on 7 October 1571, during the war over Cyprus between the Ottoman Empire and a Holy League of Spain, Venice, the Papal States, Genoa and others.',
+      },
+      {
+        heading: 'The battle',
+        unlocksAtStage: 1,
+        body: 'Two great galley fleets of roughly 200 ships each met in one of the largest naval battles in history. The Ottoman fleet was commanded by Ali Pasha, and the Holy League fleet by Don John of Austria. Casualty figures are debated, but the Ottoman fleet suffered far heavier losses in ships and men, and many thousands of Christian oarsmen were freed.',
+      },
+      {
+        heading: 'Commanders and forces',
+        unlocksAtStage: 1,
+        body: 'Holy League: galleys carrying many soldiers with firearms, plus six large Venetian galleasses, which were broad, heavily armed galley-type ships. Ottomans: swift galleys with experienced crews and many archers, led by Ali Pasha with the corsair Uluj Ali commanding the southern wing.',
+      },
+      {
+        heading: 'How it worked',
+        unlocksAtStage: 2,
+        body: 'The galleasses were towed ahead of the Christian line. As the Ottoman fleet advanced they fired on the leading galleys, sinking some and, by most accounts, disordering the oncoming formation before the main lines met. In the close fighting that followed, soldiers with arquebuses and the boarding battle favoured the Holy League, and the Ottoman centre was overwhelmed.',
+      },
+      {
+        heading: 'Conditions that helped',
+        unlocksAtStage: 2,
+        body: 'A calm sea and a tight gulf where both fleets deployed in line, so the gun platforms could be placed in front and the enemy had to pass them. Superior firepower in the Christian fleet, and many troops aboard for boarding actions.',
+      },
+      {
+        heading: 'Weaknesses',
+        unlocksAtStage: 2,
+        body: 'The advantage is greatest when the enemy must come to you in a crowded line. A fleet that outnumbers a smaller one by a wide margin, or one that avoids the guns, loses less. And the victory had limited strategic effect: the Ottomans rebuilt their fleet within a year and kept Cyprus.',
+      },
+      {
+        heading: 'In WAR EMPIRE',
+        unlocksAtStage: 2,
+        body: 'Unlocks the naval tactic "Galleass guns". A heavy opening salvo: your fleet inflicts far more damage when the enemy fleet is roughly as large as yours, and only a little more when you hugely outnumber a weak one or are badly outnumbered yourself.',
+      },
+    ],
+  },
 ];
 
 export function getKnowledgeEntry(id: string): KnowledgeEntry | undefined {

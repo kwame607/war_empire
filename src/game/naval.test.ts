@@ -6,7 +6,7 @@ import { createNewGame, fastForward, tick } from './engine';
 import { migrateState } from './migrate';
 import { startBattle } from './military';
 import { buildShips, fightNaval } from './naval';
-import { enemyFleetSize, habitOf, resolveNaval, seaControlBlocker } from './navalCore';
+import { availableTactics, enemyFleetSize, habitOf, resolveNaval, seaControlBlocker } from './navalCore';
 import { fleetCapacity, getRates } from './selectors';
 import { buildWarScenario } from './warCore';
 import type { GameState, NavalTactic, War } from './types';
@@ -58,13 +58,69 @@ describe('navy', () => {
   });
 });
 
+describe('naval doctrines', () => {
+  const setup = (mine: number, theirsPower: number, know: Record<string, number>) => {
+    const base = { ...yard(3, mine), knowledge: know };
+    const { s } = warWith(base, 'serene');
+    const rival = { ...s.world.rivals.find((r) => r.id === 'serene')!, power: theirsPower };
+    return { s, rival };
+  };
+  const avgLoss = (s: GameState, rival: ReturnType<typeof setup>['rival'], t: NavalTactic) => {
+    let enemyLost = 0;
+    let myLost = 0;
+    for (let i = 0; i < 40; i++) {
+      const r = resolveNaval(s, rival, [t, t, t], i * 131, T0).report;
+      enemyLost += r.enemyLost;
+      myLost += r.shipsLost;
+    }
+    return { enemyLost, myLost };
+  };
+
+  it('only studied doctrines are available', () => {
+    assert.deepEqual(availableTactics(yard()).map((t) => t.id).sort(), ['board', 'line', 'screen']);
+    assert.ok(availableTactics({ ...yard(), knowledge: { salamis: 2 } }).some((t) => t.id === 'narrows'));
+    const { s } = warWith({ ...yard(1, 3), knowledge: {} }, 'serene');
+    assert.equal(fightNaval(s, ['narrows', 'narrows', 'narrows'], T0).ok, false);
+  });
+
+  it('the narrows help against a much larger fleet and do nothing against a smaller one', () => {
+    const big = setup(12, 150, { salamis: 2 }); // they outnumber us
+    const plain = avgLoss(big.s, big.rival, 'screen');
+    const narrows = avgLoss(big.s, big.rival, 'narrows');
+    assert.ok(narrows.myLost < plain.myLost, 'cramped enemy should hurt us less');
+    const even = setup(14, 100, { salamis: 2 }); // roughly equal fleets: the lure achieves nothing
+    const wasted = avgLoss(even.s, even.rival, 'narrows').enemyLost;
+    const basic = (['line', 'board', 'screen'] as NavalTactic[]).reduce((a, t) => a + avgLoss(even.s, even.rival, t).enemyLost, 0) / 3;
+    assert.ok(wasted < basic);
+  });
+
+  it('galleass guns hurt most against a matched fleet, and experience makes them stronger', () => {
+    const matched = setup(10, 70, { lepanto: 2 });
+    const guns = avgLoss(matched.s, matched.rival, 'galleass');
+    const line = avgLoss(matched.s, matched.rival, 'line');
+    assert.ok(guns.enemyLost >= line.enemyLost * 0.95);
+    const exp = setup(10, 70, { lepanto: 3 });
+    assert.ok(avgLoss(exp.s, exp.rival, 'galleass').enemyLost > guns.enemyLost);
+  });
+
+  it('proving a doctrine in a won engagement earns Practical Experience', () => {
+    let proven = false;
+    for (let i = 0; i < 20 && !proven; i++) {
+      const { s } = warWith({ ...yard(3, 20), knowledge: { lepanto: 2 }, rngSeed: i * 17 + 3 }, 'serene');
+      const r = fightNaval(s, ['galleass', 'line', 'line'], T0 + i);
+      if (r.ok && r.state.knowledge.lepanto === 3) proven = true;
+    }
+    assert.ok(proven);
+  });
+});
+
 describe('command of the sea', () => {
   it('a larger fleet and the right tactics win; a tiny one loses', () => {
     const base = yard(3, 20);
     const { s } = warWith(base, 'serene');
     const rival = s.world.rivals.find((r) => r.id === 'serene')!;
-    const counter: Record<NavalTactic, NavalTactic> = { board: 'line', line: 'screen', screen: 'board' };
-    const best = Array(3).fill(counter[habitOf(rival)]) as NavalTactic[];
+    const counter: Partial<Record<NavalTactic, NavalTactic>> = { board: 'line', line: 'screen', screen: 'board' };
+    const best = Array(3).fill(counter[habitOf(rival)] ?? 'line') as NavalTactic[];
     let wins = 0;
     for (let i = 0; i < 20; i++) if (resolveNaval(s, rival, best, i * 977, T0).report.won) wins++;
     assert.ok(wins >= 18, `big fleet should nearly always win, won ${wins}`);
