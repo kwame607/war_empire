@@ -97,6 +97,9 @@ function unitShapes(u: DUnit, p: Pose): Shape[] {
  * Pass the same index for both to draw a still scene.
  */
 export function diagramShapes(diagram: Diagram, from: number, to: number, t: number): Shape[] {
+  const last = diagram.scenes.length - 1;
+  to = Math.max(0, Math.min(last, to));
+  from = Math.max(0, Math.min(last, from));
   const a = posesAt(diagram, from);
   const b = posesAt(diagram, to);
   const mid = from === to ? b : mixPoses(a, b, ease(t));

@@ -84,7 +84,7 @@ export default function RecordScreen() {
       {diagram ? (
         <Panel>
           <Text style={styles.heading}>Watch how it unfolded</Text>
-          <BattleDiagram diagram={diagram} stage={stage} />
+          <BattleDiagram key={entry.id} diagram={diagram} stage={stage} />
         </Panel>
       ) : null}
 

@@ -22,7 +22,8 @@ export function BattleDiagram({ diagram, stage }: { diagram: Diagram; stage: num
   const [width, setWidth] = useState(300);
 
   const last = visible.length - 1;
-  const cur = Math.min(scene, last);
+  const cur = Math.max(0, Math.min(scene, last));
+  const prev = Math.max(0, Math.min(from, last));
 
   useEffect(() => {
     if (!playing || visible.length < 2) return;
@@ -48,7 +49,7 @@ export function BattleDiagram({ diagram, stage }: { diagram: Diagram; stage: num
   };
 
   const t = Math.min(1, elapsed / MOVE_MS);
-  const shapes = diagramShapes(diagram, from === cur ? cur : from, cur, from === cur ? 1 : t);
+  const shapes = diagramShapes(diagram, prev, cur, prev === cur ? 1 : t);
   const caption = diagram.scenes[visible[cur]].caption;
 
   return (
