@@ -116,8 +116,19 @@ export const SCENARIOS: Scenario[] = [
   },
 ];
 
+/** Scenarios created during play (wars with rival kingdoms). Re-registered from the save on every tick. */
+const dynamic = new Map<string, Scenario>();
+export function registerScenario(s: Scenario): void {
+  dynamic.set(s.id, s);
+}
+
 export function getScenario(id: string): Scenario {
-  const s = SCENARIOS.find((x) => x.id === id);
+  const s = SCENARIOS.find((x) => x.id === id) ?? dynamic.get(id);
   if (!s) throw new Error(`Unknown scenario: ${id}`);
   return s;
+}
+
+/** Fixed operations plus the current war, if any. */
+export function scenariosFor(war: { scenario: Scenario } | null): Scenario[] {
+  return war ? [war.scenario, ...SCENARIOS] : SCENARIOS;
 }

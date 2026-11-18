@@ -50,6 +50,9 @@ export function migrateState(raw: unknown): GameState | null {
     next.simulation = null;
   }
 
+  // v6 -> v7: war
+  if (s.version < 7) next.war = null;
+
   next.version = SAVE_VERSION;
   return next as unknown as GameState;
 }

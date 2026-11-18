@@ -7,6 +7,8 @@ import { ProgressBar } from '@/components/ui/ProgressBar';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { ENVOY_COST_GOLD } from '@/game/constants';
 import { envoyBlocker } from '@/game/diplomacy';
+import { peaceTerms, warScore } from '@/game/warCore';
+import { warBlocker } from '@/game/war';
 import { formatDuration } from '@/game/selectors';
 import type { ActionResult, EnvoyKind, GameState } from '@/game/types';
 import { pactIncome, powerEstimate, relationLabel, TRAIT_HELP, TRAIT_LABEL } from '@/game/worldCore';
@@ -16,7 +18,7 @@ import { colors, fonts, spacing } from '@/theme';
 const KIND_LABEL: Record<EnvoyKind, string> = { goodwill: 'Send gifts', trade: 'Propose trade', alliance: 'Propose alliance' };
 
 export function DiplomacyPanel({ state }: { state: GameState }) {
-  const { sendEnvoy, respondToOffer, breakPact } = useGame();
+  const { sendEnvoy, respondToOffer, breakPact, declareWar, makePeace } = useGame();
   const now = state.lastTickAt;
   const say = (r: ActionResult, title: string) => {
     if (!r.ok) Alert.alert(title, r.reason);
@@ -28,6 +30,8 @@ export function DiplomacyPanel({ state }: { state: GameState }) {
         Other kingdoms act on their own, even while you are away. Their temperament is hidden until you deal with them. Pacts earn gold, but a pact is only as good as the partner.
       </Text>
       {pactIncome(state) > 0 ? <Text style={styles.gold}>Pacts bring in {pactIncome(state)} gold per hour.</Text> : null}
+
+      {state.war ? <WarPanel state={state} onPeace={() => say(makePeace(), 'Cannot make peace')} /> : null}
 
       {state.world.offers.length > 0 ? <SectionHeader title="Messages" /> : null}
       {state.world.offers.map((o) => {
@@ -81,6 +85,19 @@ export function DiplomacyPanel({ state }: { state: GameState }) {
                       onPress={() => say(sendEnvoy(r.id, k), 'Cannot send')}
                     />
                   ))}
+                {warBlocker(state, r.id) === null ? (
+                  <GameButton
+                    compact
+                    variant="danger"
+                    label="Declare war"
+                    onPress={() =>
+                      Alert.alert(`War on ${r.name}?`, 'Your army will face theirs in a campaign. Honourable kingdoms will think less of you, and raiders may strike your lands.', [
+                        { text: 'Not now', style: 'cancel' },
+                        { text: 'Declare war', style: 'destructive', onPress: () => say(declareWar(r.id), 'Cannot declare war') },
+                      ])
+                    }
+                  />
+                ) : null}
                 {r.pact !== 'none' ? (
                   <GameButton
                     compact
@@ -100,6 +117,26 @@ export function DiplomacyPanel({ state }: { state: GameState }) {
         );
       })}
     </>
+  );
+}
+
+function WarPanel({ state, onPeace }: { state: GameState; onPeace: () => void }) {
+  const war = state.war!;
+  const rival = state.world.rivals.find((r) => r.id === war.rivalId);
+  if (!rival) return null;
+  const terms = peaceTerms(war, rival);
+  return (
+    <Panel tone="burgundy">
+      <Text style={styles.title}>At war with {rival.name}</Text>
+      <Text style={styles.meta}>
+        Battles won {war.wins} · lost {war.losses} ({warScore(war) > 0 ? 'you are winning' : warScore(war) < 0 ? 'you are losing' : 'even'})
+      </Text>
+      <Text style={styles.meta}>Fight the campaign in Military → Operations. Victories shrink their army; defeats embolden them.</Text>
+      <Text style={styles.meta}>Peace today: {terms.text}</Text>
+      <View style={{ marginTop: spacing.md }}>
+        <GameButton compact variant="secondary" label="Sue for peace" onPress={onPeace} />
+      </View>
+    </Panel>
   );
 }
 

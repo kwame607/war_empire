@@ -1,4 +1,5 @@
 /** Core game types. Pure data shapes: no UI code lives here. */
+import type { Scenario } from '../data/scenarios';
 
 export type Resources = {
   gold: number;
@@ -159,6 +160,8 @@ export type GameState = {
   // --- added in save version 6 ---
   mastery: Record<string, MasteryRecord>;
   simulation: SimulationResult | null;
+  // --- added in save version 7 ---
+  war: War | null;
 };
 
 export type NewGameConfig = {
@@ -488,4 +491,17 @@ export type SimulationResult = {
   terrain: Terrain;
   lines: string[];
   lesson: string;
+};
+
+// ---------------------------------------------------------------------------
+// War with a rival kingdom (save version 7)
+// ---------------------------------------------------------------------------
+
+export type War = {
+  rivalId: string;
+  /** The campaign, generated from the rival's strength when war was declared. */
+  scenario: Scenario;
+  wins: number;
+  losses: number;
+  startedAt: number;
 };

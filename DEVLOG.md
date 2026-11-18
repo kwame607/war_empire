@@ -1,5 +1,14 @@
 # WAR EMPIRE Development Log
 
+## Version 0.7: War and Consequences (complete, pending phone testing)
+
+- Map → Diplomacy: "Declare war" on a rival kingdom (needs the Military stage, soldiers ready, and no pact with them). Only one war at a time.
+- The war appears as a campaign at the top of Military → Operations, built from the rival's current strength (their army, commander temperament, terrain and weather are generated). Fight it in person or send an expedition; Intel and the War room work against it too.
+- Victories shrink the rival's strength (-15%), defeats embolden it (+5%). The war score (wins minus losses) decides the peace terms: reparations if you are ahead, a white peace if even, tribute if behind. "Sue for peace" ends the war.
+- Consequences: relations with the rival fall sharply; honourable kingdoms dislike an aggressor, expansionist ones respect it; the enemy raids your gold more often during a war (a larger army deters them).
+- Save version 7; war.ts / warCore.ts; 7 new tests (75 total).
+- Not yet: conquering territory, other kingdoms joining wars, naval warfare.
+
 ## Version 0.6: Mastery and Simulations (complete, pending phone testing)
 
 - New knowledge stage 4, Mastery. A doctrine at Practical Experience can be mastered by proving it: 2 successful uses in real battles, 3 successful war-room practice runs, and success on at least 2 different terrains. Claim it on the record page: the doctrine becomes 28% stronger (Practical Experience is 15%), plus reputation +3 and small attribute gains.

@@ -9,7 +9,7 @@ import { SectionHeader } from '@/components/ui/SectionHeader';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { getKnowledgeEntry } from '@/data/knowledge';
 import { getOrder } from '@/data/orders';
-import { getScenario, SCENARIOS } from '@/data/scenarios';
+import { getScenario, scenariosFor } from '@/data/scenarios';
 import { SIM_COST_GOLD } from '@/game/constants';
 import { masteryProgress, practisableOrders } from '@/game/masteryCore';
 import { institutionLevel, sumUnits } from '@/game/selectors';
@@ -20,8 +20,8 @@ import { colors, fonts, spacing } from '@/theme';
 export function WarRoomTab({ state }: { state: GameState }) {
   const { runSimulation } = useGame();
   const orders = practisableOrders(state);
-  const open = SCENARIOS.filter((s) => state.reputation >= s.requiresReputation);
-  const [scenario, setScenario] = useState(open[0]?.id ?? SCENARIOS[0].id);
+  const open = scenariosFor(state.war).filter((s) => state.reputation >= s.requiresReputation);
+  const [scenario, setScenario] = useState(open[0]?.id ?? scenariosFor(state.war)[0].id);
   const [order, setOrder] = useState<OrderId>(orders[0] ?? 'envelop');
 
   if (institutionLevel(state, 'academy') < 1) {

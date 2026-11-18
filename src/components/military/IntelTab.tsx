@@ -8,7 +8,7 @@ import { LockedNotice } from '@/components/ui/LockedNotice';
 import { Panel } from '@/components/ui/Panel';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
-import { SCENARIOS } from '@/data/scenarios';
+import { scenariosFor } from '@/data/scenarios';
 import { SPY_MISSION_COST_GOLD, SPY_MISSION_SECONDS } from '@/game/constants';
 import { spyBusy, spyHireCost } from '@/game/intel';
 import { corroboration, TOPIC_HELP, TOPIC_LABEL } from '@/game/intelCore';
@@ -23,7 +23,7 @@ export function IntelTab({ state }: { state: GameState }) {
   const { hireSpy, sendSpy } = useGame();
   const level = bureauLevel(state);
   const now = state.lastTickAt;
-  const [faction, setFaction] = useState(SCENARIOS[0].id);
+  const [faction, setFaction] = useState(scenariosFor(state.war)[0].id);
   const [topic, setTopic] = useState<IntelTopic>('strength');
 
   if (level < 1) {
@@ -36,7 +36,7 @@ export function IntelTab({ state }: { state: GameState }) {
     );
   }
 
-  const open = SCENARIOS.filter((s) => state.reputation >= s.requiresReputation);
+  const open = scenariosFor(state.war).filter((s) => state.reputation >= s.requiresReputation);
   const reports = state.intel.reports;
 
   return (
@@ -105,7 +105,7 @@ export function IntelTab({ state }: { state: GameState }) {
 }
 
 export function ReportCard({ state, report, selected }: { state: GameState; report: IntelReport; selected?: boolean }) {
-  const enemy = SCENARIOS.find((s) => s.id === report.factionId)?.enemy.name ?? report.factionId;
+  const enemy = scenariosFor(state.war).find((s) => s.id === report.factionId)?.enemy.name ?? report.factionId;
   const c = corroboration(state, report);
   return (
     <Panel>

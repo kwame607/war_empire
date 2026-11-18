@@ -24,6 +24,7 @@ import {
 } from '@/game/engine';
 import { breakPact, respondToOffer, sendEnvoy } from '@/game/diplomacy';
 import { hireSpy, sendSpy } from '@/game/intel';
+import { declareWar, makePeace } from '@/game/war';
 import { claimMastery, runSimulation } from '@/game/mastery';
 import {
   buyInstitution,
@@ -70,6 +71,8 @@ type GameContextValue = {
   beginExpedition: (scenarioId: string, intel: 0 | 1 | 2, provisions: Provisions, reportIds?: string[]) => ActionResult;
   runSimulation: (scenarioId: string, orderId: OrderId) => ActionResult;
   claimMastery: (doctrine: string) => ActionResult;
+  declareWar: (rivalId: string) => ActionResult;
+  makePeace: () => ActionResult;
   hireSpy: () => ActionResult;
   sendEnvoy: (rivalId: string, kind: EnvoyKind) => ActionResult;
   respondToOffer: (offerId: string, accept: boolean) => ActionResult;
@@ -238,6 +241,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
         apply((s, now) => startExpedition(s, scenarioId, { intel, provisions, reportIds }, now)),
       runSimulation: (scenarioId, orderId) => apply((s, now) => runSimulation(s, scenarioId, orderId, now)),
       claimMastery: (doctrine) => apply((s, now) => claimMastery(s, doctrine, now)),
+      declareWar: (rivalId) => apply((s, now) => declareWar(s, rivalId, now)),
+      makePeace: () => apply((s, now) => makePeace(s, now)),
       hireSpy: () => apply((s, now) => hireSpy(s, now)),
       sendEnvoy: (rivalId, kind) => apply((s, now) => sendEnvoy(s, rivalId, kind, now)),
       respondToOffer: (offerId, accept) => apply((s, now) => respondToOffer(s, offerId, accept, now)),

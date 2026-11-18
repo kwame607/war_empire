@@ -341,6 +341,17 @@ export function concludeBattle(state: GameState, b: Battle, result: BattleResult
   for (const id of UNIT_IDS) units[id] += b.player.units[id];
 
   const win = result === 'victory';
+  let war = state.war;
+  let world = state.world;
+  if (war && b.scenarioId === war.scenario.id && (result === 'victory' || result === 'defeat')) {
+    war = { ...war, wins: war.wins + (win ? 1 : 0), losses: war.losses + (win ? 0 : 1) };
+    world = {
+      ...world,
+      rivals: world.rivals.map((r) =>
+        r.id === war!.rivalId ? { ...r, power: Math.round(r.power * (win ? 0.85 : 1.05) * 10) / 10 } : r,
+      ),
+    };
+  }
   const attributes = {
     ...state.attributes,
     military: state.attributes.military + (win ? 0.5 : 0.25),
@@ -384,6 +395,8 @@ export function concludeBattle(state: GameState, b: Battle, result: BattleResult
     attributes,
     knowledge,
     mastery,
+    war,
+    world,
     commanders,
     army: { ...state.army, units },
     battle: null,

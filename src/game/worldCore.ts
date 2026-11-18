@@ -201,7 +201,12 @@ function runTurn(state: GameState, at: number): GameState {
     } else if (roll > 0.97 && r.relation > -20) {
       r.relation = clamp(r.relation + 4, -100, 100);
       log = addLog(log, at, `A gift of fine goods arrives from ${r.name}.`);
-    } else if (r.relation <= -40 && r.pact === 'none' && r.power > mine * 0.8 && turn - r.lastRaidTurn >= 6 && rng() < 0.35) {
+    } else if (
+      r.pact === 'none' &&
+      turn - r.lastRaidTurn >= (state.war?.rivalId === r.id ? 3 : 6) &&
+      ((state.war?.rivalId === r.id && r.power > mine * 0.5 && rng() < 0.4) ||
+        (r.relation <= -40 && r.power > mine * 0.8 && rng() < 0.35))
+    ) {
       const loot = Math.round(Math.min(gold * 0.15, 300));
       gold -= loot;
       r.lastRaidTurn = turn;

@@ -16,7 +16,7 @@ import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { getInstitutionType } from '@/data/institutions';
 import { TRAIT_TEXT } from '@/data/names';
 import { MILITARY_UNLOCK_STAGE, PROGRESSION_STAGES } from '@/data/progression';
-import { getScenario, SCENARIOS } from '@/data/scenarios';
+import { getScenario, scenariosFor } from '@/data/scenarios';
 import { getUnitType, UNIT_TYPES } from '@/data/units';
 import { getLeader } from '@/game/battle';
 import { canAfford } from '@/game/economy';
@@ -269,7 +269,7 @@ function OperationsTab({ state }: { state: GameState }) {
       <Text style={styles.meta}>
         Fights are decided by preparation, intelligence, terrain, supply and your orders, not a single number. Losing a battle is not losing the war.
       </Text>
-      {SCENARIOS.map((sc) => {
+      {scenariosFor(state.war).map((sc) => {
         const wait = scenarioReadyIn(state, sc.id, now);
         const blocked = state.expedition ? 'Army is away' : state.battle ? 'A battle is under way' : men === 0 ? 'No soldiers ready' : wait > 0 ? `Enemy withdrawn · ${formatDuration(wait)}` : null;
         return (

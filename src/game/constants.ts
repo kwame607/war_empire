@@ -1,4 +1,4 @@
-export const SAVE_VERSION = 6;
+export const SAVE_VERSION = 7;
 
 /** Production counts for at most this long while the player is away. */
 export const OFFLINE_CAP_SECONDS = 12 * 3600;
@@ -54,3 +54,7 @@ export const SIM_COST_GOLD = 40;
 export const MASTERY_REQUIRES = { battles: 2, sims: 3, terrains: 2 } as const;
 export const MASTERY_BOOST = 1.28;
 export const PRACTICAL_BOOST = 1.15;
+
+// --- War (v0.7) ---
+export const WAR_RELATION_ON_DECLARE = -50;
+export const WAR_ENEMY_SHARE = 0.6;

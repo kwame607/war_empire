@@ -1,3 +1,4 @@
+import { registerScenario } from '../data/scenarios';
 import { resolveExpedition } from './expedition';
 import { resolveMissions } from './intelCore';
 import { advanceWorld, initWorld, pactIncome } from './worldCore';
@@ -83,6 +84,7 @@ export function createNewGame(config: NewGameConfig, now: number): GameState {
     expedition: null,
     mastery: {},
     simulation: null,
+    war: null,
   };
 }
 
@@ -97,6 +99,7 @@ export function createNewGame(config: NewGameConfig, now: number): GameState {
  *   sleeping and nobody can bank weeks of income by never opening the app.
  */
 export function tick(state: GameState, now: number): GameState {
+  if (state.war) registerScenario(state.war.scenario);
   if (now < state.lastTickAt) return { ...state, lastTickAt: now }; // clock moved backwards
   if (now === state.lastTickAt) return state;
 
