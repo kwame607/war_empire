@@ -17,7 +17,7 @@ export type BusinessRates = {
 
 /** Per-hour numbers for one business at a given level, after civilisation and difficulty modifiers. */
 /** Global pacing knob: raises all business gold income (1 = original pace). */
-export const GOLD_INCOME_MULT = 1.4;
+export const GOLD_INCOME_MULT = 2.5;
 
 export function businessRates(state: GameState, typeId: string, level: number): BusinessRates {
   if (level <= 0) return { income: 0, expenses: 0, produces: null };
