@@ -1,3 +1,4 @@
+import { masteryProgress } from '@/game/masteryCore';
 import { Redirect, useLocalSearchParams } from 'expo-router';
 import { useEffect } from 'react';
 import { Alert, StyleSheet, Text, View } from 'react-native';
@@ -20,6 +21,34 @@ const DOCTRINE_ORDER: Record<string, string> = {
   'feigned-retreat': 'Feigned retreat',
   'russia-1812': 'Strategic withdrawal',
 };
+
+function MasteryPanel({ doctrine }: { doctrine: string }) {
+  const { state, claimMastery } = useGame();
+  if (!state) return null;
+  const prog = masteryProgress(state, doctrine);
+  return (
+    <Panel tone="burgundy">
+      <Text style={styles.heading}>Path to Mastery</Text>
+      <Text style={styles.body}>Mastery is earned by repetition on different ground. Practise in the War room (Military tab) and use it in real battles.</Text>
+      {prog.parts.map((p) => (
+        <Text key={p.label} style={styles.body}>
+          {p.have >= p.need ? '✓' : '○'} {p.label}: {Math.min(p.have, p.need)} / {p.need}
+        </Text>
+      ))}
+      <View style={{ marginTop: spacing.md }}>
+        <GameButton
+          compact
+          muted={!prog.complete}
+          label="Claim Mastery"
+          onPress={() => {
+            const r = claimMastery(doctrine);
+            if (!r.ok) Alert.alert('Not yet', r.reason);
+          }}
+        />
+      </View>
+    </Panel>
+  );
+}
 
 export default function RecordScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -105,7 +134,18 @@ export default function RecordScreen() {
               arrivesIn="your first successful use"
             />
           )}
-          <LockedNotice title="Mastery" description="Combine mastered principles into doctrines of your own." arrivesIn="a later milestone" />
+          {stage >= 4 ? (
+            <Panel>
+              <Text style={styles.heading}>Mastery</Text>
+              <Text style={styles.body}>
+                You have drilled this doctrine until it is second nature. Its effects are 28% stronger.
+              </Text>
+            </Panel>
+          ) : stage >= 3 ? (
+            <MasteryPanel doctrine={entry.id} />
+          ) : (
+            <LockedNotice title="Mastery" description="Reach Practical Experience first, then prove the doctrine in practice." arrivesIn="Practical Experience" />
+          )}
         </>
       )}
     </GameScreen>

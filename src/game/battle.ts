@@ -1,3 +1,4 @@
+import { MASTERY_BOOST, PRACTICAL_BOOST } from './constants';
 import { getOrder, ORDERS } from '../data/orders';
 import { getUnitType, UNIT_IDS } from '../data/units';
 import { armoryBonus, sumUnits } from './selectors';
@@ -194,7 +195,7 @@ function evaluateOrder(order: OrderId, c: Ctx): Effect {
   const open = isOpen(b.terrain);
   const committed = c.stance === 'aggressive' || c.stance === 'steady';
   const boost = (doctrine: string) =>
-    ((c.state.knowledge[doctrine] ?? 0) >= 3 ? 1.15 : 1) * (trait === 'scholar' ? 1.1 : 1);
+    ((c.state.knowledge[doctrine] ?? 0) >= 4 ? MASTERY_BOOST : (c.state.knowledge[doctrine] ?? 0) >= 3 ? PRACTICAL_BOOST : 1) * (trait === 'scholar' ? 1.1 : 1);
 
   switch (order) {
     case 'hold':

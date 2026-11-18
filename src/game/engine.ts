@@ -81,6 +81,8 @@ export function createNewGame(config: NewGameConfig, now: number): GameState {
     intel: { spies: [], missions: [], reports: [] },
     world: initWorld(civ.id, Math.floor(now) % 2147483647, now),
     expedition: null,
+    mastery: {},
+    simulation: null,
   };
 }
 

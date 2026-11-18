@@ -99,7 +99,7 @@ export type BusinessInstance = {
   pending: { completesAt: number; targetLevel: number } | null;
 };
 
-export type KnowledgeStage = 0 | 1 | 2 | 3; // 0 unknown, 1 Discovery, 2 Understanding, 3 Practical, (4 Mastery reserved)
+export type KnowledgeStage = 0 | 1 | 2 | 3 | 4; // 0 unknown, 1 Discovery, 2 Understanding, 3 Practical, 4 Mastery
 
 export type KnowledgeSection = { heading: string; body: string; unlocksAtStage: 1 | 2 };
 
@@ -156,6 +156,9 @@ export type GameState = {
   // --- added in save version 5 ---
   /** An army away on a delegated operation. It resolves on its own, even offline. */
   expedition: Expedition | null;
+  // --- added in save version 6 ---
+  mastery: Record<string, MasteryRecord>;
+  simulation: SimulationResult | null;
 };
 
 export type NewGameConfig = {
@@ -460,4 +463,29 @@ export type Expedition = {
   battle: Battle;
   startedAt: number;
   endsAt: number;
+};
+
+// ---------------------------------------------------------------------------
+// Mastery and simulations (save version 6)
+// ---------------------------------------------------------------------------
+
+export type MasteryRecord = {
+  /** Real battles in which the doctrine succeeded. */
+  battles: number;
+  /** Successful practice runs in the war room. */
+  sims: number;
+  /** Different terrains it has succeeded on. */
+  terrains: Terrain[];
+};
+
+export type SimulationResult = {
+  at: number;
+  scenarioId: string;
+  orderId: OrderId;
+  /** Did the doctrine order succeed at least once? */
+  success: boolean;
+  outcome: BattleResult;
+  terrain: Terrain;
+  lines: string[];
+  lesson: string;
 };

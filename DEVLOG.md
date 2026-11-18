@@ -1,5 +1,13 @@
 # WAR EMPIRE Development Log
 
+## Version 0.6: Mastery and Simulations (complete, pending phone testing)
+
+- New knowledge stage 4, Mastery. A doctrine at Practical Experience can be mastered by proving it: 2 successful uses in real battles, 3 successful war-room practice runs, and success on at least 2 different terrains. Claim it on the record page: the doctrine becomes 28% stronger (Practical Experience is 15%), plus reputation +3 and small attribute gains.
+- War room (Military tab, needs a Military Academy): rehearse any understood doctrine against any open operation with your current army, for 40 gold. No soldiers are lost, no cooldowns; each run uses a fresh seed and shows round-by-round results and a lesson about why it worked or failed. Successes count toward Mastery.
+- Real battles also count (once per doctrine per battle) and remember the terrain.
+- Save version 6; masteryCore.ts / mastery.ts; 6 new tests (68 total).
+- Not yet: combining mastered doctrines into new ones.
+
 ## Version 0.5: Offline Expeditions (complete, pending phone testing)
 
 - On the battle preparation screen you can now "Send on expedition" instead of fighting in person. Your army, led by its commander (or you), marches out and the battle is resolved automatically with ordinary orders when the timer ends (Easy 5 min, Medium 15 min, Hard 30 min), even if the app is closed.

@@ -44,6 +44,12 @@ export function migrateState(raw: unknown): GameState | null {
   // v4 -> v5: expeditions
   if (s.version < 5) next.expedition = null;
 
+  // v5 -> v6: mastery
+  if (s.version < 6) {
+    next.mastery = {};
+    next.simulation = null;
+  }
+
   next.version = SAVE_VERSION;
   return next as unknown as GameState;
 }

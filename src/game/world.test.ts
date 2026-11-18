@@ -140,7 +140,7 @@ describe('fog and saves', () => {
     void _w;
     const m = migrateState(JSON.parse(JSON.stringify({ ...rest, version: 3 })));
     assert.ok(m);
-    assert.equal(m.version, 5);
+    assert.equal(m.version, 6);
     assert.equal(m.world.rivals.length, 4);
   });
 });

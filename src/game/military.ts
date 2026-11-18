@@ -5,6 +5,7 @@ import { getOrder } from '../data/orders';
 import { getScenario } from '../data/scenarios';
 import { emptyUnits, getUnitType, UNIT_IDS } from '../data/units';
 import { autoOrder, availableOrders, getLeader, mulberry32, resolveRound } from './battle';
+import { recordRealSuccess } from './masteryCore';
 import { allyCount } from './worldCore';
 import { assessIntelligence, beliefFromReports, verifyReports } from './intelCore';
 import {
@@ -347,9 +348,15 @@ export function concludeBattle(state: GameState, b: Battle, result: BattleResult
   };
 
   const knowledge = { ...state.knowledge };
+  let mastery = state.mastery;
+  const counted = new Set<string>();
   let log = state.log;
   for (const r of b.rounds) {
     const doctrine = getOrder(r.order).doctrine;
+    if (r.success === true && doctrine && !counted.has(doctrine)) {
+      counted.add(doctrine);
+      mastery = recordRealSuccess(mastery, doctrine, b.terrain);
+    }
     if (r.success === true && doctrine && (knowledge[doctrine] ?? 0) < 3) {
       knowledge[doctrine] = 3;
       log = addLog(log, now, `Practical experience gained: ${getKnowledgeEntry(doctrine)?.title ?? doctrine}.`);
@@ -376,6 +383,7 @@ export function concludeBattle(state: GameState, b: Battle, result: BattleResult
     reputation: Math.max(0, state.reputation + rewards.reputation),
     attributes,
     knowledge,
+    mastery,
     commanders,
     army: { ...state.army, units },
     battle: null,

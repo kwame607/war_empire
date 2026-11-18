@@ -1,4 +1,4 @@
-export const SAVE_VERSION = 5;
+export const SAVE_VERSION = 6;
 
 /** Production counts for at most this long while the player is away. */
 export const OFFLINE_CAP_SECONDS = 12 * 3600;
@@ -48,3 +48,9 @@ export const ALLIANCE_GOLD_PER_HOUR = 10;
 
 // --- Expeditions (v0.5) ---
 export const EXPEDITION_SECONDS = { Easy: 300, Medium: 900, Hard: 1800 } as const;
+
+// --- Mastery (v0.6) ---
+export const SIM_COST_GOLD = 40;
+export const MASTERY_REQUIRES = { battles: 2, sims: 3, terrains: 2 } as const;
+export const MASTERY_BOOST = 1.28;
+export const PRACTICAL_BOOST = 1.15;

@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { WarRoomTab } from '@/components/military/WarRoomTab';
 import { IntelTab } from '@/components/military/IntelTab';
 import { UnitChips } from '@/components/military/UnitChips';
 import { Chip } from '@/components/ui/Chip';
@@ -37,7 +38,7 @@ import { useGame, useGameState } from '@/store/GameProvider';
 import { colors, fonts, spacing } from '@/theme';
 import { costText } from '@/utils/format';
 
-type Tab = 'army' | 'operations' | 'intel' | 'reports';
+type Tab = 'army' | 'operations' | 'intel' | 'warroom' | 'reports';
 
 export default function MilitaryScreen() {
   const state = useGameState();
@@ -94,6 +95,7 @@ export default function MilitaryScreen() {
           { value: 'army', label: 'Army' },
           { value: 'operations', label: 'Operations' },
           { value: 'intel', label: 'Intel' },
+          { value: 'warroom', label: 'War room' },
           { value: 'reports', label: 'Reports' },
         ]}
         value={tab}
@@ -102,6 +104,7 @@ export default function MilitaryScreen() {
       {tab === 'army' ? <ArmyTab state={state} /> : null}
       {tab === 'operations' ? <OperationsTab state={state} /> : null}
       {tab === 'intel' ? <IntelTab state={state} /> : null}
+      {tab === 'warroom' ? <WarRoomTab state={state} /> : null}
       {tab === 'reports' ? <ReportsTab state={state} /> : null}
     </GameScreen>
   );
