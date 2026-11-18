@@ -14,6 +14,7 @@ import { getOrder, ORDERS } from '@/data/orders';
 import { getScenario } from '@/data/scenarios';
 import { estimateEnemy, getLeader, orderChecks, type Check } from '@/game/battle';
 import { ReportCard } from '@/components/military/IntelTab';
+import { EXPEDITION_SECONDS } from '@/game/constants';
 import { intelCost, provisionsFood } from '@/game/military';
 import { sumUnits } from '@/game/selectors';
 import type { ActionResult, Battle, GameState, OrderId, Provisions } from '@/game/types';
@@ -38,7 +39,7 @@ export default function BattleScreen() {
 // ---------------------------------------------------------------------------
 
 function Deploy({ state, scenarioId }: { state: GameState; scenarioId: string }) {
-  const { beginBattle } = useGame();
+  const { beginBattle, beginExpedition } = useGame();
   const sc = getScenario(scenarioId);
   const [intel, setIntel] = useState<'0' | '1' | '2'>('0');
   const [prov, setProv] = useState<Provisions>('standard');
@@ -122,6 +123,18 @@ function Deploy({ state, scenarioId }: { state: GameState; scenarioId: string })
           }}
         />
       </View>
+      <Text style={styles.meta}>
+        Or send your army under {leader.name} and let the commander fight it. It resolves by itself in {Math.round(EXPEDITION_SECONDS[sc.difficulty] / 60)} minutes, even if you close the app, using ordinary orders only.
+      </Text>
+      <GameButton
+        variant="secondary"
+        label="Send on expedition"
+        onPress={() => {
+          const r = beginExpedition(scenarioId, Number(intel) as 0 | 1 | 2, prov, picked);
+          if (!r.ok) Alert.alert('Cannot send', r.reason);
+          else router.replace('/military');
+        }}
+      />
     </GameScreen>
   );
 }

@@ -10,6 +10,7 @@ import { assessIntelligence, beliefFromReports, verifyReports } from './intelCor
 import {
   BATTLE_ROUNDS,
   BUILD_SLOTS,
+  EXPEDITION_SECONDS,
   COMMANDER_BASE_COST_GOLD,
   FOOD_PER_MAN_PER_ROUND,
   INTEL_COST_GOLD,
@@ -222,7 +223,7 @@ export function startBattle(
 ): ActionResult {
   const state = tick(input, now);
   const scenario = getScenario(scenarioId);
-  if (state.battle) return fail('A battle is already under way.');
+  if (state.battle || state.expedition) return fail(state.expedition ? 'Your army is away on an expedition.' : 'A battle is already under way.');
   if (state.reputation < scenario.requiresReputation) return fail(`Requires reputation ${scenario.requiresReputation}.`);
   if (scenarioReadyIn(state, scenarioId, now) > 0) return fail('The enemy has withdrawn for now. Try again later.');
   const men = sumUnits(state.army.units);
@@ -290,6 +291,29 @@ export function startBattle(
       army: { ...state.army, units: emptyUnits() },
       battle,
       log: addLog(state.log, now, `${leader.name} leads ${men} soldiers against the ${e.name}.`),
+    },
+  };
+}
+
+/** Sends the army under its commander on a timed operation. It is resolved automatically when time is up, even while the app is closed. */
+export function startExpedition(
+  input: GameState,
+  scenarioId: string,
+  opts: { intel: 0 | 1 | 2; provisions: Provisions; reportIds?: string[] },
+  now: number,
+): ActionResult {
+  const started = startBattle(input, scenarioId, opts, now);
+  if (!started.ok) return started;
+  const battle = { ...started.state.battle!, delegated: true };
+  const seconds = EXPEDITION_SECONDS[getScenario(scenarioId).difficulty];
+  const leader = getLeader(started.state, battle.player.leaderId);
+  return {
+    ok: true,
+    state: {
+      ...started.state,
+      battle: null,
+      expedition: { battle, startedAt: now, endsAt: now + seconds * 1000 },
+      log: addLog(started.state.log, now, `${leader.name} marches on the ${battle.enemy.name}. Expected back in ${Math.round(seconds / 60)} minutes.`),
     },
   };
 }

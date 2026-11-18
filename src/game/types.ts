@@ -153,6 +153,9 @@ export type GameState = {
   intel: IntelState;
   // --- added in save version 4 ---
   world: WorldState;
+  // --- added in save version 5 ---
+  /** An army away on a delegated operation. It resolves on its own, even offline. */
+  expedition: Expedition | null;
 };
 
 export type NewGameConfig = {
@@ -451,4 +454,10 @@ export type WorldState = {
   rivals: Rival[];
   envoys: Envoy[];
   offers: DiplomacyOffer[];
+};
+
+export type Expedition = {
+  battle: Battle;
+  startedAt: number;
+  endsAt: number;
 };

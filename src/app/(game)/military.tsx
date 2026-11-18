@@ -79,6 +79,16 @@ export default function MilitaryScreen() {
         </Panel>
       ) : null}
 
+      {state.expedition ? (
+        <Panel tone="burgundy">
+          <Text style={styles.heading}>Army on expedition</Text>
+          <Text style={styles.body}>
+            Marching on the {state.expedition.battle.enemy.name}. Back in {formatDuration(Math.max(0, (state.expedition.endsAt - state.lastTickAt) / 1000))}.
+          </Text>
+          <Text style={styles.meta}>The result arrives as a battle report, even if you close the app.</Text>
+        </Panel>
+      ) : null}
+
       <SegmentedControl
         options={[
           { value: 'army', label: 'Army' },
@@ -258,7 +268,7 @@ function OperationsTab({ state }: { state: GameState }) {
       </Text>
       {SCENARIOS.map((sc) => {
         const wait = scenarioReadyIn(state, sc.id, now);
-        const blocked = state.battle ? 'A battle is under way' : men === 0 ? 'No soldiers ready' : wait > 0 ? `Enemy withdrawn · ${formatDuration(wait)}` : null;
+        const blocked = state.expedition ? 'Army is away' : state.battle ? 'A battle is under way' : men === 0 ? 'No soldiers ready' : wait > 0 ? `Enemy withdrawn · ${formatDuration(wait)}` : null;
         return (
           <Panel key={sc.id}>
             <View style={styles.cmdRow}>

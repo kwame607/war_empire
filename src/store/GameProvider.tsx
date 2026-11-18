@@ -33,6 +33,7 @@ import {
   recruitUnits,
   setCommander,
   startBattle,
+  startExpedition,
   upgradeInstitution,
 } from '@/game/military';
 import type { ActionResult, EnvoyKind, GameState, IntelTopic, NewGameConfig, OfflineSummary, OrderId, Provisions, UnitId } from '@/game/types';
@@ -65,6 +66,7 @@ type GameContextValue = {
   hireCommander: () => ActionResult;
   assignCommander: (commanderId: string | null) => ActionResult;
   beginBattle: (scenarioId: string, intel: 0 | 1 | 2, provisions: Provisions, reportIds?: string[]) => ActionResult;
+  beginExpedition: (scenarioId: string, intel: 0 | 1 | 2, provisions: Provisions, reportIds?: string[]) => ActionResult;
   hireSpy: () => ActionResult;
   sendEnvoy: (rivalId: string, kind: EnvoyKind) => ActionResult;
   respondToOffer: (offerId: string, accept: boolean) => ActionResult;
@@ -229,6 +231,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
       assignCommander: (id) => apply((s, now) => setCommander(s, id, now)),
       beginBattle: (scenarioId, intel, provisions, reportIds) =>
         apply((s, now) => startBattle(s, scenarioId, { intel, provisions, reportIds }, now)),
+      beginExpedition: (scenarioId, intel, provisions, reportIds) =>
+        apply((s, now) => startExpedition(s, scenarioId, { intel, provisions, reportIds }, now)),
       hireSpy: () => apply((s, now) => hireSpy(s, now)),
       sendEnvoy: (rivalId, kind) => apply((s, now) => sendEnvoy(s, rivalId, kind, now)),
       respondToOffer: (offerId, accept) => apply((s, now) => respondToOffer(s, offerId, accept, now)),

@@ -1,3 +1,4 @@
+import { resolveExpedition } from './expedition';
 import { resolveMissions } from './intelCore';
 import { advanceWorld, initWorld, pactIncome } from './worldCore';
 import { getBackground, getDifficulty } from '../data/backgrounds';
@@ -79,6 +80,7 @@ export function createNewGame(config: NewGameConfig, now: number): GameState {
     rngSeed: Math.floor(now) % 2147483647,
     intel: { spies: [], missions: [], reports: [] },
     world: initWorld(civ.id, Math.floor(now) % 2147483647, now),
+    expedition: null,
   };
 }
 
@@ -199,7 +201,8 @@ export function tick(state: GameState, now: number): GameState {
     scouting = null;
   }
 
-  return advanceWorld(
+  return resolveExpedition(
+    advanceWorld(
     resolveMissions(
     {
       ...state,
@@ -217,6 +220,8 @@ export function tick(state: GameState, now: number): GameState {
       lastTickAt: now,
       totalSeconds: state.totalSeconds + countedSeconds,
     },
+    now,
+    ),
     now,
     ),
     now,
@@ -380,6 +385,7 @@ export function fastForward(state: GameState, seconds: number, now: number): Gam
     },
     scenarioReadyAt: Object.fromEntries(Object.entries(state.scenarioReadyAt).map(([k, v]) => [k, v - ms])),
     intel: { ...state.intel, missions: state.intel.missions.map((m) => ({ ...m, completesAt: m.completesAt - ms })) },
+    expedition: state.expedition ? { ...state.expedition, endsAt: state.expedition.endsAt - ms } : null,
     world: {
       ...state.world,
       nextTurnAt: state.world.nextTurnAt - ms,

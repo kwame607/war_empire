@@ -1,5 +1,13 @@
 # WAR EMPIRE Development Log
 
+## Version 0.5: Offline Expeditions (complete, pending phone testing)
+
+- On the battle preparation screen you can now "Send on expedition" instead of fighting in person. Your army, led by its commander (or you), marches out and the battle is resolved automatically with ordinary orders when the timer ends (Easy 5 min, Medium 15 min, Hard 30 min), even if the app is closed.
+- Intelligence (scouts, spies, spy reports) and provisions still matter: they are chosen before the army leaves. Doctrines are not used on expeditions.
+- Results arrive as a normal battle report; survivors come home, rewards are paid, the cooldown starts. Military tab shows a banner while the army is away. Only one battle or expedition at a time.
+- Save version 5; expedition.ts; 5 new tests (62 total). Testing time-travel in Settings also brings armies home.
+- Pacing: gold income x2.5 so military unlocks in roughly 4 hours of play.
+
 ## Version 0.4: Living World and Diplomacy (complete, pending phone testing)
 
 Four rival kingdoms (the other civilisations) now act on their own, even while you are away:

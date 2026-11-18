@@ -41,6 +41,9 @@ export function migrateState(raw: unknown): GameState | null {
     next.world = initWorld(player.civId, seed, (next.lastTickAt as number) ?? Date.now());
   }
 
+  // v4 -> v5: expeditions
+  if (s.version < 5) next.expedition = null;
+
   next.version = SAVE_VERSION;
   return next as unknown as GameState;
 }

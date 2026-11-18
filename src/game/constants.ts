@@ -1,4 +1,4 @@
-export const SAVE_VERSION = 4;
+export const SAVE_VERSION = 5;
 
 /** Production counts for at most this long while the player is away. */
 export const OFFLINE_CAP_SECONDS = 12 * 3600;
@@ -45,3 +45,6 @@ export const ENVOY_SECONDS = 120;
 export const ENVOY_COST_GOLD = { goodwill: 100, trade: 60, alliance: 150 } as const;
 export const TRADE_PACT_GOLD_PER_HOUR = 18;
 export const ALLIANCE_GOLD_PER_HOUR = 10;
+
+// --- Expeditions (v0.5) ---
+export const EXPEDITION_SECONDS = { Easy: 300, Medium: 900, Hard: 1800 } as const;
