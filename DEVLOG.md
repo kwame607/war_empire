@@ -214,4 +214,5 @@ Known notes:
 
 ## v0.15 Living settlement
 - Overview opens with a painted picture of your settlement (`data/settlement.ts`, `SettlementScene`): buildings appear as you build them, empty plots show as faint outlines, the keep grows with your rank, ships fill the harbour, soldiers drill outside the barracks.
+- Scene redrawn at higher detail (dusk sky with stars and clouds, shaded and tiled buildings, lit windows, villagers, distinct buildings per type).
 - Resource numbers in the top bar flash green or red when they jump (purchases, rewards, battles).
