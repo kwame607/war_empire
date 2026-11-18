@@ -29,3 +29,6 @@ export const fonts = {
 export const spacing = { xs: 4, sm: 8, md: 16, lg: 24, xl: 40 } as const;
 
 export const radius = { sm: 6, md: 12, pill: 999 } as const;
+
+/** Widest the content column grows on large or landscape screens. */
+export const MAX_CONTENT_WIDTH = 760;

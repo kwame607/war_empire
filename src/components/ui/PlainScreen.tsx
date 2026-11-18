@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { colors, fonts, spacing } from '@/theme';
+import { colors, fonts, MAX_CONTENT_WIDTH, spacing } from '@/theme';
 
 type Props = { title: string; subtitle?: string; onBack?: () => void; footer?: ReactNode; children: ReactNode };
 
@@ -40,6 +40,6 @@ const styles = StyleSheet.create({
   back: { marginLeft: -8 },
   title: { fontFamily: fonts.serif, fontSize: 28, fontWeight: '800', color: colors.parchment, letterSpacing: 1 },
   subtitle: { fontFamily: fonts.sans, fontSize: 14, color: colors.parchmentDim, marginTop: 2 },
-  content: { padding: spacing.md, paddingBottom: spacing.xl, gap: spacing.sm },
+  content: { padding: spacing.md, paddingBottom: spacing.xl, gap: spacing.sm, width: '100%', maxWidth: MAX_CONTENT_WIDTH, alignSelf: 'center' },
   footer: { padding: spacing.md, borderTopWidth: 1, borderTopColor: colors.line, backgroundColor: colors.charcoal },
 });

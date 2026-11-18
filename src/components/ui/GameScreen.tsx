@@ -5,7 +5,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ResourceBar } from '@/components/ui/ResourceBar';
-import { colors, fonts, spacing } from '@/theme';
+import { colors, fonts, MAX_CONTENT_WIDTH, spacing } from '@/theme';
 
 type Props = { title: string; subtitle?: string; showBack?: boolean; children: ReactNode };
 
@@ -16,7 +16,7 @@ type Props = { title: string; subtitle?: string; showBack?: boolean; children: R
  */
 export function GameScreen({ title, subtitle, showBack, children }: Props) {
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
+    <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
       <ResourceBar />
       <View style={styles.header}>
         {showBack ? (
@@ -46,5 +46,5 @@ const styles = StyleSheet.create({
   titles: { flex: 1 },
   title: { fontFamily: fonts.serif, fontSize: 28, fontWeight: '800', color: colors.parchment, letterSpacing: 1 },
   subtitle: { fontFamily: fonts.sans, fontSize: 14, color: colors.parchmentDim, marginTop: 2 },
-  content: { padding: spacing.md, paddingBottom: spacing.xl, gap: spacing.sm },
+  content: { padding: spacing.md, paddingBottom: spacing.xl, gap: spacing.sm, width: '100%', maxWidth: MAX_CONTENT_WIDTH, alignSelf: 'center' },
 });

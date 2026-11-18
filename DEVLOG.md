@@ -1,5 +1,12 @@
 # WAR EMPIRE Development Log
 
+## Version 0.12: Landscape and Map Zoom (complete, pending phone testing)
+
+- The app now rotates (app.json orientation "default"). Screens keep a centred content column (max 760 wide) with safe-area margins, so landscape on a phone or tablet reads well and nothing stretches edge to edge.
+- World map: pinch to zoom (1x to 4x), drag to pan, or use the + / - / reset buttons in the corner. Taps on settlements still work. The map is sized to fit the screen in either orientation (never taller than about 70% of the screen).
+- Built with React Native's own PanResponder and SVG viewBox (no new packages). Gestures cannot be tested in this workspace, so please check pinch and drag on your phone; the buttons are the fallback.
+- Note: changing app.json may need Expo Go to be fully reloaded (shake, Reload) or restarted before rotation works.
+
 ## Version 0.11: Naval Mastery (complete, pending phone testing)
 
 - Salamis and Lepanto now have the same path as land doctrines: Understanding, Practical Experience (a won engagement in which the doctrine worked), then Mastery (+28% effect).

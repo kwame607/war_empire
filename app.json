@@ -3,7 +3,7 @@
     "name": "WAR EMPIRE",
     "slug": "war-empire",
     "version": "1.0.0",
-    "orientation": "portrait",
+    "orientation": "default",
     "icon": "./assets/images/icon.png",
     "scheme": "warempire",
     "userInterfaceStyle": "dark",
