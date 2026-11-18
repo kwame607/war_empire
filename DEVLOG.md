@@ -1,5 +1,12 @@
 # WAR EMPIRE Development Log
 
+## Version 0.11: Naval Mastery (complete, pending phone testing)
+
+- Salamis and Lepanto now have the same path as land doctrines: Understanding, Practical Experience (a won engagement in which the doctrine worked), then Mastery (+28% effect).
+- Mastery needs 2 real sea engagements where the doctrine worked, 3 successful war-room naval exercises, and success against 2 different kingdoms.
+- War room (Military tab) has a "Naval exercise": choose a doctrine and a kingdom's fleet, 40 gold, needs a Military Academy and at least 2 warships; no ships are lost. Mastery progress for naval doctrines is listed alongside the land ones, and the record page shows the path and the Claim button.
+- 96 tests (3 new).
+
 ## Version 0.10: Naval Doctrines (complete, pending phone testing)
 
 - Two new historical records in the Knowledge library: Themistocles and the Narrows of Salamis (480 BC) and The Galleasses of Lepanto (1571), with the same Discovery / Understanding stages. Casualty and fleet figures are given as contested estimates.

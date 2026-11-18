@@ -484,8 +484,8 @@ export type MasteryRecord = {
   battles: number;
   /** Successful practice runs in the war room. */
   sims: number;
-  /** Different terrains it has succeeded on. */
-  terrains: Terrain[];
+  /** Different terrains it has succeeded on (or, for naval doctrines, different kingdoms faced). */
+  terrains: string[];
 };
 
 export type SimulationResult = {
@@ -524,6 +524,8 @@ export type Fleet = {
   training: { count: number; completesAt: number }[];
   /** Report of the most recent naval engagement. */
   lastEngagement: NavalReport | null;
+  /** Most recent war-room naval exercise. */
+  practice?: { doctrine: string; success: boolean; report: NavalReport } | null;
 };
 
 export type NavalTactic = 'line' | 'board' | 'screen' | 'narrows' | 'galleass';

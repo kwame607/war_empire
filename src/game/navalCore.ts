@@ -1,4 +1,5 @@
 import { mulberry32 } from './battle';
+import { MASTERY_BOOST, PRACTICAL_BOOST } from './constants';
 import type { GameState, NavalReport, NavalTactic, Rival, RivalTrait } from './types';
 
 export const NAVAL_TACTICS: { id: NavalTactic; name: string; text: string; doctrine?: string }[] = [
@@ -69,7 +70,7 @@ export function resolveNaval(
     const enemy = rng() < 0.6 ? habit : others[Math.floor(rng() * others.length)];
     const edge = BEATS[t] === enemy ? 1.35 : BEATS[enemy] === t ? 0.7 : 1;
     // Doctrines: studied history changes how the exchange goes. Practical experience makes them stronger.
-    const boost = (id: string) => ((state.knowledge[id] ?? 0) >= 3 ? 1.15 : 1);
+    const boost = (id: string) => ((state.knowledge[id] ?? 0) >= 4 ? MASTERY_BOOST : (state.knowledge[id] ?? 0) >= 3 ? PRACTICAL_BOOST : 1);
     let myMul = edge;
     let theirMul = edge === 1 ? 1 : edge > 1 ? 0.7 : 1.35;
     let note = '';

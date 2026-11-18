@@ -8,7 +8,8 @@ import { addLog, fail } from './log';
 import { startBattle } from './military';
 import { EMPTY, masteryProgress } from './masteryCore';
 import { institutionLevel, sumUnits } from './selectors';
-import type { ActionResult, GameState, OrderId, SimulationResult } from './types';
+import { NAVAL_TACTICS, resolveNaval } from './navalCore';
+import type { ActionResult, GameState, NavalTactic, OrderId, SimulationResult } from './types';
 
 /**
  * A war-room exercise: fight the chosen operation on the table with your current army.
@@ -96,6 +97,37 @@ export function claimMastery(input: GameState, doctrine: string, now: number): A
       reputation: state.reputation + 3,
       attributes: { ...state.attributes, military: state.attributes.military + 1, intelligence: state.attributes.intelligence + 0.5 },
       log: addLog(state.log, now, `Mastery achieved: ${entry.title}.`),
+    },
+  };
+}
+
+/** A naval exercise in the war room: no ships are lost; a won exercise in which the doctrine worked counts toward Mastery. */
+export function runNavalSimulation(input: GameState, rivalId: string, tactic: NavalTactic, now: number): ActionResult {
+  const state = tick(input, now);
+  const t = NAVAL_TACTICS.find((x) => x.id === tactic);
+  if (!t?.doctrine) return fail('Only naval doctrines can be rehearsed.');
+  if ((state.knowledge[t.doctrine] ?? 0) < 2) return fail('Study this doctrine first.');
+  if (institutionLevel(state, 'academy') < 1) return fail('You need a Military Academy for a war room.');
+  if (state.fleet.ships < 2) return fail('You need at least 2 warships to rehearse with.');
+  if (state.resources.gold < SIM_COST_GOLD) return fail(`Not enough gold (${SIM_COST_GOLD}).`);
+  const rival = state.world.rivals.find((r) => r.id === rivalId);
+  if (!rival) return fail('Unknown kingdom.');
+  const runs = Object.values(state.mastery).reduce((a, m) => a + m.sims, 0);
+  const { report, doctrinesProven } = resolveNaval(state, rival, [tactic, tactic, 'line'], (state.rngSeed + now + runs * 131) >>> 0, now);
+  const success = doctrinesProven.includes(t.doctrine);
+  let mastery = state.mastery;
+  if (success) {
+    const m = mastery[t.doctrine] ?? EMPTY;
+    mastery = { ...mastery, [t.doctrine]: { ...m, sims: m.sims + 1, terrains: m.terrains.includes(rivalId) ? m.terrains : [...m.terrains, rivalId] } };
+  }
+  return {
+    ok: true,
+    state: {
+      ...state,
+      resources: { ...state.resources, gold: state.resources.gold - SIM_COST_GOLD },
+      mastery,
+      fleet: { ...state.fleet, practice: { doctrine: t.doctrine, success, report } },
+      log: addLog(state.log, now, `War room: ${t.name} against the ${rival.name} fleet ${success ? 'worked' : 'did not work'}.`),
     },
   };
 }

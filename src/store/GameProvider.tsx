@@ -26,7 +26,7 @@ import { breakPact, respondToOffer, sendEnvoy } from '@/game/diplomacy';
 import { hireSpy, sendSpy } from '@/game/intel';
 import { buildShips, fightNaval } from '@/game/naval';
 import { declareWar, makePeace } from '@/game/war';
-import { claimMastery, runSimulation } from '@/game/mastery';
+import { claimMastery, runNavalSimulation, runSimulation } from '@/game/mastery';
 import {
   buyInstitution,
   delegateBattle,
@@ -76,6 +76,7 @@ type GameContextValue = {
   makePeace: (annexId?: string) => ActionResult;
   buildShips: (count: number) => ActionResult;
   fightNaval: (plan: NavalTactic[]) => ActionResult;
+  runNavalSimulation: (rivalId: string, tactic: NavalTactic) => ActionResult;
   hireSpy: () => ActionResult;
   sendEnvoy: (rivalId: string, kind: EnvoyKind) => ActionResult;
   respondToOffer: (offerId: string, accept: boolean) => ActionResult;
@@ -248,6 +249,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       makePeace: (annexId) => apply((s, now) => makePeace(s, now, annexId)),
       buildShips: (count) => apply((s, now) => buildShips(s, count, now)),
       fightNaval: (plan) => apply((s, now) => fightNaval(s, plan, now)),
+      runNavalSimulation: (rivalId, tactic) => apply((s, now) => runNavalSimulation(s, rivalId, tactic, now)),
       hireSpy: () => apply((s, now) => hireSpy(s, now)),
       sendEnvoy: (rivalId, kind) => apply((s, now) => sendEnvoy(s, rivalId, kind, now)),
       respondToOffer: (offerId, accept) => apply((s, now) => respondToOffer(s, offerId, accept, now)),

@@ -23,7 +23,6 @@ const DOCTRINE_ORDER: Record<string, string> = {
   salamis: 'Lure into the narrows (Military → Navy)',
   lepanto: 'Galleass guns (Military → Navy)',
 };
-const NAVAL = new Set(['salamis', 'lepanto']);
 
 function MasteryPanel({ doctrine }: { doctrine: string }) {
   const { state, claimMastery } = useGame();
@@ -32,7 +31,7 @@ function MasteryPanel({ doctrine }: { doctrine: string }) {
   return (
     <Panel tone="burgundy">
       <Text style={styles.heading}>Path to Mastery</Text>
-      <Text style={styles.body}>Mastery is earned by repetition on different ground. Practise in the War room (Military tab) and use it in real battles.</Text>
+      <Text style={styles.body}>Mastery is earned by repetition on different ground. Practise in the War room (Military tab) and use it in real battles. Naval doctrines are practised with your fleet.</Text>
       {prog.parts.map((p) => (
         <Text key={p.label} style={styles.body}>
           {p.have >= p.need ? '✓' : '○'} {p.label}: {Math.min(p.have, p.need)} / {p.need}
@@ -144,8 +143,6 @@ export default function RecordScreen() {
                 You have drilled this doctrine until it is second nature. Its effects are 28% stronger.
               </Text>
             </Panel>
-          ) : stage >= 3 && NAVAL.has(entry.id) ? (
-            <LockedNotice title="Mastery" description="Naval doctrines do not yet have a path to Mastery." arrivesIn="a later milestone" />
           ) : stage >= 3 ? (
             <MasteryPanel doctrine={entry.id} />
           ) : (

@@ -3,7 +3,8 @@ import { describe, it } from 'node:test';
 
 import { emptyUnits } from '../data/units';
 import { createNewGame } from './engine';
-import { claimMastery, runSimulation } from './mastery';
+import { claimMastery, runNavalSimulation, runSimulation } from './mastery';
+import { resolveNaval } from './navalCore';
 import { masteryProgress, practisableOrders, recordRealSuccess } from './masteryCore';
 import { migrateState } from './migrate';
 import type { GameState } from './types';
@@ -85,5 +86,51 @@ describe('mastery', () => {
     assert.ok(m);
     assert.equal(m.version, 9);
     assert.deepEqual(m.mastery, {});
+  });
+});
+
+describe('naval mastery', () => {
+  const navalReady = (): GameState => {
+    const s = ready({ salamis: 3, lepanto: 3 });
+    return { ...s, fleet: { ...s.fleet, ships: 14 } };
+  };
+
+  it('naval exercises need an academy, ships and a studied doctrine, and lose no ships', () => {
+    const s = navalReady();
+    const rival = s.world.rivals[0].id;
+    assert.equal(runNavalSimulation({ ...s, institutions: [] }, rival, 'narrows', T0).ok, false);
+    assert.equal(runNavalSimulation({ ...s, fleet: { ...s.fleet, ships: 1 } }, rival, 'narrows', T0).ok, false);
+    assert.equal(runNavalSimulation({ ...s, knowledge: {} }, rival, 'narrows', T0).ok, false);
+    assert.equal(runNavalSimulation(s, rival, 'line', T0).ok, false); // not a doctrine
+    const r = must(runNavalSimulation(s, rival, 'galleass', T0)).state;
+    assert.equal(r.fleet.ships, 14);
+    assert.equal(r.resources.gold, s.resources.gold - 40);
+    assert.ok(r.fleet.practice && r.fleet.practice.report.lines.length > 0);
+  });
+
+  it('successful exercises against different kingdoms build mastery progress', () => {
+    let s = navalReady();
+    for (const rival of s.world.rivals) {
+      for (let i = 0; i < 6; i++) {
+        s = { ...s, resources: { ...s.resources, gold: 5000 } };
+        s = must(runNavalSimulation(s, rival.id, 'galleass', T0 + i * 1000 + 7)).state;
+      }
+    }
+    const m = s.mastery.lepanto;
+    assert.ok(m && m.sims >= 3, 'a Lepanto exercise should work sometimes');
+    assert.ok(m.terrains.length >= 2);
+    assert.ok(masteryProgress(s, 'lepanto').parts[2].label.includes('kingdoms'));
+  });
+
+  it('a mastered naval doctrine is stronger than a practised one', () => {
+    const base = navalReady();
+    const rival = { ...base.world.rivals[0], power: 300 };
+    const sum = (k: number) => {
+      const st = { ...base, knowledge: { lepanto: k } };
+      let t = 0;
+      for (let i = 0; i < 60; i++) t += resolveNaval(st, rival, ['galleass', 'galleass', 'galleass'], i * 97, T0).report.enemyLost;
+      return t;
+    };
+    assert.ok(sum(4) > sum(3));
   });
 });
