@@ -14,3 +14,14 @@ test('actions against an enemy that no longer exists fail cleanly instead of thr
   assert.equal(sendSpy(s, 'x', 'war-gone', 'strength', s.lastTickAt).ok, false);
   assert.equal(runSimulation(s, 'war-gone', 'hold', s.lastTickAt).ok, false);
 });
+
+import { DIAGRAMS } from '../data/diagrams';
+import { diagramShapes, visibleScenes } from '../utils/diagramShapes';
+
+test('diagrams tolerate stage 0 and out-of-range steps', () => {
+  for (const d of Object.values(DIAGRAMS)) {
+    assert.deepEqual(visibleScenes(d, 0), []);
+    assert.ok(diagramShapes(d, 9, 9, 0.5).length > 0);
+    assert.ok(diagramShapes(d, -3, 0, 0.5).length > 0);
+  }
+});

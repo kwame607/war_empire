@@ -50,7 +50,8 @@ export function BattleDiagram({ diagram, stage }: { diagram: Diagram; stage: num
 
   const t = Math.min(1, elapsed / MOVE_MS);
   const shapes = diagramShapes(diagram, prev, cur, prev === cur ? 1 : t);
-  const caption = diagram.scenes[visible[cur]].caption;
+  const caption = diagram.scenes[visible[cur]]?.caption ?? '';
+  if (visible.length === 0) return null; // stage 0: nothing unlocked yet
 
   return (
     <View style={styles.wrap}>
