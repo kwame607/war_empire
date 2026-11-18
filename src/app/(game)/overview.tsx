@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
+import { SettlementScene } from '@/components/art/SettlementScene';
 import { GameScreen } from '@/components/ui/GameScreen';
 import { GameButton } from '@/components/ui/GameButton';
 import { Panel } from '@/components/ui/Panel';
@@ -98,11 +99,7 @@ export default function OverviewScreen() {
 
   return (
     <GameScreen title="Overview" subtitle={date.label}>
-      <Panel tone="burgundy">
-        <Text style={styles.name}>{state.player.name}</Text>
-        <Text style={styles.status}>{stage.name}</Text>
-        <Text style={styles.meta}>Home: {home.name}</Text>
-      </Panel>
+      <SettlementScene state={state} title={state.player.name} subtitle={`${stage.name} · ${home.name}`} />
 
       {state.world.offers.length > 0 ? (
         <Panel>

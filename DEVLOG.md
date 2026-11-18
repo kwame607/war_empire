@@ -211,3 +211,7 @@ Known notes:
 - Fixed: a spy mission against a war-enemy that no longer exists (war ended, app restarted) could throw on every tick; such missions are now dropped.
 - Fixed: starting a battle, sending a spy, or running a simulation against an unknown enemy now fails with a message instead of throwing.
 - Fixed: battle diagram crashed when moving between records.
+
+## v0.15 Living settlement
+- Overview opens with a painted picture of your settlement (`data/settlement.ts`, `SettlementScene`): buildings appear as you build them, empty plots show as faint outlines, the keep grows with your rank, ships fill the harbour, soldiers drill outside the barracks.
+- Resource numbers in the top bar flash green or red when they jump (purchases, rewards, battles).
