@@ -1,3 +1,4 @@
+import { getBusinessType } from '../data/businesses';
 import { GOLD_INCOME_MULT } from './economy';
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
@@ -23,7 +24,7 @@ function must<T extends { ok: boolean }>(r: T): Extract<T, { ok: true }> {
   return r as Extract<T, { ok: true }>;
 }
 
-const FARM_NET = 25 * 1.1 * GOLD_INCOME_MULT - 8;
+const FARM_NET = getBusinessType('farm').incomePerHour * 1.1 * GOLD_INCOME_MULT - 8;
 
 describe('new game', () => {
   it('applies civilisation, background and difficulty', () => {

@@ -15,6 +15,7 @@ import { recruitSeconds } from '@/game/military';
 import { PROGRESSION_STAGES } from '@/data/progression';
 import { getSettlement } from '@/data/world';
 import { buildSeconds } from '@/game/economy';
+import { adviceFor } from '@/game/advisor';
 import { formatDuration, getGameDate, getPopulation, getRates, getStageIndex } from '@/game/selectors';
 import { useGameState } from '@/store/GameProvider';
 import { colors, fonts, spacing } from '@/theme';
@@ -29,6 +30,7 @@ export default function OverviewScreen() {
   const rates = getRates(state);
   const home = getSettlement(state.player.startSettlementId);
   const date = getGameDate(state);
+  const advice = adviceFor(state);
 
   const jobs: { key: string; text: string; progress: number; remaining: number }[] = [];
   for (const b of state.businesses) {
@@ -68,6 +70,24 @@ export default function OverviewScreen() {
       progress: 1 - remaining / recruitSeconds(state, b.unitId, b.count),
       remaining,
     });
+  });
+  if (state.expedition) {
+    const remaining = (state.expedition.endsAt - now) / 1000;
+    jobs.push({ key: 'expedition', text: `Army marching on the ${state.expedition.battle.enemy.name}`, progress: 1 - remaining / ((state.expedition.endsAt - state.expedition.startedAt) / 1000), remaining });
+  }
+  state.fleet.training.forEach((b, i) => {
+    const remaining = (b.completesAt - now) / 1000;
+    jobs.push({ key: `ship-${i}`, text: `Building ${b.count} warship${b.count > 1 ? 's' : ''}`, progress: 1 - remaining / Math.max(1, b.count * 20), remaining });
+  });
+  state.intel.missions.forEach((m) => {
+    const spy = state.intel.spies.find((x) => x.id === m.spyId);
+    const remaining = (m.completesAt - now) / 1000;
+    jobs.push({ key: m.id, text: `${spy?.name ?? 'An agent'} is gathering intelligence`, progress: 1 - remaining / 90, remaining });
+  });
+  state.world.envoys.forEach((e) => {
+    const rival = state.world.rivals.find((r) => r.id === e.rivalId);
+    const remaining = (e.completesAt - now) / 1000;
+    jobs.push({ key: e.id, text: `Envoy travelling to ${rival?.name ?? 'a kingdom'}`, progress: 1 - remaining / 120, remaining });
   });
   if (state.scouting) {
     const remaining = (state.scouting.completesAt - now) / 1000;
@@ -113,6 +133,20 @@ export default function OverviewScreen() {
           </Text>
         ) : null}
       </Panel>
+
+      {advice.length > 0 ? (
+        <>
+          <SectionHeader title="Next steps" />
+          <Panel>
+            {advice.map((a) => (
+              <View key={a.text} style={styles.job}>
+                <Text style={styles.body}>• {a.text}</Text>
+                {a.href ? <GameButton compact variant="secondary" label="Go" onPress={() => router.push(a.href!)} /> : null}
+              </View>
+            ))}
+          </Panel>
+        </>
+      ) : null}
 
       <SectionHeader title="In progress" />
       {jobs.length === 0 ? (

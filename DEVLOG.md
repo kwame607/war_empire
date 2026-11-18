@@ -1,5 +1,12 @@
 # WAR EMPIRE Development Log
 
+## Version 0.13: Balance and Polish (complete, pending phone testing)
+
+- Overview: new "Next steps" panel that reads your situation and suggests up to three things to do (build a farm, study a record, raise an army, answer a kingdom, garrison provinces...) with a Go button. The rules live in advisor.ts and are tested.
+- Overview "In progress" now also shows expeditions, shipbuilding, spy missions and envoys.
+- Economy rebalanced. The blanket x2.5 income boost made the mid game too rich, while early buildings were starved of wood and stone. Now: early businesses pay more (farm 60/h, timber 28, quarry 36; workshop 85, market 130), the global multiplier is x1.2, and timber and stone camps produce twice as much raw material (30 wood/h, 24 stone/h). In a scripted greedy playthrough the first Barracks is possible at about 7 hours and the first battle follows shortly after. Late game with everything at level 5 nets roughly 1,000 gold/hour, which is the budget for armies, fleets and spies.
+- 99 tests (3 new).
+
 ## Version 0.12: Landscape and Map Zoom (complete, pending phone testing)
 
 - The app now rotates (app.json orientation "default"). Screens keep a centred content column (max 760 wide) with safe-area margins, so landscape on a phone or tablet reads well and nothing stretches edge to edge.
@@ -134,7 +141,7 @@ Technical:
 
 Balance notes:
 - Army size dominates (as in real wars); doctrine matters most when forces are close to even, around the "recommended army" shown for each operation.
-- Pacing (tuned in v0.3): military unlocks at reputation 10 (was 15) and business gold income is x2.5 (`GOLD_INCOME_MULT` in economy.ts). Military (reputation 10) is reached in roughly 4 hours of play with greedy spending (was ~40 originally).
+- Pacing (tuned in v0.3): military unlocks at reputation 10 (was 15) and business gold income is x1.2 (with higher early business payouts) (`GOLD_INCOME_MULT` in economy.ts). Military (reputation 10) is reached in roughly 4 hours of play with greedy spending (was ~40 originally).
 
 Not built yet:
 - Delegated operations that run on a timer while you are offline.
