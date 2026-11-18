@@ -1,5 +1,5 @@
 import { namePool } from '../data/names';
-import { getScenario } from '../data/scenarios';
+import { findScenario } from '../data/scenarios';
 import { SPY_HIRE_COST_GOLD, SPY_MISSION_COST_GOLD, SPY_MISSION_SECONDS } from './constants';
 import { tick } from './engine';
 import { addLog, fail } from './log';
@@ -59,7 +59,8 @@ export function sendSpy(input: GameState, spyId: string, factionId: string, topi
   const spy = state.intel.spies.find((s) => s.id === spyId);
   if (!spy) return fail('That agent is not available.');
   if (spyBusy(state, spyId)) return fail(`${spy.name} is already on a mission.`);
-  const scenario = getScenario(factionId);
+  const scenario = findScenario(factionId);
+  if (!scenario) return fail('That enemy is no longer there.');
   if (state.reputation < scenario.requiresReputation) return fail('You do not yet know enough of that rival to watch them.');
   if (state.battle) return fail('Your agents cannot be spared during a battle.');
   if (state.resources.gold < SPY_MISSION_COST_GOLD) return fail('Not enough gold for the mission.');

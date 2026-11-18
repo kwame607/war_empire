@@ -1,4 +1,4 @@
-import { getScenario } from '../data/scenarios';
+import { findScenario, getScenario } from '../data/scenarios';
 import { getUnitType, UNIT_IDS } from '../data/units';
 import { mulberry32 } from './battle';
 import { MAX_INTEL_REPORTS } from './constants';
@@ -307,7 +307,9 @@ export function resolveMissions(state: GameState, now: number): GameState {
     const spy = spies.find((s) => s.id === m.spyId);
     if (!spy) continue;
     const rng = mulberry32((hashString(m.id) + state.rngSeed) >>> 0);
-    const target = getScenario(m.factionId).enemy.name;
+    const found = findScenario(m.factionId);
+    if (!found) continue; // the enemy (a finished war) no longer exists; the mission is dropped
+    const target = found.enemy.name;
     if (rng() < caughtChance(spy.skill, level)) {
       spies = spies.filter((s) => s.id !== spy.id);
       log = addLog(log, m.completesAt, `${spy.name} was caught spying on the ${target} and is lost to you.`);

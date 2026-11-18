@@ -122,6 +122,11 @@ export function registerScenario(s: Scenario): void {
   dynamic.set(s.id, s);
 }
 
+/** Like getScenario, but returns undefined for an id that no longer exists (for example a finished war). */
+export function findScenario(id: string): Scenario | undefined {
+  return SCENARIOS.find((x) => x.id === id) ?? dynamic.get(id);
+}
+
 export function getScenario(id: string): Scenario {
   const s = SCENARIOS.find((x) => x.id === id) ?? dynamic.get(id);
   if (!s) throw new Error(`Unknown scenario: ${id}`);

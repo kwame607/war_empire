@@ -1,6 +1,6 @@
 import { getKnowledgeEntry } from '../data/knowledge';
 import { getOrder } from '../data/orders';
-import { getScenario } from '../data/scenarios';
+import { findScenario } from '../data/scenarios';
 import { autoOrder, resolveRound } from './battle';
 import { SIM_COST_GOLD } from './constants';
 import { tick } from './engine';
@@ -24,7 +24,8 @@ export function runSimulation(input: GameState, scenarioId: string, orderId: Ord
   if (state.battle || state.expedition) return fail('Your army is busy.');
   if (sumUnits(state.army.units) <= 0) return fail('You need soldiers ready to practise with.');
   if (state.resources.gold < SIM_COST_GOLD) return fail(`Not enough gold (${SIM_COST_GOLD}).`);
-  const scenario = getScenario(scenarioId);
+  const scenario = findScenario(scenarioId);
+  if (!scenario) return fail('That enemy is no longer there.');
   if (state.reputation < scenario.requiresReputation) return fail('You do not know enough of that enemy to simulate them.');
 
   // A sandbox copy: unlimited supplies, no cooldowns, a fresh seed each time.

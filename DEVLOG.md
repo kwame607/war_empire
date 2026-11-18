@@ -205,3 +205,9 @@ Known notes:
 - Illustrated banners for every business and institution (`data/illustrations.ts`), shown on their cards.
 - Animated, step-through battle diagrams with captions for Cannae, Horns of the Buffalo, Feigned Retreat (Kalka), Russia 1812, Salamis and Lepanto (`data/diagrams.ts`, `BattleDiagram`). Early steps unlock at Discovery, the rest at Understanding. Captions flag disputed numbers.
 - Tests for illustration coverage and diagram integrity (101 tests).
+
+## v0.14.1 Bug review
+- Fuzz-tested 600 random games (400 random actions each, random/backwards/huge time jumps, save round-trips): no crashes and no NaN or negative resources.
+- Fixed: a spy mission against a war-enemy that no longer exists (war ended, app restarted) could throw on every tick; such missions are now dropped.
+- Fixed: starting a battle, sending a spy, or running a simulation against an unknown enemy now fails with a message instead of throwing.
+- Fixed: battle diagram crashed when moving between records.

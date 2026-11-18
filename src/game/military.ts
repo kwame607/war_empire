@@ -2,7 +2,7 @@ import { getInstitutionType } from '../data/institutions';
 import { getKnowledgeEntry } from '../data/knowledge';
 import { namePool } from '../data/names';
 import { getOrder } from '../data/orders';
-import { getScenario } from '../data/scenarios';
+import { findScenario, getScenario } from '../data/scenarios';
 import { emptyUnits, getUnitType, UNIT_IDS } from '../data/units';
 import { autoOrder, availableOrders, getLeader, mulberry32, resolveRound } from './battle';
 import { recordRealSuccess } from './masteryCore';
@@ -224,7 +224,8 @@ export function startBattle(
   now: number,
 ): ActionResult {
   const state = tick(input, now);
-  const scenario = getScenario(scenarioId);
+  const scenario = findScenario(scenarioId);
+  if (!scenario) return fail('That enemy is no longer there.');
   if (state.battle || state.expedition) return fail(state.expedition ? 'Your army is away on an expedition.' : 'A battle is already under way.');
   if (state.reputation < scenario.requiresReputation) return fail(`Requires reputation ${scenario.requiresReputation}.`);
   if (scenarioReadyIn(state, scenarioId, now) > 0) return fail('The enemy has withdrawn for now. Try again later.');
