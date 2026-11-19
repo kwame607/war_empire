@@ -1,0 +1,25 @@
+<!doctype html><html><body style="margin:0;background:transparent"><canvas id="c"></canvas>
+<script type="module">
+import { THREE } from './lib.js';
+import { BUILDINGS } from './buildings.js';
+const params = new URLSearchParams(location.search);
+const name = params.get('b'); const W = Number(params.get('w') || 1400), H = Number(params.get('h') || 1400);
+const ppu = Number(params.get('ppu') || 40); const oy = Number(params.get('oy') || 0.8); const ox = Number(params.get('ox') || 0.5); const terr = name === 'terrain';
+const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('c'), antialias: true, alpha: true, preserveDrawingBuffer: true });
+renderer.setSize(W, H, false); renderer.setPixelRatio(1);
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.25; renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.setClearColor(0x1f5b8c, terr ? 1 : 0);
+const scene = new THREE.Scene();
+const aspect = 1;
+const cam = new THREE.OrthographicCamera(-ox * W / ppu, (1 - ox) * W / ppu, oy * H / ppu, -(1 - oy) * H / ppu, -200, 300);
+cam.position.set(16 * 3, 19 * 3, 16 * 3); cam.lookAt(0, 0, 0);
+scene.add(new THREE.HemisphereLight(0xcfd8ee, 0x6a5a40, 1.5));
+const sun = new THREE.DirectionalLight(0xffd7a0, 3.4); sun.position.set(14, 13, 7); sun.castShadow = true;
+sun.shadow.mapSize.set(terr ? 8192 : 4096, terr ? 8192 : 4096); const sc = sun.shadow.camera; const E = terr ? 48 : 16; sc.left = -E; sc.right = E; sc.top = E; sc.bottom = -E; sc.near = 1; sc.far = 120; sun.shadow.bias = -0.0004; sun.shadow.radius = 4;
+scene.add(sun);
+const rim = new THREE.DirectionalLight(0xffb98a, 1.0); rim.position.set(2, 8, 16); scene.add(rim);
+if (!terr) { const ground = new THREE.Mesh(new THREE.PlaneGeometry(80, 80), new THREE.ShadowMaterial({ opacity: 0.45 })); ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground); }
+const obj = BUILDINGS[name]({ soldiers: 6 }); scene.add(obj);
+renderer.render(scene, cam); window.info = { W, H, ppu, ox: ox * W, oy: oy * H }; window.done = true;
+</script></body></html>

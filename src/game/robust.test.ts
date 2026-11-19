@@ -3,8 +3,7 @@ import { test } from 'node:test';
 
 import { DIAGRAMS } from '../data/diagrams';
 import { diagramShapes, visibleScenes } from '../utils/diagramShapes';
-import { settlementScene } from '../data/settlement';
-import { shapesToSvg } from '../utils/shapes';
+import { TOWN_SLOTS, keepSpriteForStage } from '../data/townLayout';
 import { createNewGame } from './engine';
 import { startBattle } from './military';
 import { sendSpy } from './intel';
@@ -29,9 +28,10 @@ test('diagrams tolerate stage 0 and out-of-range steps', () => {
 });
 
 
-test('the settlement picture grows as the player builds', () => {
-  const empty = settlementScene({ levels: {}, ships: 0, stage: 0, soldiers: 0 });
-  const full = settlementScene({ levels: { farm: 2, timber: 1, quarry: 1, workshop: 1, market: 1, library: 1, barracks: 1, academy: 1, armoury: 1, bureau: 1, shipyard: 1 }, ships: 4, stage: 6, soldiers: 50 });
-  assert.ok(full.length > empty.length);
-  assert.ok(shapesToSvg(full, 160, 100).includes('<svg'));
+test('every town slot has artwork and the keep changes with rank', () => {
+  const base = { farm: 1, timber: 1, quarry: 1, workshop: 1, market: 1, library: 1, barracks: 1, academy: 1, armoury: 1, bureau: 1, shipyard: 1 };
+  for (const id of Object.keys(base)) assert.ok(TOWN_SLOTS[id], id);
+  for (const slot of Object.values(TOWN_SLOTS)) assert.ok(typeof slot.sprite === 'string');
+  assert.notEqual(keepSpriteForStage(0), keepSpriteForStage(6));
+  assert.equal(keepSpriteForStage(2), 'keep1');
 });

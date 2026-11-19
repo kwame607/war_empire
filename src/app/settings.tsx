@@ -90,7 +90,7 @@ export default function SettingsScreen() {
       <SectionHeader title="Danger zone" />
       <GameButton label="Delete saved game" variant="danger" muted={!hasSave} onPress={() => (hasSave ? confirmDelete() : Alert.alert('Nothing to delete', 'There is no saved game.'))} />
 
-      <Text style={styles.footer}>WAR EMPIRE · Version 0.15 (Living Settlement)</Text>
+      <Text style={styles.footer}>WAR EMPIRE · Version 0.16 (Rendered Town)</Text>
     </PlainScreen>
   );
 }
