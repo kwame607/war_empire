@@ -99,3 +99,14 @@ test('chronicle always tells a short story', async () => {
     assert.ok(p.every((x) => x.length > 10));
   }
 });
+
+test('achievements unlock once and pay once', async () => {
+  const { unlockAchievements } = await import('./achievements');
+  const s0 = { ...base(), businesses: [{ typeId: 'farm', level: 1, pending: null }] };
+  const s1 = unlockAchievements(s0, 1000);
+  assert.ok(s1.achievements['first-trade']);
+  assert.ok(s1.resources.gold > s0.resources.gold);
+  const s2 = unlockAchievements(s1, 2000);
+  assert.equal(s2.resources.gold, s1.resources.gold);
+  assert.equal(s2.achievements['first-trade'], 1000);
+});

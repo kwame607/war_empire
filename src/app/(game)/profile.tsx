@@ -6,6 +6,7 @@ import { GameScreen } from '@/components/ui/GameScreen';
 import { Panel } from '@/components/ui/Panel';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { SectionHeader } from '@/components/ui/SectionHeader';
+import { ACHIEVEMENTS, CHAPTERS } from '@/data/achievements';
 import { getBackground, getDifficulty } from '@/data/backgrounds';
 import { getCivilisation } from '@/data/civilisations';
 import { ATTRIBUTE_LABELS, PROGRESSION_STAGES } from '@/data/progression';
@@ -24,6 +25,28 @@ export default function ProfileScreen() {
 
   return (
     <GameScreen title="Profile" subtitle={`${state.player.name} · ${stage.name}`}>
+      <SectionHeader title={`Chronicle of deeds · ${Object.keys(state.achievements).length}/${ACHIEVEMENTS.length}`} />
+      {CHAPTERS.map((ch, ci) => {
+        const list = ACHIEVEMENTS.filter((a) => a.chapter === ci);
+        const got = list.filter((a) => state.achievements[a.id] !== undefined).length;
+        return (
+          <Panel key={ch.title}>
+            <Text style={styles.chTitle}>{ch.title}</Text>
+            <Text style={styles.chBlurb}>{ch.blurb}</Text>
+            <ProgressBar progress={got / list.length} />
+            {list.map((a) => {
+              const done = state.achievements[a.id] !== undefined;
+              return (
+                <Text key={a.id} style={[styles.deed, !done && { opacity: 0.55 }]}>
+                  {done ? '✔ ' : '○ '}
+                  {a.title} — {a.text}
+                </Text>
+              );
+            })}
+          </Panel>
+        );
+      })}
+
       <SectionHeader title="Attributes" />
       <Panel>
         {(Object.keys(ATTRIBUTE_LABELS) as AttributeKey[]).map((k) => (
@@ -68,6 +91,9 @@ function Fact({ label, value }: { label: string; value: string }) {
 }
 
 const styles = StyleSheet.create({
+  chTitle: { color: colors.gold, fontFamily: fonts.serif, fontSize: 17, fontWeight: '700' },
+  chBlurb: { color: colors.parchmentDim, fontFamily: fonts.serif, fontSize: 13, fontStyle: 'italic', marginBottom: 6 },
+  deed: { color: colors.parchment, fontFamily: fonts.serif, fontSize: 14, lineHeight: 20, marginTop: 6 },
   attr: { paddingVertical: 4, gap: 4 },
   row: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 5, gap: spacing.md },
   label: { fontFamily: fonts.sans, fontSize: 15, color: colors.parchmentDim },

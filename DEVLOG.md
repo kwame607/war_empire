@@ -250,3 +250,7 @@ Known notes:
 
 ## v0.23 — Chronicle
 - The "Welcome back" screen now opens with a short written story of your absence (time passed, how the treasury fared, what was finished, and what now waits for you), above the existing numbers. Pure function `chronicleFor`, no save changes.
+
+## v0.24 — Deeds
+- 18 achievements in five chapters (Foundations, The Learned Ruler, The Sword, The Realm, Legend), each with a small gold/reputation reward, paid once. Shown on the Profile screen with per-chapter progress.
+- Save version 11 (`achievements`). Existing games earn what they already qualify for on the next tick, so veterans get a one-time catch-up of rewards.

@@ -24,6 +24,8 @@ function must<T extends { ok: boolean }>(r: T): Extract<T, { ok: true }> {
   return r as Extract<T, { ok: true }>;
 }
 
+/** One-time reward for owning a first business (see data/achievements). */
+const FIRST_TRADE_BONUS = 40;
 const FARM_NET = getBusinessType('farm').incomePerHour * 1.1 * GOLD_INCOME_MULT - 8;
 
 describe('new game', () => {
@@ -44,7 +46,7 @@ describe('businesses', () => {
     assert.equal(s1.resources.gold, 500);
     assert.equal(s1.businesses[0].level, 0);
     const mid = tick(s1, T0 + 10_000);
-    assert.equal(mid.resources.gold, 500);
+    assert.equal(mid.resources.gold, 500 + FIRST_TRADE_BONUS);
     assert.equal(mid.businesses[0].level, 0);
   });
 
@@ -53,7 +55,7 @@ describe('businesses', () => {
     const done = tick(s1, T0 + 20_000 + 3_600_000); // 20s build + 1h
     assert.equal(done.businesses[0].level, 1);
     // farm: (25*1.10*pace - 8) gold/h for ~1h
-    assert.ok(Math.abs(done.resources.gold - (500 + FARM_NET)) < 0.01, String(done.resources.gold));
+    assert.ok(Math.abs(done.resources.gold - (500 + FIRST_TRADE_BONUS + FARM_NET)) < 0.01, String(done.resources.gold));
     assert.ok(Math.abs(done.resources.food - (150 + 20)) < 0.01);
   });
 
@@ -102,7 +104,7 @@ describe('offline progression', () => {
     const s1 = must(buyBusiness(rich, 'farm', T0)).state;
     const away = tick(s1, T0 + 100 * 3_600_000); // 100 hours away
     assert.equal(away.businesses[0].level, 1);
-    const expected = 5000 - 150 + FARM_NET * (OFFLINE_CAP_SECONDS / 3600);
+    const expected = 5000 - 150 + FIRST_TRADE_BONUS + FARM_NET * (OFFLINE_CAP_SECONDS / 3600);
     assert.ok(Math.abs(away.resources.gold - expected) < 0.01, `${away.resources.gold} vs ${expected}`);
     assert.equal(away.totalSeconds, OFFLINE_CAP_SECONDS);
   });
@@ -133,7 +135,7 @@ describe('knowledge and scouting', () => {
     assert.equal(startStudy(s2, 'cannae', T0).ok, false); // one at a time
     const s3 = tick(s2, T0 + 61_000);
     assert.equal(s3.knowledge.cannae, 2);
-    assert.equal(s3.reputation, s2.reputation + 1);
+    assert.equal(s3.reputation, s2.reputation + 1 + 2); // +2: 'A Lesson Learned' achievement
   });
 
   it('scouting reveals a settlement after its timer', () => {

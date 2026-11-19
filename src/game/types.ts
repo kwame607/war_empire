@@ -171,6 +171,8 @@ export type GameState = {
   event: { id: string; at: number } | null;
   nextEventAt: number;
   lastEventId: string | null;
+  /** Achievement id -> when it was earned (ms). */
+  achievements: Record<string, number>;
 };
 
 export type NewGameConfig = {

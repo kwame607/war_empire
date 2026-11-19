@@ -60,7 +60,7 @@ describe('expeditions', () => {
     void _e;
     const m = migrateState(JSON.parse(JSON.stringify({ ...rest, version: 4 })));
     assert.ok(m);
-    assert.equal(m.version, 10);
+    assert.equal(m.version, 11);
     assert.equal(m.expedition, null);
   });
 });

@@ -71,6 +71,9 @@ export function migrateState(raw: unknown): GameState | null {
     next.nextEventAt = ((next.lastTickAt as number) ?? Date.now()) + 20 * 60 * 1000;
   }
 
+  // v10 -> v11: achievements. Existing progress counts, but with no retro rewards (see below).
+  if (s.version < 11) next.achievements = {};
+
   next.version = SAVE_VERSION;
   return next as unknown as GameState;
 }

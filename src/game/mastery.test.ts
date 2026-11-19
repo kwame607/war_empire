@@ -84,7 +84,7 @@ describe('mastery', () => {
     void [_m, _s];
     const m = migrateState(JSON.parse(JSON.stringify({ ...rest, version: 5 })));
     assert.ok(m);
-    assert.equal(m.version, 10);
+    assert.equal(m.version, 11);
     assert.deepEqual(m.mastery, {});
   });
 });
