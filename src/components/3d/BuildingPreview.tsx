@@ -1,5 +1,4 @@
 import { GLView, type ExpoWebGLRenderingContext } from 'expo-gl';
-import { Renderer } from 'expo-three';
 import * as THREE from 'three';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { PanResponder, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -42,7 +41,24 @@ export function BuildingPreview() {
       camera.position.set(5.8, 4.8, zoom.current);
       camera.lookAt(0, 1.1, 0);
 
-      const renderer = new Renderer({ gl });
+      // expo-three currently pulls an obsolete React Native peer dependency.
+      // Supply the small canvas surface Three.js expects and use Expo's GL context directly.
+      const canvas = {
+        width: gl.drawingBufferWidth,
+        height: gl.drawingBufferHeight,
+        clientWidth: gl.drawingBufferWidth,
+        clientHeight: gl.drawingBufferHeight,
+        style: {} as CSSStyleDeclaration,
+        addEventListener: () => undefined,
+        removeEventListener: () => undefined,
+        getContext: () => gl,
+      };
+      const renderer = new THREE.WebGLRenderer({
+        canvas: canvas as unknown as HTMLCanvasElement,
+        context: gl as unknown as WebGLRenderingContext,
+        antialias: true,
+      });
+      renderer.setPixelRatio(1);
       renderer.setSize(gl.drawingBufferWidth, gl.drawingBufferHeight);
       renderer.setClearColor('#8fb5c8');
       renderer.shadowMap.enabled = true;
