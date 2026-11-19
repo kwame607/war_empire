@@ -39,6 +39,7 @@ import {
   startExpedition,
   upgradeInstitution,
 } from '@/game/military';
+import { tap } from '@/utils/haptics';
 import type { ActionResult, EnvoyKind, GameState, IntelTopic, NavalTactic, NewGameConfig, OfflineSummary, OrderId, Provisions, UnitId } from '@/game/types';
 import { deleteSave, loadSave, writeSave } from '@/storage/saveRepo';
 
@@ -180,6 +181,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
       if (result.ok) {
         commit(result.state);
         void persist(result.state);
+        tap('success');
+      } else {
+        tap('warning');
       }
       return result;
     },

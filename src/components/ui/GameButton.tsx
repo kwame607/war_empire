@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, Text } from 'react-native';
 
 import { colors, fonts, radius } from '@/theme';
+import { tap } from '@/utils/haptics';
 
 type Props = {
   label: string;
@@ -17,7 +18,10 @@ export function GameButton({ label, onPress, variant = 'primary', compact, muted
   return (
     <Pressable
       accessibilityRole="button"
-      onPress={onPress}
+      onPress={() => {
+        tap('light');
+        onPress();
+      }}
       style={({ pressed }) => [
         styles.base,
         compact && styles.compact,

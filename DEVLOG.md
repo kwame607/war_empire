@@ -235,3 +235,6 @@ Known notes:
 - 30 commander portraits (6 per civilisation), rendered from code with the same three.js pipeline (`tools/render/portraits.js`, `portrait_specs.js`, `portrait.html`, `runp.js`).
 - `Portrait` component; a name always maps to the same face (`src/data/portraits.ts`).
 - Shown on the Who-leads panel, the commander roster and the enemy commander in battle.
+
+## v0.20 — Haptics
+- `expo-haptics` added (run `npm install` after pulling). Light tap on buttons, success buzz on accepted actions, warning on refused ones. Toggle in Settings (resets to on at launch).

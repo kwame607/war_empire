@@ -1,4 +1,5 @@
 import { router } from 'expo-router';
+import { useState } from 'react';
 import { Alert, StyleSheet, Text, View } from 'react-native';
 
 import { GameButton } from '@/components/ui/GameButton';
@@ -9,9 +10,12 @@ import { OFFLINE_CAP_SECONDS } from '@/game/constants';
 import { formatDuration } from '@/game/selectors';
 import { useGame } from '@/store/GameProvider';
 import { colors, fonts, spacing } from '@/theme';
+import { hapticsEnabled, setHapticsEnabled } from '@/utils/haptics';
 
 export default function SettingsScreen() {
   const { state, hasSave, saveError, saveNow, removeSave, advanceTime, testBoost } = useGame();
+
+  const [buzz, setBuzz] = useState(hapticsEnabled());
 
   const confirmDelete = () =>
     Alert.alert('Delete saved game?', 'This permanently erases your progress. It cannot be undone.', [
@@ -47,6 +51,22 @@ export default function SettingsScreen() {
             />
           </View>
         ) : null}
+      </Panel>
+
+      <SectionHeader title="Feel" />
+      <Panel>
+        <Text style={styles.body}>Vibration feedback when you act: a tap on success, a warning buzz when something is refused.</Text>
+        <View style={styles.gap}>
+          <GameButton
+            compact
+            variant="secondary"
+            label={buzz ? 'Haptics: on' : 'Haptics: off'}
+            onPress={() => {
+              setHapticsEnabled(!buzz);
+              setBuzz(!buzz);
+            }}
+          />
+        </View>
       </Panel>
 
       <SectionHeader title="Offline progression" />
@@ -90,7 +110,7 @@ export default function SettingsScreen() {
       <SectionHeader title="Danger zone" />
       <GameButton label="Delete saved game" variant="danger" muted={!hasSave} onPress={() => (hasSave ? confirmDelete() : Alert.alert('Nothing to delete', 'There is no saved game.'))} />
 
-      <Text style={styles.footer}>WAR EMPIRE · Version 0.19 (Faces of Command)</Text>
+      <Text style={styles.footer}>WAR EMPIRE · Version 0.20 (Haptics)</Text>
     </PlainScreen>
   );
 }
