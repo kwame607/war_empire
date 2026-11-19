@@ -47,7 +47,7 @@ Official references:
 
 ## Candidate rendering path
 
-Expo SDK 58 documents `expo-gl` (~58.0.4) as a GLView/WebGL render target and lists `expo-three` as a high-level Three.js integration. The Expo Three project also documents a React Three Fiber starter path. These are candidates, not yet a proven combination for this repository. Validate on SDK 58 / React Native 0.88 / React 19.3 before committing to one. Prefer a small GLView + Three.js proof if React Three Fiber introduces integration complexity.
+Expo SDK 58 documents `expo-gl` (~58.0.4) as a GLView/WebGL render target. The prototype uses Three.js directly with the Expo GL context rather than `expo-three`, whose transitive browser polyfill declares an obsolete React Native peer range. This direct renderer adapter is a candidate, not yet a proven combination for this repository. Validate on SDK 58 / React Native 0.88 / React 19.3 before committing to it.
 
 ## Technical investigation before dependency changes
 
@@ -119,7 +119,9 @@ The first useful milestone is P1:
 - `src/app/(game)/3d-lab.tsx`: dedicated experimental screen.
 - `src/app/(game)/_layout.tsx`: hides the lab from the normal tab bar.
 - `src/app/settings.tsx`: entry point under Experimental.
-- `package.json`: adds Expo GL, expo-three, Three.js and Three.js types.
+- `package.json`: uses Expo GL and Three.js directly. `expo-three` was removed because its transitive `@expo/browser-polyfill` declares a React Native 0.64 peer range, which conflicts with this app's React Native 0.88 runtime.
+
+The GLView prototype now creates a Three.js `WebGLRenderer` directly using Expo's GL context and a minimal canvas shim. This removes the incompatible wrapper dependency, but it remains an unverified integration until it is run on web and a native development build.
 
 The current implementation is a first code spike, not yet verified on device. It intentionally does not replace `SettlementScene` or `BattleField`.
 
