@@ -215,7 +215,7 @@ export function BuildingPreview() {
 const styles = StyleSheet.create({
   wrap: { borderRadius: 14, overflow: 'hidden', borderWidth: 1, borderColor: colors.gold, backgroundColor: '#8fb5c8' },
   canvas: { height: 370, overflow: 'hidden' },
-  status: { ...StyleSheet.absoluteFillObject, alignItems: 'center', justifyContent: 'center', padding: 20, backgroundColor: 'rgba(11,18,32,0.76)' },
+  status: { ...StyleSheet.absoluteFill, alignItems: 'center', justifyContent: 'center', padding: 20, backgroundColor: 'rgba(11,18,32,0.76)' },
   statusText: { color: colors.parchment, fontFamily: fonts.sans, fontSize: 13, textAlign: 'center' },
   errorTitle: { color: '#ffb2a8', fontFamily: fonts.serif, fontSize: 18, fontWeight: '800', marginBottom: 8 },
   controls: { minHeight: 54, paddingHorizontal: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: colors.charcoal },
