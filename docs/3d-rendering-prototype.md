@@ -112,3 +112,26 @@ The first useful milestone is P1:
 - Do not modify `main`.
 - Keep commits small and explain each change.
 - Prefer additive changes and preserve the existing render pipeline until the replacement is proven.
+
+## Implemented prototype files
+
+- `src/components/3d/BuildingPreview.tsx`: isolated GLView + Three.js procedural building scene with drag rotation and zoom controls.
+- `src/app/(game)/3d-lab.tsx`: dedicated experimental screen.
+- `src/app/(game)/_layout.tsx`: hides the lab from the normal tab bar.
+- `src/app/settings.tsx`: entry point under Experimental.
+- `package.json`: adds Expo GL, expo-three, Three.js and Three.js types.
+
+The current implementation is a first code spike, not yet verified on device. It intentionally does not replace `SettlementScene` or `BattleField`.
+
+## Local validation required
+
+From a clone of this branch:
+```bash
+npm install
+npx expo install --check
+npm run typecheck
+npm test
+npm run lint
+npx expo start --web
+```
+Web preview is a useful first check but does not prove iOS GL compatibility. Physical iPhone validation requires a compatible iOS development build. Do not merge until TypeScript, tests, lint and device checks are reviewed.
