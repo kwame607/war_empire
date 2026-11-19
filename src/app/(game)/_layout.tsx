@@ -48,6 +48,7 @@ export default function GameLayout() {
         />
       ))}
       <Tabs.Screen name="profile" options={{ href: null, title: 'Profile' }} />
+      <Tabs.Screen name="3d-lab" options={{ href: null, title: '3D Rendering Lab' }} />
     </Tabs>
   );
 }
