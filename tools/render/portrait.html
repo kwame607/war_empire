@@ -1,0 +1,21 @@
+<!doctype html><html><body style="margin:0"><canvas id="c"></canvas>
+<script type="module">
+import { THREE } from './lib.js';
+import { portrait } from './portraits.js';
+import { PORTRAITS } from './portrait_specs.js';
+const name = new URLSearchParams(location.search).get('p'); const S = 384;
+const spec = PORTRAITS[name];
+const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('c'), antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(S, S, false); renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.2; renderer.outputColorSpace = THREE.SRGBColorSpace;
+const scene = new THREE.Scene();
+// backdrop: radial gradient in the civ colour
+const cv = document.createElement('canvas'); cv.width = cv.height = 256; const x = cv.getContext('2d'); const gr = x.createRadialGradient(128, 110, 10, 128, 128, 200); gr.addColorStop(0, spec.bg[0]); gr.addColorStop(1, spec.bg[1]); x.fillStyle = gr; x.fillRect(0, 0, 256, 256);
+const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; scene.background = t;
+const cam = new THREE.PerspectiveCamera(30, 1, 0.1, 50); cam.position.set(0.2, 1.55, 7.2); cam.lookAt(0, 1.0, 0);
+scene.add(new THREE.HemisphereLight(0xcfd8ee, 0x5a4a38, 1.1));
+const key = new THREE.DirectionalLight(0xffe0b0, 3.0); key.position.set(-3, 4, 6); key.castShadow = true; key.shadow.mapSize.set(2048, 2048); key.shadow.bias = -0.0005; scene.add(key);
+const rim = new THREE.DirectionalLight(0x9db8ff, 1.4); rim.position.set(4, 3, -3); scene.add(rim);
+const fill = new THREE.DirectionalLight(0xffc9a0, 0.7); fill.position.set(4, 0, 5); scene.add(fill);
+const p = portrait(spec.o); scene.add(p);
+renderer.render(scene, cam); window.done = true;
+</script></body></html>

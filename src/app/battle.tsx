@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { BattleField } from '@/components/art/BattleField';
+import { Portrait } from '@/components/art/Portrait';
 import { UnitChips } from '@/components/military/UnitChips';
 import { Chip } from '@/components/ui/Chip';
 import { GameButton } from '@/components/ui/GameButton';
@@ -201,7 +202,10 @@ function Active({ state, battle, onLeave }: { state: GameState; battle: Battle; 
 
       <SectionHeader title={`Enemy: ${battle.enemy.name}`} />
       <Panel tone="burgundy">
-        <Text style={styles.label}>Commanded by {battle.enemy.commander}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
+          <Portrait civId={battle.enemy.name} name={battle.enemy.commander} size={52} />
+          <Text style={[styles.label, { flex: 1 }]}>Commanded by {battle.enemy.commander}</Text>
+        </View>
         {est.exact && est.units ? (
           <UnitChips units={est.units} />
         ) : (

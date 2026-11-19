@@ -50,3 +50,9 @@ test('battle layout stays within the field and closes over rounds', () => {
   assert.equal(blocksFor(999, 10, 3), 3);
   assert.equal(layoutArmy({ cavalry: 50 }, 10, 'p', 5, true)[0].sd < 0, true);
 });
+
+test('portraits are stable per name and always resolve', async () => {
+  const { portraitKey } = await import('../data/portraitKeys');
+  assert.equal(portraitKey('sikaman', 'Kofi'), portraitKey('sikaman', 'Kofi'));
+  assert.match(portraitKey('unknown-civ', 'X'), /^[a-z]+_[1-6]$/);
+});

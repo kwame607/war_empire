@@ -2,6 +2,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { Portrait } from '@/components/art/Portrait';
 import { NavyTab } from '@/components/military/NavyTab';
 import { WarRoomTab } from '@/components/military/WarRoomTab';
 import { IntelTab } from '@/components/military/IntelTab';
@@ -170,17 +171,23 @@ function ArmyTab({ state }: { state: GameState }) {
 
       <SectionHeader title="Who leads" />
       <Panel>
-        <Text style={styles.big}>{leader.name}</Text>
-        <Text style={styles.meta}>
-          {leader.isPlayer ? 'You lead in person' : 'Commander'} · Tactics {leader.tactics} · Logistics {leader.logistics} · Leadership {leader.leadership}
-        </Text>
-        {leader.trait ? <Text style={styles.meta}>{TRAIT_TEXT[leader.trait]}</Text> : null}
+        <View style={{ flexDirection: 'row', gap: spacing.md, alignItems: 'center' }}>
+          <Portrait civId={state.player.civId} name={leader.name} size={72} />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.big}>{leader.name}</Text>
+            <Text style={styles.meta}>
+              {leader.isPlayer ? 'You lead in person' : 'Commander'} · Tactics {leader.tactics} · Logistics {leader.logistics} · Leadership {leader.leadership}
+            </Text>
+          </View>
+        </View>
+        {leader.trait ? <Text style={[styles.meta, { marginTop: spacing.sm }]}>{TRAIT_TEXT[leader.trait]}</Text> : null}
         {state.commanders.length > 0 ? (
           <View style={{ marginTop: spacing.md, gap: spacing.sm }}>
             {state.commanders.map((c) => {
               const active = c.id === state.army.commanderId;
               return (
                 <View key={c.id} style={styles.cmdRow}>
+                  <Portrait civId={state.player.civId} name={c.name} size={44} />
                   <View style={{ flex: 1 }}>
                     <Text style={styles.body}>
                       {c.name} {active ? '(leading)' : ''}
