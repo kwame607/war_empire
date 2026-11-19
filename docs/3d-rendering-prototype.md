@@ -34,6 +34,21 @@ The prototype should support:
 - Creating a large asset library before proving the renderer.
 - Removing the existing sprite-based scenes.
 
+## iPhone testing constraint (verified 2026-11-19)
+
+This repository uses Expo SDK 58. The Expo Go build currently distributed through the iOS App Store does not support SDK 58; Expo's current guidance for SDK 55+ on a physical iPhone is to build a compatible Expo Go app with `eas go` and distribute it through TestFlight, or preferably use a project-specific development build through EAS. TestFlight distribution to a physical iPhone requires Apple Developer Program membership. We must explain this before asking the owner to pay or enroll.
+
+A Linux machine can use EAS cloud builds for iOS without installing Xcode locally. The owner should not be told that a local iOS Simulator is available on Linux.
+
+Official references:
+- https://docs.expo.dev/troubleshooting/expo-go-version-mismatch/
+- https://docs.expo.dev/develop/development-builds/introduction/
+- https://docs.expo.dev/versions/latest/sdk/gl-view/
+
+## Candidate rendering path
+
+Expo SDK 58 documents `expo-gl` (~58.0.4) as a GLView/WebGL render target and lists `expo-three` as a high-level Three.js integration. The Expo Three project also documents a React Three Fiber starter path. These are candidates, not yet a proven combination for this repository. Validate on SDK 58 / React Native 0.88 / React 19.3 before committing to one. Prefer a small GLView + Three.js proof if React Three Fiber introduces integration complexity.
+
 ## Technical investigation before dependency changes
 
 The app currently targets Expo SDK 58 and React Native 0.88. Before installing or upgrading any graphics dependency, verify compatibility with this exact Expo / React Native version and the intended iOS deployment route.
