@@ -4,6 +4,7 @@ import { test } from 'node:test';
 import { DIAGRAMS } from '../data/diagrams';
 import { diagramShapes, visibleScenes } from '../utils/diagramShapes';
 import { TOWN_SLOTS, keepSpriteForStage } from '../data/townLayout';
+import { blocksFor, frontLine, layoutArmy } from '../data/battleLayout';
 import { createNewGame } from './engine';
 import { startBattle } from './military';
 import { sendSpy } from './intel';
@@ -34,4 +35,18 @@ test('every town slot has artwork and the keep changes with rank', () => {
   for (const slot of Object.values(TOWN_SLOTS)) assert.ok(typeof slot.sprite === 'string');
   assert.notEqual(keepSpriteForStage(0), keepSpriteForStage(6));
   assert.equal(keepSpriteForStage(2), 'keep1');
+});
+
+
+test('battle layout stays within the field and closes over rounds', () => {
+  const army = layoutArmy({ spearmen: 300, heavy: 200, archers: 150, cavalry: 120 }, 20, 'p', 5, false);
+  assert.ok(army.length <= 10);
+  assert.ok(army.every((r) => Math.abs(r.sx) <= 16.5 && r.sd > 0));
+  const foe = layoutArmy({ spearmen: 100 }, 20, 'e', 5, false);
+  assert.ok(foe.every((r) => r.sd < 0 && r.sprite.endsWith('_e')));
+  assert.ok(frontLine(0, null) > frontLine(3, null));
+  assert.equal(blocksFor(0, 10, 3), 0);
+  assert.equal(blocksFor(1, 10, 3), 1);
+  assert.equal(blocksFor(999, 10, 3), 3);
+  assert.equal(layoutArmy({ cavalry: 50 }, 10, 'p', 5, true)[0].sd < 0, true);
 });

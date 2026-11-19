@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 
+import { ResultBanner } from '@/components/art/ResultBanner';
 import { UnitChips } from '@/components/military/UnitChips';
 import { Chip } from '@/components/ui/Chip';
 import { Panel } from '@/components/ui/Panel';
@@ -36,6 +37,7 @@ export function ReportView({ report: r }: { report: BattleReport }) {
 
   return (
     <>
+      <ResultBanner report={r} />
       <Panel tone={r.result === 'victory' ? 'burgundy' : 'dark'}>
         <View style={styles.row}>
           <Text style={styles.title}>{r.scenarioName}</Text>

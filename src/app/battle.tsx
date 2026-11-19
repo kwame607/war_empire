@@ -2,6 +2,7 @@ import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { BattleField } from '@/components/art/BattleField';
 import { UnitChips } from '@/components/military/UnitChips';
 import { Chip } from '@/components/ui/Chip';
 import { GameButton } from '@/components/ui/GameButton';
@@ -181,6 +182,7 @@ function Active({ state, battle, onLeave }: { state: GameState; battle: Battle; 
 
   return (
     <GameScreen title={sc.name} subtitle={`Round ${battle.round + 1} of ${battle.maxRounds}`} showBack>
+      <BattleField battle={battle} />
       <View style={styles.chips}>
         <Chip tone="muted" label={`Terrain: ${battle.terrain}`} />
         <Chip tone="muted" label={`Weather: ${battle.weather}`} />

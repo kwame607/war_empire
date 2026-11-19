@@ -390,3 +390,106 @@ BUILDINGS.terrain = () => { const g = new THREE.Group(); g.add(terrain(), decor(
 
 const scaled = (f, k) => () => { const g = f(); g.scale.setScalar(k); return g; };
 BUILDINGS.keep0 = keepHut; BUILDINGS.keep1 = scaled(keepHall, 0.9); BUILDINGS.keep2 = scaled(() => keepCastle(false), 0.78); BUILDINGS.keep3 = scaled(() => keepCastle(true), 0.82);
+
+// ---------- battlefield ----------
+const SIDE = { p: { cloak: 0x24407a, trim: 0xd4ac4f, shield: 0xd4ac4f, plume: 0xd4ac4f, horse: 0x6b4a2e }, e: { cloak: 0x8e2b2f, trim: 0x2a2020, shield: 0x4a2a2a, plume: 0x1d1d1d, horse: 0x2c2420 } };
+const FWD = { p: -3 * Math.PI / 4, e: Math.PI / 4 };
+const mat = (c, extra = {}) => new THREE.MeshStandardMaterial({ color: c, roughness: 0.85, ...extra });
+
+function fig(kind, side, jit = 0) {
+  const c = SIDE[side]; const g = new THREE.Group();
+  const skin = mat(0xd9b48a); const cloak = mat(c.cloak); const shieldM = mat(c.shield, { metalness: 0.2 }); const steel = M.metal();
+  const heavy = kind === 'heavy';
+  const bodyH = heavy ? 1.15 : 1.0; const s = heavy ? 1.12 : 1;
+  const legs = cyl(0.17 * s, 0.17 * s, 0.7 * s, M.woodDark(), 0, 0, 0, 6); g.add(legs);
+  const torso = cyl(0.27 * s, 0.31 * s, bodyH * 0.8, heavy ? steel : cloak, 0, 0.6 * s, 0, 8); g.add(torso);
+  if (heavy) g.add(cyl(0.33, 0.33, 0.18, cloak, 0, 0.95, 0, 8));
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.2 * s, 10, 8), skin); head.position.y = (0.6 + bodyH * 0.8 + 0.18) * s; head.castShadow = true; g.add(head);
+  const helm = new THREE.Mesh(new THREE.SphereGeometry(0.235 * s, 10, 8, 0, Math.PI * 2, 0, Math.PI / 1.9), steel); helm.position.y = head.position.y + 0.02; helm.castShadow = true; g.add(helm);
+  if (heavy || kind === 'spearmen') { const pl = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.4, 6), mat(c.plume)); pl.position.y = head.position.y + 0.38; g.add(pl); }
+  if (kind === 'spearmen' || heavy) {
+    const sh = heavy ? box(0.16, 1.3, 0.62, shieldM, -0.42, 0.25, 0.12) : new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.42, 0.08, 16), shieldM);
+    if (!heavy) { sh.rotation.z = Math.PI / 2; sh.position.set(-0.4, 1.0, 0.1); }
+    g.add(sh); if (!heavy) { const boss = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 6), M.gold()); boss.position.set(-0.45, 1.0, 0.1); g.add(boss); }
+    const sp = cyl(0.03, 0.03, heavy ? 2.4 : 2.9, M.woodDark(), 0.38, 0, 0.1, 5); sp.rotation.x = 0.06; g.add(sp);
+    const tip = new THREE.Mesh(new THREE.ConeGeometry(0.07, 0.34, 6), steel); tip.position.set(0.38, (heavy ? 2.4 : 2.9) + 0.15, 0.1); g.add(tip);
+  }
+  if (kind === 'archers') {
+    const bow = new THREE.Mesh(new THREE.TorusGeometry(0.55, 0.035, 5, 14, Math.PI), M.woodDark()); bow.rotation.set(0, Math.PI / 2, Math.PI / 2); bow.position.set(-0.3, 1.0, 0.35); g.add(bow);
+    g.add(box(0.08, 0.7, 0.14, M.wood([1, 1], 0x5a3a20), 0.18, 0.55, -0.28));
+    for (let i = 0; i < 3; i++) g.add(cyl(0.015, 0.015, 0.3, M.flat(0xe8e0c8), 0.16 + i * 0.03, 1.2, -0.3, 4));
+  }
+  g.children.forEach((ch) => { if (ch.isMesh) ch.castShadow = true; });
+  g.rotation.y = FWD[side] + jit; return g;
+}
+function horseFig(side, jit = 0) {
+  const c = SIDE[side]; const g = new THREE.Group(); const hm = mat(c.horse);
+  g.add(box(0.7, 0.75, 1.9, hm, 0, 0.85, 0));
+  for (const [x, z] of [[-0.22, -0.7], [0.22, -0.7], [-0.22, 0.7], [0.22, 0.7]]) g.add(cyl(0.09, 0.07, 0.9, hm, x, 0, z, 6));
+  const neck = box(0.35, 0.9, 0.4, hm, 0, 1.35, 1.0); neck.rotation.x = 0.5; g.add(neck); g.add(box(0.3, 0.38, 0.7, hm, 0, 2.0, 1.45));
+  g.add(box(0.74, 0.12, 1.0, mat(c.cloak), 0, 1.62, -0.05));
+  const rider = cyl(0.26, 0.3, 0.9, mat(c.cloak), 0, 1.7, -0.05, 8); g.add(rider);
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.2, 10, 8), mat(0xd9b48a)); head.position.set(0, 2.8, -0.05); g.add(head);
+  const helm = new THREE.Mesh(new THREE.SphereGeometry(0.235, 10, 8, 0, Math.PI * 2, 0, Math.PI / 1.9), M.metal()); helm.position.set(0, 2.82, -0.05); g.add(helm);
+  const lance = cyl(0.03, 0.03, 3.4, M.woodDark(), 0.42, 1.2, 0.2, 5); lance.rotation.x = 1.25; lance.position.set(0.42, 2.1, 0.9); g.add(lance);
+  const pen = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.3), mat(c.trim, { side: THREE.DoubleSide })); pen.position.set(0.42, 2.6, 1.9); g.add(pen);
+  g.children.forEach((ch) => { if (ch.isMesh) ch.castShadow = true; });
+  g.rotation.y = FWD[side] + jit; return g;
+}
+export function regiment(kind, side) {
+  const g = new THREE.Group(); const r = rng(kind.length * 31 + (side === 'p' ? 1 : 7));
+  const cfg = { spearmen: [6, 2, 1.3, 1.9], archers: [6, 2, 1.4, 2.0], heavy: [5, 2, 1.45, 1.9], cavalry: [3, 2, 2.4, 3.2] }[kind];
+  const [cols, rows, dx, dd] = cfg;
+  for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
+    const sx = (i - (cols - 1) / 2) * dx + (r() - 0.5) * 0.18; const sd = (j - (rows - 1) / 2) * dd + (r() - 0.5) * 0.18;
+    const f = kind === 'cavalry' ? horseFig(side, (r() - 0.5) * 0.15) : fig(kind, side, (r() - 0.5) * 0.2);
+    const [x, z] = toWorld(sx, sd); f.position.set(x, 0, z); g.add(f);
+  }
+  // a standard bearer at the rear centre of infantry blocks
+  if (kind !== 'archers') { const [bx, bz] = toWorld(0, (side === 'p' ? 1 : -1) * (rows / 2 * dd + 0.8)); const b = banner(SIDE[side].cloak, 2.2, 0.8); b.position.set(bx, 0, bz); b.rotation.y = FWD[side] + Math.PI / 2; g.add(b); }
+  g.scale.setScalar(1.3);
+  return g;
+}
+for (const k of ['spearmen', 'archers', 'cavalry', 'heavy']) for (const s of ['p', 'e']) BUILDINGS[`u_${k}_${s}`] = () => regiment(k, s);
+BUILDINGS.palisade = () => { const g = new THREE.Group(); for (let i = 0; i < 9; i++) { const [x, z] = toWorld(-5.2 + i * 1.3, 0); for (const sgn of [0]) { const p = cyl(0.13, 0.15, 1.5, M.wood([1, 1], 0x6b4a2a), x, 0, z, 7); g.add(p); const t = new THREE.Mesh(new THREE.ConeGeometry(0.15, 0.55, 7), M.wood([1, 1], 0x6b4a2a)); t.position.set(x, 1.75, z); t.castShadow = true; g.add(t); } } const [a, b] = toWorld(0, 0.4); const [c, d] = toWorld(0, -0.4); return g; };
+
+function scatter(g, n, seed, fn, area = [18, 20]) { const r = rng(seed); for (let i = 0; i < n; i++) { const sx = (r() - 0.5) * 2 * area[0], sd = (r() - 0.5) * 2 * area[1]; const o = fn(r, sx, sd); if (!o) continue; const [x, z] = toWorld(sx, sd); o.position.x += x; o.position.z += z; g.add(o); } }
+function groundPlane(material) { const m = new THREE.Mesh(new THREE.PlaneGeometry(200, 200), material); m.rotation.x = -Math.PI / 2; m.receiveShadow = true; return m; }
+function mound(r, sx, sd, big = 1, mt = M.ground([1, 1])) { const m = new THREE.Mesh(new THREE.SphereGeometry(5 * big, 18, 10, 0, Math.PI * 2, 0, Math.PI / 2), mt); m.scale.set(1.2, 0.5 + r() * 0.25, 1); m.castShadow = m.receiveShadow = true; return m; }
+function rockO(r, s = 1) { const m = new THREE.Mesh(new THREE.DodecahedronGeometry((0.5 + r() * 0.8) * s, 0), M.rock([1, 1])); m.position.y = 0.3; m.scale.y = 0.7; m.rotation.set(r() * 3, r() * 3, r() * 3); m.castShadow = true; return m; }
+function bush(r, c = 0x4c7a3c) { const m = new THREE.Mesh(new THREE.IcosahedronGeometry(0.5 + r() * 0.4, 1), new THREE.MeshStandardMaterial({ color: c, roughness: 1, flatShading: true })); m.position.y = 0.35; m.scale.y = 0.75; m.castShadow = true; return m; }
+function palm(r) { const g = new THREE.Group(); const t = cyl(0.14, 0.22, 3.4, M.wood([1, 1], 0x7a5a38), 0, 0, 0, 6); t.rotation.z = (r() - 0.5) * 0.25; g.add(t); for (let i = 0; i < 7; i++) { const l = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 2.0), mat(0x4a7a3a, { side: THREE.DoubleSide })); l.position.set(Math.cos(i) * 0.9, 3.4, Math.sin(i) * 0.9); l.rotation.set(-1.0, -i, 0); l.castShadow = true; g.add(l); } return g; }
+function cactus() { const g = new THREE.Group(); const m = mat(0x4c7a4a); g.add(cyl(0.22, 0.25, 1.8, m, 0, 0, 0, 8)); g.add(cyl(0.14, 0.14, 0.8, m, 0.4, 0.7, 0, 6)); return g; }
+function duneO(r) { const m = new THREE.Mesh(new THREE.SphereGeometry(4.5, 20, 10, 0, Math.PI * 2, 0, Math.PI / 2), M.sand()); m.scale.set(1.2 + r() * 0.6, 0.2 + r() * 0.12, 1.0); m.rotation.y = r() * 3; m.castShadow = m.receiveShadow = true; return m; }
+
+export function field(kind) {
+  const g = new THREE.Group();
+  if (kind === 'desert') {
+    g.add(groundPlane(M.sand()));
+    scatter(g, 7, 11, (r, sx, sd) => (Math.abs(sx) < 11 && Math.abs(sd) < 10 ? null : duneO(r)), [21, 22]);
+    scatter(g, 14, 12, (r) => rockO(r), [20, 22]); scatter(g, 10, 14, () => cactus(), [20, 20]); scatter(g, 5, 15, (r) => { const d = new THREE.Group(); d.add(cyl(0.12, 0.2, 2.6, M.wood([1, 1], 0x6a5236), 0, 0, 0, 6)); const b = cyl(0.07, 0.1, 1.2, M.wood([1, 1], 0x6a5236), 0.5, 1.5, 0, 5); b.rotation.z = -0.9; d.add(b); return d; }, [20, 20]);
+  } else if (kind === 'forest') {
+    g.add(groundPlane(M.ground([1, 1])));
+    scatter(g, 60, 21, (r, sx, sd) => (Math.abs(sx) < 11 && Math.abs(sd) < 15 ? null : tree(0, 0, 1.1 + r() * 0.5, r() < 0.7 ? 'pine' : 'oak', 3 + (r() * 9 | 0))), [21, 22]);
+    scatter(g, 30, 22, (r, sx, sd) => (Math.abs(sx) < 9 && Math.abs(sd) < 12 ? null : bush(r)), [20, 21]);
+    scatter(g, 8, 23, (r) => { const l = cyl(0.3, 0.3, 3, M.wood([1, 2], 0x6e4a2a), 0, 0.3, 0, 8); l.rotation.set(Math.PI / 2, 0, r() * 3); return l; }, [14, 16]);
+  } else if (kind === 'hills') {
+    g.add(groundPlane(M.ground([1, 1])));
+    scatter(g, 14, 31, (r, sx, sd) => ((Math.abs(sx) < 12 && sd > -12) ? null : mound(r, sx, sd, 0.45 + r() * 0.4)), [21, 21]);
+    scatter(g, 16, 32, (r) => rockO(r, 1.2), [20, 21]); scatter(g, 14, 33, (r, sx, sd) => (Math.abs(sd) < 8 ? null : tree(0, 0, 1 + r() * 0.4, 'pine', 4)), [21, 21]);
+  } else if (kind === 'river') {
+    g.add(groundPlane(M.ground([1, 1])));
+    const [cx, cz] = toWorld(0, -7);
+    const bank = new THREE.Mesh(new THREE.PlaneGeometry(60, 9), M.sand()); bank.rotation.x = -Math.PI / 2; bank.rotation.z = Math.PI / 4; bank.position.set(cx, 0.03, cz); bank.receiveShadow = true; g.add(bank);
+    const wat = new THREE.Mesh(new THREE.PlaneGeometry(60, 6), M.water()); wat.rotation.x = -Math.PI / 2; wat.rotation.z = Math.PI / 4; wat.position.set(cx, 0.06, cz); wat.receiveShadow = true; g.add(wat);
+    { const [bx, bz] = toWorld(0, -7); const deck = box(3.4, 0.3, 11, M.wood([1, 3], 0x8a6238, true), 0, 0.25, 0); deck.position.x = bx; deck.position.z = bz; deck.rotation.y = Math.PI / 4; g.add(deck); for (const sgn of [-1, 1]) { const [rx, rz] = toWorld(sgn * 1.65, -7); const rail = box(0.12, 0.5, 11, M.woodDark(), rx, 0.55, rz); rail.rotation.y = Math.PI / 4; g.add(rail); for (const dd of [-4.5, -1.5, 1.5, 4.5]) { const [px, pz] = toWorld(sgn * 1.65, -7 + dd); g.add(cyl(0.1, 0.1, 1.0, M.woodDark(), px, 0.3, pz, 6)); } } }
+    scatter(g, 22, 41, (r, sx, sd) => ((sd > -13 && sd < 0) || Math.abs(sx) < 8 ? null : tree(0, 0, 1 + r() * 0.5, 'oak', 6)), [21, 22]); scatter(g, 20, 42, (r) => bush(r), [20, 21]);
+  } else { // plain
+    g.add(groundPlane(M.ground([1, 1])));
+    for (const [sx, sd] of [[-16, -12], [15, -16], [-17, 14]]) { const f = new THREE.Mesh(new THREE.PlaneGeometry(9, 6), M.field()); const [x, z] = toWorld(sx, sd); f.rotation.x = -Math.PI / 2; f.rotation.z = Math.PI / 4; f.position.set(x, 0.03, z); f.receiveShadow = true; g.add(f); }
+    scatter(g, 16, 51, (r, sx, sd) => (Math.abs(sx) < 13 && Math.abs(sd) < 16 ? null : tree(0, 0, 1.1 + r() * 0.4, 'oak', 7)), [21, 22]); scatter(g, 24, 52, (r) => bush(r, 0x6b8a4a), [20, 21]);
+    const hs = haystack(0, 0, 1); const [hx, hz] = toWorld(-12, -14); hs.position.set(hx, 0, hz); g.add(hs); const fh = cottage({ thatch: true }); fh.scale.setScalar(0.7); const [fx, fz] = toWorld(17, -17); fh.position.set(fx, 0, fz); g.add(fh);
+  }
+  return g;
+}
+for (const k of ['plain', 'forest', 'hills', 'river', 'desert']) BUILDINGS[`field_${k}`] = () => field(k);
