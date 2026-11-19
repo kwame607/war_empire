@@ -238,3 +238,6 @@ Known notes:
 
 ## v0.20 — Haptics
 - `expo-haptics` added (run `npm install` after pulling). Light tap on buttons, success buzz on accepted actions, warning on refused ones. Toggle in Settings (resets to on at launch).
+
+## v0.21 — Adviser Guide
+- Seven-step first-hour guide (farm, second business, upgrade, discover, study, library, soldiers) derived from game state, so it needs no save changes and works for existing games. Shown on Overview with the adviser's portrait; "Skip guide" hides it for the session; it vanishes when complete.

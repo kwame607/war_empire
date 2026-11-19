@@ -56,3 +56,11 @@ test('portraits are stable per name and always resolve', async () => {
   assert.equal(portraitKey('sikaman', 'Kofi'), portraitKey('sikaman', 'Kofi'));
   assert.match(portraitKey('unknown-civ', 'X'), /^[a-z]+_[1-6]$/);
 });
+
+test('tutorial starts at the farm and advances with play', async () => {
+  const { tutorialProgress } = await import('./tutorial');
+  const s = base();
+  const p0 = tutorialProgress(s);
+  assert.equal(p0.current?.id, 'farm');
+  assert.equal(p0.done, 0);
+});
