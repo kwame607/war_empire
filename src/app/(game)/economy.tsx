@@ -1,3 +1,4 @@
+import { useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
@@ -23,6 +24,12 @@ export default function EconomyScreen() {
   const state = useGameState();
   const { buy, upgrade, buyInstitution, upgradeInstitution } = useGame();
   const [tab, setTab] = useState<Tab>('finances');
+  const params = useLocalSearchParams<{ tab?: string; n?: string }>();
+  const [seen, setSeen] = useState('');
+  if (params.n && params.n !== seen) {
+    setSeen(params.n);
+    if (params.tab === 'finances' || params.tab === 'businesses' || params.tab === 'institutions') setTab(params.tab);
+  }
 
   return (
     <GameScreen title="Economy" subtitle="Acquire · Earn · Upgrade · Unlock · Expand">

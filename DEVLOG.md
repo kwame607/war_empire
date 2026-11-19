@@ -227,3 +227,6 @@ Known notes:
 - Armies close across the field as rounds pass, cavalry swing round the flank on envelopment and horns, a palisade appears when you fortify, dust clouds and floating casualty numbers play on each round. Weather tints the field. Morale and strength sit on top.
 - Fog of knowledge: the enemy is drawn only from what you know (exact if spied, otherwise from estimates, labelled "shown from estimates").
 - The battle report now opens with a result banner (VICTORY / DEFEAT / WITHDRAWN / STALEMATE) over the field as it ended, with the surviving armies.
+
+## v0.18 Tappable town
+- Tap any building, empty plot, the keep or a ship in the settlement picture to see what it is, then "Open" jumps to the right screen and tab (Businesses, Institutions, Army or Navy).

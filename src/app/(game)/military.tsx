@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -44,6 +44,12 @@ type Tab = 'army' | 'operations' | 'navy' | 'intel' | 'warroom' | 'reports';
 export default function MilitaryScreen() {
   const state = useGameState();
   const [tab, setTab] = useState<Tab>('army');
+  const params = useLocalSearchParams<{ tab?: string; n?: string }>();
+  const [seen, setSeen] = useState('');
+  if (params.n && params.n !== seen) {
+    setSeen(params.n);
+    if (params.tab === 'army' || params.tab === 'navy' || params.tab === 'operations') setTab(params.tab);
+  }
   const idx = getStageIndex(state);
   const need = PROGRESSION_STAGES[MILITARY_UNLOCK_STAGE];
 
