@@ -89,3 +89,13 @@ test('events spawn after the timer and resolve cleanly', async () => {
   const none = resolveEvent({ ...s1, event: null }, 0, 5000);
   assert.equal(none.ok, false);
 });
+
+test('chronicle always tells a short story', async () => {
+  const { chronicleFor } = await import('./chronicle');
+  const s = base();
+  for (const gold of [-50, 0, 10, 100, 900]) {
+    const p = chronicleFor(s, { secondsAway: 7200, secondsCounted: 7200, gained: { gold, food: 10, wood: 0, stone: 0 }, events: ['Farm construction is complete.'] });
+    assert.ok(p.length >= 2);
+    assert.ok(p.every((x) => x.length > 10));
+  }
+});

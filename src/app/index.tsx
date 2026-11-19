@@ -58,7 +58,7 @@ export default function TitleScreen() {
             <GameButton label="Settings" variant="secondary" onPress={() => router.push('/settings')} />
           </View>
 
-          <Text style={styles.footer}>{ready ? 'Version 0.22' : 'Loading…'}</Text>
+          <Text style={styles.footer}>{ready ? 'Version 0.23' : 'Loading…'}</Text>
         </Animated.View>
       </SafeAreaView>
     </View>

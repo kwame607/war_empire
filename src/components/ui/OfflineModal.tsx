@@ -1,6 +1,7 @@
 import { Modal, StyleSheet, Text, View } from 'react-native';
 
 import { GameButton } from '@/components/ui/GameButton';
+import { chronicleFor } from '@/game/chronicle';
 import { OFFLINE_CAP_SECONDS } from '@/game/constants';
 import { formatDuration } from '@/game/selectors';
 import { useGame } from '@/store/GameProvider';
@@ -16,6 +17,8 @@ export function OfflineModal() {
     .map((k) => ({ k, v: s.gained[k] }))
     .filter((x) => Math.abs(x.v) >= 0.05);
 
+  const story = chronicleFor(state, s);
+
   return (
     <Modal transparent animationType="fade" visible onRequestClose={dismissOfflineSummary}>
       <View style={styles.backdrop}>
@@ -25,6 +28,14 @@ export function OfflineModal() {
             You were away for {formatDuration(s.secondsAway)}.
             {capped ? ` Production counted for the last ${formatDuration(OFFLINE_CAP_SECONDS)}; construction and study finished on time.` : ''}
           </Text>
+
+          <View style={styles.story}>
+            {story.map((p, i) => (
+              <Text key={i} style={styles.storyText}>
+                {p}
+              </Text>
+            ))}
+          </View>
 
           {lines.length > 0 ? (
             <View style={styles.block}>
@@ -63,6 +74,8 @@ const styles = StyleSheet.create({
   card: { backgroundColor: colors.navyLight, borderRadius: radius.md, borderWidth: 1.5, borderColor: colors.gold, padding: spacing.lg, gap: spacing.md },
   title: { fontFamily: fonts.serif, fontSize: 26, fontWeight: '800', color: colors.parchment, textAlign: 'center' },
   sub: { fontFamily: fonts.sans, fontSize: 15, lineHeight: 22, color: colors.parchmentDim, textAlign: 'center' },
+  story: { gap: 8, borderLeftWidth: 2, borderLeftColor: colors.gold, paddingLeft: spacing.md },
+  storyText: { fontFamily: fonts.serif, fontSize: 15, lineHeight: 23, color: colors.parchment, fontStyle: 'italic' },
   block: { gap: 4 },
   heading: { fontFamily: fonts.serif, fontSize: 13, letterSpacing: 2, color: colors.gold, textTransform: 'uppercase' },
   line: { fontFamily: fonts.serif, fontSize: 18, color: colors.parchment },

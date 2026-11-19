@@ -247,3 +247,6 @@ Known notes:
 - Each event offers three options with a visible hint (cost and tone) but hidden dice; some outcomes are certain, some risky. Resources never go below zero.
 - Save version 10 (`event`, `nextEventAt`, `lastEventId`); older saves migrate with a 20-minute delay before the first event.
 - New `EventCard` at the top of Overview; the decision and its outcome are written to the log.
+
+## v0.23 — Chronicle
+- The "Welcome back" screen now opens with a short written story of your absence (time passed, how the treasury fared, what was finished, and what now waits for you), above the existing numbers. Pure function `chronicleFor`, no save changes.
