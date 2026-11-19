@@ -87,6 +87,14 @@ export default function SettingsScreen() {
         </>
       ) : null}
 
+      <SectionHeader title="Experimental" />
+      <Panel>
+        <Text style={styles.body}>Open the isolated real-time 3D building prototype. This does not change your settlement or battle saves.</Text>
+        <View style={styles.gap}>
+          <GameButton compact variant="secondary" label="Open 3D Rendering Lab" onPress={() => router.push('/3d-lab')} />
+        </View>
+      </Panel>
+
       <SectionHeader title="Danger zone" />
       <GameButton label="Delete saved game" variant="danger" muted={!hasSave} onPress={() => (hasSave ? confirmDelete() : Alert.alert('Nothing to delete', 'There is no saved game.'))} />
 
