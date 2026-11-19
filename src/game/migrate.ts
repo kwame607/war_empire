@@ -64,6 +64,13 @@ export function migrateState(raw: unknown): GameState | null {
   // v8 -> v9: navy
   if (s.version < 9) next.fleet = { ships: 0, training: [], lastEngagement: null };
 
+  // v9 -> v10: events
+  if (s.version < 10) {
+    next.event = null;
+    next.lastEventId = null;
+    next.nextEventAt = ((next.lastTickAt as number) ?? Date.now()) + 20 * 60 * 1000;
+  }
+
   next.version = SAVE_VERSION;
   return next as unknown as GameState;
 }

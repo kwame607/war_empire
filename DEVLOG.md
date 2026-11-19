@@ -241,3 +241,9 @@ Known notes:
 
 ## v0.21 — Adviser Guide
 - Seven-step first-hour guide (farm, second business, upgrade, discover, study, library, soldiers) derived from game state, so it needs no save changes and works for existing games. Shown on Overview with the adviser's portrait; "Skip guide" hides it for the session; it vanishes when complete.
+
+## v0.22 — Events with Choices
+- Random happenings (ten events: harvest, caravan, bandits, festival, plague rumour, a veteran visiting…) arrive every 25–60 minutes of game time once you own a business, never twice in a row. Only one waits at a time, and it waits for you while you are away (no punishment for being offline).
+- Each event offers three options with a visible hint (cost and tone) but hidden dice; some outcomes are certain, some risky. Resources never go below zero.
+- Save version 10 (`event`, `nextEventAt`, `lastEventId`); older saves migrate with a 20-minute delay before the first event.
+- New `EventCard` at the top of Overview; the decision and its outcome are written to the log.

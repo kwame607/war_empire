@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { SettlementScene } from '@/components/art/SettlementScene';
+import { EventCard } from '@/components/ui/EventCard';
 import { TutorialCard } from '@/components/ui/TutorialCard';
 import { GameScreen } from '@/components/ui/GameScreen';
 import { GameButton } from '@/components/ui/GameButton';
@@ -131,6 +132,8 @@ export default function OverviewScreen() {
           </Text>
         ) : null}
       </Panel>
+
+      <EventCard state={state} />
 
       <TutorialCard state={state} />
 

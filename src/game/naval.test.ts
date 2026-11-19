@@ -169,7 +169,7 @@ describe('command of the sea', () => {
     const { fleet: _f, ...rest } = createNewGame(cfg, T0);
     void _f;
     const m = migrateState(JSON.parse(JSON.stringify({ ...rest, version: 8 })))!;
-    assert.equal(m.version, 9);
+    assert.equal(m.version, 10);
     assert.equal(m.fleet.ships, 0);
   });
 });

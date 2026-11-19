@@ -64,3 +64,28 @@ test('tutorial starts at the farm and advances with play', async () => {
   assert.equal(p0.current?.id, 'farm');
   assert.equal(p0.done, 0);
 });
+
+test('events spawn after the timer and resolve cleanly', async () => {
+  const { maybeSpawnEvent, resolveEvent } = await import('./events');
+  const { EVENTS } = await import('../data/events');
+  const s0 = base();
+  const early = maybeSpawnEvent({ ...s0, businesses: [{ typeId: 'farm', level: 1, pending: null }], nextEventAt: 1000 }, 500);
+  assert.equal(early.event, null);
+  const s1 = maybeSpawnEvent({ ...s0, businesses: [{ typeId: 'farm', level: 1, pending: null }], nextEventAt: 1000 }, 2000);
+  assert.ok(s1.event);
+  assert.ok(s1.nextEventAt > 2000);
+  // every choice of every event resolves, keeps resources non-negative, and clears the event
+  for (const def of EVENTS) {
+    for (let i = 0; i < def.choices.length; i++) {
+      const rich = { ...s1, event: { id: def.id, at: 0 }, resources: { gold: 999, food: 999, wood: 999, stone: 999 } };
+      const r = resolveEvent(rich, i, 5000);
+      assert.ok(r.ok, `${def.id}/${i}`);
+      if (r.ok) {
+        assert.equal(r.state.event, null);
+        for (const v of Object.values(r.state.resources)) assert.ok(v >= 0);
+      }
+    }
+  }
+  const none = resolveEvent({ ...s1, event: null }, 0, 5000);
+  assert.equal(none.ok, false);
+});

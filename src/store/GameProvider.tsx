@@ -39,6 +39,7 @@ import {
   startExpedition,
   upgradeInstitution,
 } from '@/game/military';
+import { resolveEvent } from '@/game/events';
 import { tap } from '@/utils/haptics';
 import type { ActionResult, EnvoyKind, GameState, IntelTopic, NavalTactic, NewGameConfig, OfflineSummary, OrderId, Provisions, UnitId } from '@/game/types';
 import { deleteSave, loadSave, writeSave } from '@/storage/saveRepo';
@@ -60,6 +61,8 @@ type GameContextValue = {
   saveNow: () => Promise<void>;
   removeSave: () => Promise<void>;
   buy: (typeId: string) => ActionResult;
+  /** Answers the waiting random event with the chosen option. */
+  decide: (choice: number) => ActionResult & { outcome?: string };
   upgrade: (typeId: string) => ActionResult;
   discover: (entryId: string) => void;
   study: (entryId: string) => ActionResult;
@@ -226,6 +229,15 @@ export function GameProvider({ children }: { children: ReactNode }) {
         setHasSave(false);
         setOfflineSummary(null);
         commit(null);
+      },
+      decide: (choice) => {
+        let outcome: string | undefined;
+        const res = apply((s, now) => {
+          const r = resolveEvent(tick(s, now), choice, now);
+          outcome = r.outcome;
+          return r;
+        });
+        return { ...res, outcome };
       },
       buy: (typeId) => apply((s, now) => buyBusiness(s, typeId, now)),
       upgrade: (typeId) => apply((s, now) => upgradeBusiness(s, typeId, now)),

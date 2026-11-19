@@ -1,4 +1,4 @@
-export const SAVE_VERSION = 9;
+export const SAVE_VERSION = 10;
 
 /** Production counts for at most this long while the player is away. */
 export const OFFLINE_CAP_SECONDS = 12 * 3600;
@@ -70,3 +70,7 @@ export const SHIP_SECONDS = 20;
 export const SHIP_UPKEEP_GOLD = 1.5;
 export const FLEET_CAPACITY_PER_LEVEL = [4, 12, 20] as const;
 export const FLEET_DETERS_RAIDS_AT = 3;
+
+/** Seconds between random events (a random gap in this range). */
+export const EVENT_GAP_MIN_S = 25 * 60;
+export const EVENT_GAP_MAX_S = 60 * 60;

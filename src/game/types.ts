@@ -167,6 +167,10 @@ export type GameState = {
   territories: string[];
   // --- added in save version 9 ---
   fleet: Fleet;
+  /** A random event waiting for the player's decision. */
+  event: { id: string; at: number } | null;
+  nextEventAt: number;
+  lastEventId: string | null;
 };
 
 export type NewGameConfig = {

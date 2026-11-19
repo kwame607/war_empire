@@ -10,6 +10,7 @@ import { getInstitutionType } from '../data/institutions';
 import { getKnowledgeEntry } from '../data/knowledge';
 import { emptyUnits, getUnitType } from '../data/units';
 import { getSettlement } from '../data/world';
+import { maybeSpawnEvent } from './events';
 import {
   BUILD_SLOTS,
   OFFLINE_CAP_SECONDS,
@@ -89,6 +90,9 @@ export function createNewGame(config: NewGameConfig, now: number): GameState {
     war: null,
     territories: [],
     fleet: { ships: 0, training: [], lastEngagement: null },
+    event: null,
+    lastEventId: null,
+    nextEventAt: now + 30 * 60 * 1000,
   };
 }
 
@@ -223,7 +227,7 @@ export function tick(state: GameState, now: number): GameState {
     scouting = null;
   }
 
-  return resolveExpedition(
+  return maybeSpawnEvent(resolveExpedition(
     advanceWorld(
     resolveMissions(
     {
@@ -248,7 +252,7 @@ export function tick(state: GameState, now: number): GameState {
     now,
     ),
     now,
-  );
+  ), now);
 }
 
 /** Compares a state before and after a tick, for the "welcome back" report. */
