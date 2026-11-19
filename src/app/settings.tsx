@@ -91,7 +91,7 @@ export default function SettingsScreen() {
       <Panel>
         <Text style={styles.body}>Open the isolated real-time 3D building prototype. This does not change your settlement or battle saves.</Text>
         <View style={styles.gap}>
-          <GameButton compact variant="secondary" label="Open 3D Rendering Lab" onPress={() => router.push('/3d-lab')} />
+          <GameButton compact variant="secondary" label="Open 3D Rendering Lab" onPress={() => router.push('/(game)/3d-lab')} />
         </View>
       </Panel>
 
