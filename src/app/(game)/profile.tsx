@@ -25,7 +25,7 @@ export default function ProfileScreen() {
 
   return (
     <GameScreen title="Profile" subtitle={`${state.player.name} · ${stage.name}`}>
-      <SectionHeader title={`Chronicle of deeds · ${Object.keys(state.achievements).length}/${ACHIEVEMENTS.length}`} />
+      <SectionHeader title={`Chronicle of deeds · ${ACHIEVEMENTS.filter((a) => state.achievements[a.id] !== undefined).length}/${ACHIEVEMENTS.length}`} />
       {CHAPTERS.map((ch, ci) => {
         const list = ACHIEVEMENTS.filter((a) => a.chapter === ci);
         const got = list.filter((a) => state.achievements[a.id] !== undefined).length;

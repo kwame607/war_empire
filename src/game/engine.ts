@@ -10,6 +10,7 @@ import { getInstitutionType } from '../data/institutions';
 import { getKnowledgeEntry } from '../data/knowledge';
 import { emptyUnits, getUnitType } from '../data/units';
 import { getSettlement } from '../data/world';
+import { advanceCampaign } from './campaign';
 import { unlockAchievements } from './achievements';
 import { maybeSpawnEvent } from './events';
 import {
@@ -230,7 +231,7 @@ export function tick(state: GameState, now: number): GameState {
     scouting = null;
   }
 
-  return unlockAchievements(maybeSpawnEvent(resolveExpedition(
+  return advanceCampaign(unlockAchievements(maybeSpawnEvent(resolveExpedition(
     advanceWorld(
     resolveMissions(
     {
@@ -255,7 +256,7 @@ export function tick(state: GameState, now: number): GameState {
     now,
     ),
     now,
-  ), now), now);
+  ), now), now), now);
 }
 
 /** Compares a state before and after a tick, for the "welcome back" report. */

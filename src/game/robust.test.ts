@@ -133,3 +133,17 @@ test('quiz: wrong answers cost nothing, right answers pay once, data is sound', 
     assert.equal(openQuestions(right.state).length, 2);
   }
 });
+
+test('campaigns: every civilisation has four acts and they advance one at a time', async () => {
+  const { CAMPAIGNS } = await import('../data/campaigns');
+  const { advanceCampaign, currentAct } = await import('./campaign');
+  for (const civ of ['sikaman', 'niani', 'fjordlands', 'aurelia', 'serene']) assert.equal(CAMPAIGNS[civ].acts.length, 4);
+  const s0 = base();
+  const cur0 = currentAct(s0);
+  assert.equal(cur0?.index, 0);
+  const rich = { ...s0, businesses: Array.from({ length: 5 }, () => ({ typeId: 'farm', level: 1, pending: null })), reputation: 500 };
+  const s1 = advanceCampaign(rich, 10);
+  assert.equal(currentAct(s1)?.index, 1);
+  assert.ok(s1.resources.gold > rich.resources.gold);
+  assert.equal(advanceCampaign(s1, 11).achievements[`camp:${CAMPAIGNS[s0.player.civId].acts[2].id}`], undefined);
+});
