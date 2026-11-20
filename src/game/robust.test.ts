@@ -7,7 +7,7 @@ import { TOWN_SLOTS, keepSpriteForStage } from '../data/townLayout';
 import { blocksFor, frontLine, layoutArmy } from '../data/battleLayout';
 import { tacticView } from '../data/tactics';
 import { createNewGame } from './engine';
-import { GOODS, marketQuotes, quoteFor, tradeGood } from './market';
+import { GOODS, marketEvent, marketQuotes, quoteFor, tradeGood } from './market';
 import { startBattle } from './military';
 import { sendSpy } from './intel';
 import { runSimulation } from './mastery';
@@ -220,4 +220,16 @@ test('marketplace: prices are stable per day, selling pays less than buying, tra
   assert.equal(tradeGood(s, 'stone', 1_000_000, 'buy', 1_000_000).ok, false);
   assert.equal(tradeGood(s, 'wood', 1_000_000, 'sell', 1_000_000).ok, false);
   assert.ok(quoteFor(s, 'wood').buy > 0);
+});
+
+test('market events are stable, last four days and only move their own good', () => {
+  const s = base();
+  let seen = 0;
+  for (let d = 0; d < 400; d += 4) {
+    const st = { ...s, totalSeconds: d * 3600 };
+    const ev = marketEvent(st);
+    assert.deepEqual(ev, marketEvent({ ...st, totalSeconds: (d + 3) * 3600 }));
+    if (ev) seen++;
+  }
+  assert.ok(seen > 10 && seen < 90);
 });

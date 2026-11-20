@@ -7,7 +7,7 @@ import { GameScreen } from '@/components/ui/GameScreen';
 import { Panel } from '@/components/ui/Panel';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
-import { GOODS, haggle, marketQuotes, marketRefreshIn, type GoodId } from '@/game/market';
+import { GOODS, haggle, marketEvent, marketQuotes, marketRefreshIn, type GoodId } from '@/game/market';
 import { formatDuration } from '@/game/selectors';
 import { useGame, useGameState } from '@/store/GameProvider';
 import { tap } from '@/utils/haptics';
@@ -24,6 +24,7 @@ export default function MarketScreen() {
   const n = Number(qty);
   const quotes = marketQuotes(state);
   const h = Math.round(haggle(state) * 100);
+  const event = marketEvent(state);
 
   const go = (good: GoodId, mode: 'buy' | 'sell') => {
     const r = trade(good, n, mode);
@@ -37,6 +38,13 @@ export default function MarketScreen() {
         <Text style={styles.body}>Traders cry their wares between the awnings. Prices shift each day with the seasons and the caravans. Buy when it is cheap, sell when it is dear. Merchants always pay less than they ask.</Text>
         <Text style={styles.meta}>New prices in {formatDuration(marketRefreshIn(state))} · Your haggling: {h}% off asking and {h}% better when selling (from administration).</Text>
       </Panel>
+
+      {event ? (
+        <Panel>
+          <Text style={styles.title}>📜 {event.title}</Text>
+          <Text style={styles.meta}>{event.text}</Text>
+        </Panel>
+      ) : null}
 
       <SectionHeader title="How much?" />
       <SegmentedControl options={[{ value: '10', label: '10' }, { value: '50', label: '50' }, { value: '100', label: '100' }, { value: '500', label: '500' }]} value={qty} onChange={setQty} />

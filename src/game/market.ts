@@ -19,6 +19,24 @@ const hash = (a: number, b: number, c: number) => {
   return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
 };
 
+export type MarketEvent = { id: string; title: string; text: string; good: GoodId; mult: number };
+const EVENTS: MarketEvent[] = [
+  { id: 'famine', title: 'Famine in the next province', text: 'Hungry buyers are bidding up every sack of grain.', good: 'food', mult: 1.6 },
+  { id: 'bumper', title: 'Bumper harvest', text: 'Barns overflow and grain sells for almost nothing.', good: 'food', mult: 0.6 },
+  { id: 'fire', title: 'Fire in the lower town', text: 'Everyone is rebuilding, and timber is scarce.', good: 'wood', mult: 1.5 },
+  { id: 'felling', title: 'Great felling', text: 'Loggers flood the yards with timber.', good: 'wood', mult: 0.65 },
+  { id: 'wall', title: 'A lord builds a wall', text: 'His masons are buying every block of stone.', good: 'stone', mult: 1.5 },
+  { id: 'quarry', title: 'New quarry opened', text: 'Stone is plentiful and cheap this week.', good: 'stone', mult: 0.65 },
+];
+
+/** The market-wide event in force today, if any. It lasts four days and is the same on every reload. */
+export function marketEvent(state: GameState): MarketEvent | null {
+  const window = Math.floor(marketDay(state) / 4);
+  const r = hash(window, 77, state.rngSeed);
+  if (r > 0.45) return null;
+  return EVENTS[Math.floor((r / 0.45) * EVENTS.length) % EVENTS.length];
+}
+
 export type Quote = { id: GoodId; buy: number; sell: number; base: number; trend: 'up' | 'down' | 'steady'; note: string };
 
 export function marketDay(state: GameState): number {
@@ -40,6 +58,7 @@ export function marketQuotes(state: GameState): Quote[] {
   const day = marketDay(state);
   const season = Math.floor((day % (SEASON_DAYS * 4)) / SEASON_DAYS); // 0 spring 1 summer 2 autumn 3 winter
   const h = haggle(state);
+  const ev = marketEvent(state);
   return GOODS.map((g, i) => {
     let mult = 0.8 + hash(day, i + 1, state.rngSeed) * 0.5;
     let note = '';
@@ -49,6 +68,7 @@ export function marketQuotes(state: GameState): Quote[] {
     if (g.id === 'stone' && season === 1) { mult *= 0.9; note = 'Dry roads: quarries ship freely.'; }
     const caravan = hash(Math.floor(day / 3), 9, state.rngSeed);
     if (caravan > 0.82 && i === Math.floor(caravan * 100) % 3) { mult *= 0.7; note = 'A caravan has arrived. Prices fall.'; }
+    if (ev && ev.good === g.id) { mult *= ev.mult; note = ev.title + '.'; }
     const buy = Math.max(1, Math.round(g.base * mult * (1 - h) * 10) / 10);
     const sell = Math.max(0.5, Math.round(g.base * mult * SELL_SHARE * (1 + h) * 10) / 10);
     const ratio = (g.base * mult) / g.base;

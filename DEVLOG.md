@@ -308,3 +308,6 @@ Known notes:
 ## v0.35 — Marketplace
 - New Marketplace screen (`/market`, `src/game/market.ts`): buy and sell food, timber and stone. Prices shift each game day with the season and passing caravans (deterministic, so reloading cannot reroll them); merchants pay 60% of asking; administration gives haggling discounts.
 - Replaces the flat food purchase. Battle setup now uses today's food price and links to the marketplace; Overview has a Visit the marketplace button.
+
+## v0.36 — Market News
+- Four-day market events (famine, bumper harvest, fire, great felling, a lord's wall, new quarry) swing one good's price sharply; shown as a news panel in the Marketplace. Derived from the game day, no save change.
