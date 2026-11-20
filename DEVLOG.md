@@ -266,3 +266,9 @@ Known notes:
 ## v0.27 — Living Town
 - The town scene is now animated: clouds drift across, smoke rises from the keep, workshop, armoury, barracks and market, and ships bob on the water. All native-driver loops (cheap), skipped when the phone's "Reduce Motion" setting is on.
 - `src/components/art/TownLife.tsx`.
+
+## v0.28 — Battle Life
+- Armies now march with a bounce as they close, sway while they stand, and flinch/blink when they take losses.
+- Each round: both archer lines loose a volley of arrows across the field, sparks fly where the lines meet, and the whole field gives a short shake.
+- Rain falls in rainy battles; mist drifts across foggy ones.
+- Everything respects the phone's Reduce Motion setting and uses native-driver animation where possible.
