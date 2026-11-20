@@ -175,6 +175,8 @@ export type GameState = {
   achievements: Record<string, number>;
   /** Quiz question id -> when it was first answered correctly (ms). */
   quiz: Record<string, number>;
+  /** Hidden-object case files: best star rating (1-3) and when it was earned. */
+  investigations: Record<string, { stars: number; at: number }>;
 };
 
 export type NewGameConfig = {

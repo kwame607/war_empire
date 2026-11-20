@@ -14,6 +14,7 @@ function toastFor(text: string): Omit<Toast, 'key'> | null {
   if (text.startsWith('Achievement:')) return { title: 'Achievement', text: text.slice(12).trim(), tone: 'gold' };
   if (text.startsWith('Act complete:') || text.startsWith('Campaign complete:')) return { title: text.startsWith('Campaign') ? 'Campaign complete' : 'Act complete', text: text.split(':').slice(1).join(':').trim(), tone: 'gold' };
   if (text.startsWith('Event:')) return { title: 'A matter for the ruler', text: text.slice(6).trim(), tone: 'info' };
+  if (text.startsWith('Investigation:')) return { title: 'Case solved', text: text.slice(14).trim(), tone: 'gold' };
   if (text.startsWith('Scholarship:')) return { title: 'Scholarship', text: text.slice(12).trim(), tone: 'gold' };
   return null;
 }

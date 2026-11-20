@@ -284,3 +284,9 @@ Known notes:
 - Resource numbers count up or down on big changes (purchase, reward, battle) as well as flashing.
 - Toasts slide down for achievements, completed campaign acts, scholarship rewards and new events (`ToastHost`, driven by the game log).
 - All motion respects Reduce Motion.
+
+## v0.31 — Case Files
+- New hidden-object mode inspired by detective games: **The Commander’s Tent**, a cluttered warm-lit 3D scene (rendered with the same pipeline: `tools/render/scenes.js`, `scene.html`, `runs.js`, `process_scene.py`) with ten hidden objects (signet ring, dagger, compass, sealed letter, goblet, key, purse, quill, war horn, medal).
+- Tap to find, 1×/2×/3× zoom with sideways scrolling, three hints, timer, wrong-tap tracking. Stars: 3 = ≤2:30, ≤4 wrong taps, no hints; 2 = ≤5:00, ≤10 wrong, ≤2 hints; else 1.
+- Rewards: first clear 100 gold + 3 reputation (+50 gold per extra star); later runs pay 50 gold per star improved. Toast on success. Save version 13 (`investigations`).
+- Case files list lives on the Knowledge screen. More scenes plug in via `src/data/investigations.ts` + the render pipeline.

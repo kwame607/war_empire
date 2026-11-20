@@ -147,3 +147,23 @@ test('campaigns: every civilisation has four acts and they advance one at a time
   assert.ok(s1.resources.gold > rich.resources.gold);
   assert.equal(advanceCampaign(s1, 11).achievements[`camp:${CAMPAIGNS[s0.player.civId].acts[2].id}`], undefined);
 });
+
+test('investigations: stars, one-time rewards, bad input', async () => {
+  const { starsFor, finishInvestigation } = await import('./investigations');
+  assert.equal(starsFor(100, 0, 0), 3);
+  assert.equal(starsFor(100, 0, 1), 2);
+  assert.equal(starsFor(280, 8, 2), 2);
+  assert.equal(starsFor(999, 99, 3), 1);
+  const s0 = base();
+  assert.equal(finishInvestigation(s0, 'nope', 2, 1).ok, false);
+  assert.equal(finishInvestigation(s0, 'tent', 7, 1).ok, false);
+  const a = finishInvestigation(s0, 'tent', 1, 1);
+  assert.ok(a.ok && a.gold === 100 && a.state.investigations.tent.stars === 1);
+  if (a.ok) {
+    const worse = finishInvestigation(a.state, 'tent', 1, 2);
+    assert.ok(worse.ok && worse.gold === 0 && worse.state === a.state);
+    const better = finishInvestigation(a.state, 'tent', 3, 3);
+    assert.ok(better.ok && better.gold === 100); // two extra stars at 50 each
+    if (better.ok) assert.equal(better.state.reputation, a.state.reputation); // reputation only once
+  }
+});

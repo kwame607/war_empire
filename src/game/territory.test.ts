@@ -81,7 +81,7 @@ describe('territory', () => {
     void _t;
     const old = { ...rest, version: 7, world: { ...rest.world, rivals: rest.world.rivals.map(({ holdings: _h, ...r }) => (void _h, r)) } };
     const m = migrateState(JSON.parse(JSON.stringify(old)))!;
-    assert.equal(m.version, 12);
+    assert.equal(m.version, 13);
     assert.deepEqual(m.territories, []);
     assert.ok(m.world.rivals.every((r) => r.holdings.length >= 1));
   });

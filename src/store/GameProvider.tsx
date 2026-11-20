@@ -39,6 +39,7 @@ import {
   startExpedition,
   upgradeInstitution,
 } from '@/game/military';
+import { finishInvestigation } from '@/game/investigations';
 import { answerQuiz } from '@/game/quiz';
 import { resolveEvent } from '@/game/events';
 import { tap } from '@/utils/haptics';
@@ -63,6 +64,8 @@ type GameContextValue = {
   removeSave: () => Promise<void>;
   buy: (typeId: string) => ActionResult;
   /** Answers the waiting random event with the chosen option. */
+  /** Records a finished hidden-object search. */
+  finishCase: (id: string, stars: number) => ActionResult & { gold?: number; rep?: number };
   /** Answers a history question. */
   answer: (id: string, choice: number) => ActionResult & { correct?: boolean; explain?: string };
   decide: (choice: number) => ActionResult & { outcome?: string };
@@ -232,6 +235,15 @@ export function GameProvider({ children }: { children: ReactNode }) {
         setHasSave(false);
         setOfflineSummary(null);
         commit(null);
+      },
+      finishCase: (id, stars) => {
+        let extra: { gold?: number; rep?: number } = {};
+        const res = apply((s, now) => {
+          const r = finishInvestigation(tick(s, now), id, stars, now);
+          extra = { gold: r.gold, rep: r.rep };
+          return r;
+        });
+        return { ...res, ...extra };
       },
       answer: (id, choice) => {
         let extra: { correct?: boolean; explain?: string } = {};

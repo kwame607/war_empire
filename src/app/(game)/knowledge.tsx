@@ -6,6 +6,7 @@ import { Chip } from '@/components/ui/Chip';
 import { GameScreen } from '@/components/ui/GameScreen';
 import { Panel } from '@/components/ui/Panel';
 import { ProgressBar } from '@/components/ui/ProgressBar';
+import { INVESTIGATIONS } from '@/data/investigations';
 import { QuizCard } from '@/components/ui/QuizCard';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { KNOWLEDGE_ENTRIES, KNOWLEDGE_STAGE_NAMES } from '@/data/knowledge';
@@ -56,6 +57,22 @@ export default function KnowledgeScreen() {
           </PressableScale>
         );
       })}
+      <SectionHeader title="Case files" />
+      {INVESTIGATIONS.map((inv) => {
+        const stars = state.investigations[inv.id]?.stars ?? 0;
+        return (
+          <PressableScale key={inv.id} accessibilityRole="button" onPress={() => router.push({ pathname: '/investigate/[id]', params: { id: inv.id } })}>
+            <Panel>
+              <Text style={styles.title}>{inv.title}</Text>
+              <Text style={styles.meta}>{inv.blurb}</Text>
+              <Text style={[styles.meta, { color: colors.goldBright, marginTop: 6 }]}>
+                {'★'.repeat(stars)}{'☆'.repeat(3 - stars)} · Find 10 hidden objects · up to {inv.gold + 100} gold
+              </Text>
+            </Panel>
+          </PressableScale>
+        );
+      })}
+
       <SectionHeader title="Test your knowledge" />
       <QuizCard state={state} />
 

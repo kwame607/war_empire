@@ -77,6 +77,9 @@ export function migrateState(raw: unknown): GameState | null {
   // v11 -> v12: history quiz
   if (s.version < 12) next.quiz = {};
 
+  // v12 -> v13: investigations
+  if (s.version < 13) next.investigations = {};
+
   next.version = SAVE_VERSION;
   return next as unknown as GameState;
 }

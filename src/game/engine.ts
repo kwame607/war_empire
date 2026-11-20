@@ -96,6 +96,7 @@ export function createNewGame(config: NewGameConfig, now: number): GameState {
     lastEventId: null,
     achievements: {},
     quiz: {},
+    investigations: {},
     nextEventAt: now + 30 * 60 * 1000,
   };
 }
