@@ -16,7 +16,7 @@ import { getOrder, ORDERS } from '@/data/orders';
 import { getScenario } from '@/data/scenarios';
 import { estimateEnemy, getLeader, orderChecks, type Check } from '@/game/battle';
 import { ReportCard } from '@/components/military/IntelTab';
-import { EXPEDITION_SECONDS } from '@/game/constants';
+import { EXPEDITION_SECONDS, FOOD_BUY_PRICE } from '@/game/constants';
 import { intelCost, provisionsFood } from '@/game/military';
 import { sumUnits } from '@/game/selectors';
 import type { ActionResult, Battle, GameState, OrderId, Provisions } from '@/game/types';
@@ -41,7 +41,7 @@ export default function BattleScreen() {
 // ---------------------------------------------------------------------------
 
 function Deploy({ state, scenarioId }: { state: GameState; scenarioId: string }) {
-  const { beginBattle, beginExpedition } = useGame();
+  const { beginBattle, beginExpedition, buyFood } = useGame();
   const sc = getScenario(scenarioId);
   const [intel, setIntel] = useState<'0' | '1' | '2'>('0');
   const [prov, setProv] = useState<Provisions>('standard');
@@ -49,6 +49,8 @@ function Deploy({ state, scenarioId }: { state: GameState; scenarioId: string })
   const available = state.intel.reports.filter((r) => r.factionId === scenarioId);
   const men = sumUnits(state.army.units);
   const leader = getLeader(state, state.army.commanderId);
+  const need = provisionsFood(men, prov);
+  const short = Math.max(0, Math.ceil(need - state.resources.food));
 
   return (
     <GameScreen title={sc.name} subtitle={`${sc.difficulty} · ${sc.terrain} · ${sc.weather}`} showBack>
@@ -115,6 +117,28 @@ function Deploy({ state, scenarioId }: { state: GameState; scenarioId: string })
       <Text style={styles.meta}>
         {prov === 'light' ? '3 rounds of supplies' : prov === 'standard' ? '5 rounds of supplies' : '7 rounds of supplies'}. Battles last up to 6 rounds.
       </Text>
+
+      <Panel>
+        <Text style={styles.label}>
+          Food: {Math.floor(state.resources.food)} in stores · {need} needed
+        </Text>
+        {short > 0 ? (
+          <>
+            <Text style={styles.meta}>You are {short} short. Buy from merchants at {FOOD_BUY_PRICE} gold each, or grow it on a Grain Farm (20 food an hour).</Text>
+            <GameButton
+              variant="secondary"
+              label={`Buy ${short} food for ${short * FOOD_BUY_PRICE} gold`}
+              onPress={() => {
+                const r = buyFood(short);
+                if (!r.ok) Alert.alert('Cannot buy', r.reason);
+              }}
+            />
+            <GameButton variant="secondary" label="Go build a Grain Farm" onPress={() => router.push('/economy')} />
+          </>
+        ) : (
+          <Text style={styles.meta}>Your stores cover these provisions.</Text>
+        )}
+      </Panel>
 
       <View style={{ marginTop: spacing.lg }}>
         <GameButton

@@ -120,6 +120,16 @@ export default function OverviewScreen() {
         <StatTile icon="people-outline" label="Population" value={String(getPopulation(state))} />
         <StatTile icon="cash-outline" label="Gold / hour" value={perHour(rates.net)} />
       </View>
+      <View style={styles.tiles}>
+        <StatTile icon="restaurant-outline" label="Food in stores" value={String(Math.floor(state.resources.food))} />
+        <StatTile icon="trending-up-outline" label="Food / hour" value={perHour(rates.food)} />
+      </View>
+      {rates.food < 0 || state.resources.food < 100 ? (
+        <Panel>
+          <Text style={styles.stageLine}>{rates.food < 0 ? 'Your army eats more than you grow.' : 'Your food stores are low.'}</Text>
+          <Text style={styles.meta}>War needs food. Build a Grain Farm (20 food an hour), or buy food from merchants when you deploy for battle.</Text>
+        </Panel>
+      ) : null}
 
       <SectionHeader title="Path to power" />
       <Panel>

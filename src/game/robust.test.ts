@@ -6,7 +6,7 @@ import { diagramShapes, visibleScenes } from '../utils/diagramShapes';
 import { TOWN_SLOTS, keepSpriteForStage } from '../data/townLayout';
 import { blocksFor, frontLine, layoutArmy } from '../data/battleLayout';
 import { tacticView } from '../data/tactics';
-import { createNewGame } from './engine';
+import { buyFood, createNewGame } from './engine';
 import { startBattle } from './military';
 import { sendSpy } from './intel';
 import { runSimulation } from './mastery';
@@ -198,4 +198,16 @@ test('tacticView arranges armies per order and keeps everyone on the field', () 
   const closed = tacticView(mk('envelop', true, null), layoutArmy(counts, 8, 'p', f, false), layoutArmy(counts, 8, 'e', f, false), f);
   assert.ok(closed.surround && closed.arrows.length > 0);
   assert.ok(closed.mine.some((r) => r.key.includes('cavalry') && r.sd < 0));
+});
+
+test('buyFood trades gold for food and refuses what you cannot afford', () => {
+  const s = base();
+  const r = buyFood(s, 50, 1_000_000);
+  assert.ok(r.ok);
+  if (r.ok) {
+    assert.equal(Math.round(r.state.resources.food - s.resources.food), 50);
+    assert.equal(Math.round(s.resources.gold - r.state.resources.gold), 100);
+  }
+  assert.equal(buyFood(s, 0, 1_000_000).ok, false);
+  assert.equal(buyFood(s, 1_000_000, 1_000_000).ok, false);
 });

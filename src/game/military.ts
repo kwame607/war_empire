@@ -237,7 +237,7 @@ export function startBattle(
   const gold = intelCost(opts.intel);
   const food = provisionsFood(men, opts.provisions);
   if (state.resources.gold < gold) return fail('Not enough gold to send scouts.');
-  if (state.resources.food < food) return fail('Not enough food for those provisions. Choose lighter provisions.');
+  if (state.resources.food < food) return fail(`Not enough food for those provisions: you need ${food} and have ${Math.floor(state.resources.food)}. Buy food from merchants on this screen, build a Grain Farm, or choose lighter provisions.`);
 
   const leader = getLeader(state, state.army.commanderId);
   const supply =

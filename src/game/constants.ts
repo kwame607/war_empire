@@ -30,6 +30,8 @@ export const INTEL_COST_GOLD = [60, 120] as const;
 export const COMMANDER_BASE_COST_GOLD = 150;
 export const PROVISION_ROUNDS = { light: 3, standard: 5, ample: 7 } as const;
 export const FOOD_PER_MAN_PER_ROUND = 0.5;
+/** Gold paid per unit of food bought from merchants (dearer than growing it). */
+export const FOOD_BUY_PRICE = 2;
 
 // --- Intelligence ---
 export const SPY_HIRE_COST_GOLD = 120;

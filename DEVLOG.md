@@ -299,3 +299,8 @@ Known notes:
 - Battle screen now shows the order you gave: dashed tactical arrows (blue = you, red = enemy, gold = withdrawal), formation changes per order, a caption banner naming the tactic and its step, a ring round an encircled enemy, and a fire line for the strategic withdrawal.
 - Two-step tactics (double envelopment, feigned retreat) show step 1 (centre gives ground / feigned flight), then the trap closing or failing.
 - Logic lives in `src/data/tactics.ts` (pure, tested); drawing in `BattleField.tsx`. Reduce Motion respected.
+
+## v0.34 — Food Supply
+- Merchants: buy food for gold (2 gold each) via `buyFood` in the engine.
+- Battle deployment shows food in stores vs needed, with a one-tap "Buy N food" and a shortcut to build a Grain Farm. The not-enough-food error now gives exact numbers.
+- Dashboard shows food in stores and food per hour (net of army upkeep), with a warning when low or negative.
