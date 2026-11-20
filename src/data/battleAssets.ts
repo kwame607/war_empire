@@ -15,13 +15,13 @@ export const BATTLE_FIELDS: Record<string, ImageSourcePropType> = {
 
 export type BattleSprite = { src: ImageSourcePropType; w: number; h: number; ax: number; ay: number };
 export const BATTLE_SPRITES: Record<string, BattleSprite> = {
-  u_spearmen_p: { src: require('../../assets/battle/u_spearmen_p.png'), w: 318, h: 180, ax: 177.8, ay: 115.5 },
-  u_spearmen_e: { src: require('../../assets/battle/u_spearmen_e.png'), w: 290, h: 181, ax: 157.5, ay: 153.3 },
-  u_archers_p: { src: require('../../assets/battle/u_archers_p.png'), w: 303, h: 113, ax: 162.4, ay: 83.3 },
-  u_archers_e: { src: require('../../assets/battle/u_archers_e.png'), w: 303, h: 106, ax: 164.5, ay: 77.7 },
-  u_cavalry_p: { src: require('../../assets/battle/u_cavalry_p.png'), w: 262, h: 267, ax: 157.5, ay: 171.5 },
-  u_cavalry_e: { src: require('../../assets/battle/u_cavalry_e.png'), w: 250, h: 241, ax: 138.6, ay: 183.4 },
-  u_heavy_p: { src: require('../../assets/battle/u_heavy_p.png'), w: 284, h: 167, ax: 157.5, ay: 102.2 },
-  u_heavy_e: { src: require('../../assets/battle/u_heavy_e.png'), w: 271, h: 181, ax: 146.3, ay: 153.3 },
+  u_spearmen_p: { src: require('../../assets/battle/u_spearmen_p.png'), w: 282, h: 173, ax: 151.9, ay: 98.0 },
+  u_spearmen_e: { src: require('../../assets/battle/u_spearmen_e.png'), w: 290, h: 212, ax: 154.7, ay: 176.4 },
+  u_archers_p: { src: require('../../assets/battle/u_archers_p.png'), w: 270, h: 155, ax: 149.8, ay: 118.3 },
+  u_archers_e: { src: require('../../assets/battle/u_archers_e.png'), w: 274, h: 134, ax: 150.5, ay: 97.3 },
+  u_cavalry_p: { src: require('../../assets/battle/u_cavalry_p.png'), w: 213, h: 242, ax: 137.9, ay: 144.2 },
+  u_cavalry_e: { src: require('../../assets/battle/u_cavalry_e.png'), w: 188, h: 277, ax: 106.4, ay: 212.1 },
+  u_heavy_p: { src: require('../../assets/battle/u_heavy_p.png'), w: 260, h: 180, ax: 145.6, ay: 105.0 },
+  u_heavy_e: { src: require('../../assets/battle/u_heavy_e.png'), w: 265, h: 214, ax: 142.1, ay: 176.4 },
   palisade: { src: require('../../assets/battle/palisade.png'), w: 318, h: 46, ax: 168.0, ay: 43.4 },
 };

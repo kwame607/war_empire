@@ -272,3 +272,8 @@ Known notes:
 - Each round: both archer lines loose a volley of arrows across the field, sparks fly where the lines meet, and the whole field gives a short shake.
 - Rain falls in rainy battles; mist drifts across foggy ones.
 - Everything respects the phone's Reduce Motion setting and uses native-driver animation where possible.
+
+## v0.29 — Real Soldiers
+- Battle units rebuilt as articulated 3D soldiers (`tools/render/soldiers.js`): proper legs, tunics, mail/plate/leather armour, bronze and great helms with crests, painted round and tower shields, spears with pennants, archers with bows and quivers, mounted lancers on anatomically built horses; per-soldier skin, stride and tilt variation.
+- Units are larger on the field (blocks of 5×2 / 4×2 / 2×2 riders, scale 1.5) so the detail reads on a phone.
+- Battlefields now have atmosphere: darker vignette corners, distant haze and film grain baked in.

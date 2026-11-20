@@ -392,62 +392,22 @@ const scaled = (f, k) => () => { const g = f(); g.scale.setScalar(k); return g; 
 BUILDINGS.keep0 = keepHut; BUILDINGS.keep1 = scaled(keepHall, 0.9); BUILDINGS.keep2 = scaled(() => keepCastle(false), 0.78); BUILDINGS.keep3 = scaled(() => keepCastle(true), 0.82);
 
 // ---------- battlefield ----------
-const SIDE = { p: { cloak: 0x24407a, trim: 0xd4ac4f, shield: 0xd4ac4f, plume: 0xd4ac4f, horse: 0x6b4a2e }, e: { cloak: 0x8e2b2f, trim: 0x2a2020, shield: 0x4a2a2a, plume: 0x1d1d1d, horse: 0x2c2420 } };
-const FWD = { p: -3 * Math.PI / 4, e: Math.PI / 4 };
+import { infantry, rider, FWD as FWD2 } from './soldiers.js';
+const SIDE = { p: { cloak: 0x24407a }, e: { cloak: 0x8e2b2f } };
+const FWD = FWD2;
 const mat = (c, extra = {}) => new THREE.MeshStandardMaterial({ color: c, roughness: 0.85, ...extra });
-
-function fig(kind, side, jit = 0) {
-  const c = SIDE[side]; const g = new THREE.Group();
-  const skin = mat(0xd9b48a); const cloak = mat(c.cloak); const shieldM = mat(c.shield, { metalness: 0.2 }); const steel = M.metal();
-  const heavy = kind === 'heavy';
-  const bodyH = heavy ? 1.15 : 1.0; const s = heavy ? 1.12 : 1;
-  const legs = cyl(0.17 * s, 0.17 * s, 0.7 * s, M.woodDark(), 0, 0, 0, 6); g.add(legs);
-  const torso = cyl(0.27 * s, 0.31 * s, bodyH * 0.8, heavy ? steel : cloak, 0, 0.6 * s, 0, 8); g.add(torso);
-  if (heavy) g.add(cyl(0.33, 0.33, 0.18, cloak, 0, 0.95, 0, 8));
-  const head = new THREE.Mesh(new THREE.SphereGeometry(0.2 * s, 10, 8), skin); head.position.y = (0.6 + bodyH * 0.8 + 0.18) * s; head.castShadow = true; g.add(head);
-  const helm = new THREE.Mesh(new THREE.SphereGeometry(0.235 * s, 10, 8, 0, Math.PI * 2, 0, Math.PI / 1.9), steel); helm.position.y = head.position.y + 0.02; helm.castShadow = true; g.add(helm);
-  if (heavy || kind === 'spearmen') { const pl = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.4, 6), mat(c.plume)); pl.position.y = head.position.y + 0.38; g.add(pl); }
-  if (kind === 'spearmen' || heavy) {
-    const sh = heavy ? box(0.16, 1.3, 0.62, shieldM, -0.42, 0.25, 0.12) : new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.42, 0.08, 16), shieldM);
-    if (!heavy) { sh.rotation.z = Math.PI / 2; sh.position.set(-0.4, 1.0, 0.1); }
-    g.add(sh); if (!heavy) { const boss = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 6), M.gold()); boss.position.set(-0.45, 1.0, 0.1); g.add(boss); }
-    const sp = cyl(0.03, 0.03, heavy ? 2.4 : 2.9, M.woodDark(), 0.38, 0, 0.1, 5); sp.rotation.x = 0.06; g.add(sp);
-    const tip = new THREE.Mesh(new THREE.ConeGeometry(0.07, 0.34, 6), steel); tip.position.set(0.38, (heavy ? 2.4 : 2.9) + 0.15, 0.1); g.add(tip);
-  }
-  if (kind === 'archers') {
-    const bow = new THREE.Mesh(new THREE.TorusGeometry(0.55, 0.035, 5, 14, Math.PI), M.woodDark()); bow.rotation.set(0, Math.PI / 2, Math.PI / 2); bow.position.set(-0.3, 1.0, 0.35); g.add(bow);
-    g.add(box(0.08, 0.7, 0.14, M.wood([1, 1], 0x5a3a20), 0.18, 0.55, -0.28));
-    for (let i = 0; i < 3; i++) g.add(cyl(0.015, 0.015, 0.3, M.flat(0xe8e0c8), 0.16 + i * 0.03, 1.2, -0.3, 4));
-  }
-  g.children.forEach((ch) => { if (ch.isMesh) ch.castShadow = true; });
-  g.rotation.y = FWD[side] + jit; return g;
-}
-function horseFig(side, jit = 0) {
-  const c = SIDE[side]; const g = new THREE.Group(); const hm = mat(c.horse);
-  g.add(box(0.7, 0.75, 1.9, hm, 0, 0.85, 0));
-  for (const [x, z] of [[-0.22, -0.7], [0.22, -0.7], [-0.22, 0.7], [0.22, 0.7]]) g.add(cyl(0.09, 0.07, 0.9, hm, x, 0, z, 6));
-  const neck = box(0.35, 0.9, 0.4, hm, 0, 1.35, 1.0); neck.rotation.x = 0.5; g.add(neck); g.add(box(0.3, 0.38, 0.7, hm, 0, 2.0, 1.45));
-  g.add(box(0.74, 0.12, 1.0, mat(c.cloak), 0, 1.62, -0.05));
-  const rider = cyl(0.26, 0.3, 0.9, mat(c.cloak), 0, 1.7, -0.05, 8); g.add(rider);
-  const head = new THREE.Mesh(new THREE.SphereGeometry(0.2, 10, 8), mat(0xd9b48a)); head.position.set(0, 2.8, -0.05); g.add(head);
-  const helm = new THREE.Mesh(new THREE.SphereGeometry(0.235, 10, 8, 0, Math.PI * 2, 0, Math.PI / 1.9), M.metal()); helm.position.set(0, 2.82, -0.05); g.add(helm);
-  const lance = cyl(0.03, 0.03, 3.4, M.woodDark(), 0.42, 1.2, 0.2, 5); lance.rotation.x = 1.25; lance.position.set(0.42, 2.1, 0.9); g.add(lance);
-  const pen = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.3), mat(c.trim, { side: THREE.DoubleSide })); pen.position.set(0.42, 2.6, 1.9); g.add(pen);
-  g.children.forEach((ch) => { if (ch.isMesh) ch.castShadow = true; });
-  g.rotation.y = FWD[side] + jit; return g;
-}
 export function regiment(kind, side) {
   const g = new THREE.Group(); const r = rng(kind.length * 31 + (side === 'p' ? 1 : 7));
-  const cfg = { spearmen: [6, 2, 1.3, 1.9], archers: [6, 2, 1.4, 2.0], heavy: [5, 2, 1.45, 1.9], cavalry: [3, 2, 2.4, 3.2] }[kind];
+  const cfg = { spearmen: [5, 2, 1.2, 1.9], archers: [5, 2, 1.25, 2.0], heavy: [4, 2, 1.4, 1.9], cavalry: [2, 2, 2.3, 3.2] }[kind];
   const [cols, rows, dx, dd] = cfg;
   for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
     const sx = (i - (cols - 1) / 2) * dx + (r() - 0.5) * 0.18; const sd = (j - (rows - 1) / 2) * dd + (r() - 0.5) * 0.18;
-    const f = kind === 'cavalry' ? horseFig(side, (r() - 0.5) * 0.15) : fig(kind, side, (r() - 0.5) * 0.2);
+    const f = kind === 'cavalry' ? rider(side, 101 + i * 7 + j * 13) : infantry(kind, side, 11 + i * 5 + j * 17 + kind.length);
     const [x, z] = toWorld(sx, sd); f.position.set(x, 0, z); g.add(f);
   }
   // a standard bearer at the rear centre of infantry blocks
   if (kind !== 'archers') { const [bx, bz] = toWorld(0, (side === 'p' ? 1 : -1) * (rows / 2 * dd + 0.8)); const b = banner(SIDE[side].cloak, 2.2, 0.8); b.position.set(bx, 0, bz); b.rotation.y = FWD[side] + Math.PI / 2; g.add(b); }
-  g.scale.setScalar(1.3);
+  g.scale.setScalar(1.5);
   return g;
 }
 for (const k of ['spearmen', 'archers', 'cavalry', 'heavy']) for (const s of ['p', 'e']) BUILDINGS[`u_${k}_${s}`] = () => regiment(k, s);
