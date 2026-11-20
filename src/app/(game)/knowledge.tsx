@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, Text, View } from 'react-native';
 
 import { PressableScale } from '@/components/ui/PressableScale';
 import { Chip } from '@/components/ui/Chip';
@@ -60,13 +60,18 @@ export default function KnowledgeScreen() {
       <SectionHeader title="Case files" />
       {INVESTIGATIONS.map((inv) => {
         const stars = state.investigations[inv.id]?.stars ?? 0;
+        const locked = !!inv.requires && !state.investigations[inv.requires];
+        const need = inv.requires ? INVESTIGATIONS.find((i) => i.id === inv.requires)?.title : '';
         return (
-          <PressableScale key={inv.id} accessibilityRole="button" onPress={() => router.push({ pathname: '/investigate/[id]', params: { id: inv.id } })}>
-            <Panel>
-              <Text style={styles.title}>{inv.title}</Text>
+          <PressableScale
+            key={inv.id}
+            accessibilityRole="button"
+            onPress={() => (locked ? Alert.alert('Locked', `Clear “${need}” first.`) : router.push({ pathname: '/investigate/[id]', params: { id: inv.id } }))}>
+            <Panel style={locked ? { opacity: 0.55 } : undefined}>
+              <Text style={styles.title}>{locked ? '🔒 ' : ''}{inv.title}</Text>
               <Text style={styles.meta}>{inv.blurb}</Text>
               <Text style={[styles.meta, { color: colors.goldBright, marginTop: 6 }]}>
-                {'★'.repeat(stars)}{'☆'.repeat(3 - stars)} · Find 10 hidden objects · up to {inv.gold + 100} gold
+                {locked ? `Clear “${need}” to unlock` : `${'★'.repeat(stars)}${'☆'.repeat(3 - stars)} · Find 10 hidden objects · up to ${inv.gold + 100} gold`}
               </Text>
             </Panel>
           </PressableScale>

@@ -65,6 +65,7 @@ export default function InvestigateScreen() {
 
   if (!state) return <Redirect href="/" />;
   if (!inv || !scene) return <Redirect href="/knowledge" />;
+  if (inv.requires && !state.investigations[inv.requires]) return <Redirect href="/knowledge" />;
 
   const W = width * zoom;
   const H = W / scene.aspect;

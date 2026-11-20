@@ -167,3 +167,16 @@ test('investigations: stars, one-time rewards, bad input', async () => {
     if (better.ok) assert.equal(better.state.reputation, a.state.reputation); // reputation only once
   }
 });
+
+test('every case file has art and a full set of hidden objects', async () => {
+  const fs = await import('node:fs');
+  const { INVESTIGATIONS } = await import('../data/investigations');
+  const txt = fs.readFileSync(new URL('../data/investigationAssets.ts', import.meta.url), 'utf8');
+  for (const inv of INVESTIGATIONS) {
+    const start = txt.indexOf(`  ${inv.id}: {`);
+    assert.ok(start >= 0, `${inv.id} art`);
+    const nextScene = INVESTIGATIONS.map((i) => txt.indexOf(`  ${i.id}: {`)).filter((i) => i > start).sort((a, b) => a - b)[0] ?? txt.length;
+    assert.equal((txt.slice(start, nextScene).match(/\{ id: '/g) ?? []).length, 10, inv.id);
+    if (inv.requires) assert.ok(INVESTIGATIONS.some((i) => i.id === inv.requires));
+  }
+});

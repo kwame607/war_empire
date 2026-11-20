@@ -290,3 +290,7 @@ Known notes:
 - Tap to find, 1×/2×/3× zoom with sideways scrolling, three hints, timer, wrong-tap tracking. Stars: 3 = ≤2:30, ≤4 wrong taps, no hints; 2 = ≤5:00, ≤10 wrong, ≤2 hints; else 1.
 - Rewards: first clear 100 gold + 3 reputation (+50 gold per extra star); later runs pay 50 gold per star improved. Toast on success. Save version 13 (`investigations`).
 - Case files list lives on the Knowledge screen. More scenes plug in via `src/data/investigations.ts` + the render pipeline.
+
+## v0.32 — More Case Files
+- Two new rendered scenes: **Dawn After the Battle** (an army camp at first light: tents, campfire, wagon, banners, spears, shields) and **The Spymaster’s Study** (stone study with bookshelves, fireplace, window light, desk, chandelier). Each hides ten objects; new objects: spyglass, hourglass, wax seal stamp.
+- Case files unlock in a chain (tent → camp → study). Generalised `process_scene.py`; `camp()` / `study()` builders in `tools/render/scenes.js`.
