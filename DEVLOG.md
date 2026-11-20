@@ -323,3 +323,7 @@ Known notes:
 ## v0.39 — Game Frame
 - Each main tab (Overview, Economy, Knowledge, Military, Map) opens with a wide rendered 3D banner with the title over it and a round profile button (`GameScreen banner=...`; art in `assets/banners`, made by `hero.html` b_* scenes).
 - Panels have bronze borders, an inner line and gold corner studs; buttons are raised with a shine and thick bottom edge.
+
+## v0.40 — Living Home
+- Overview is picture-first: the settlement scene is the hero (taller, no second banner), with four big action tiles (Market, Build, Army, Map). Tapping the market in town opens the Marketplace.
+- Celebrations: finished buildings, upgrades, troops, ships and rank-ups pop a toast; gold ones burst gold sparks (respects Reduce Motion).

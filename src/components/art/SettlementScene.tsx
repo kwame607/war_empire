@@ -13,13 +13,14 @@ import { getStageIndex } from '@/game/selectors';
 import type { GameState } from '@/game/types';
 import { colors, fonts } from '@/theme';
 
-const SCENE_HEIGHT = 320;
+const SCENE_HEIGHT = 380;
 
-type Target = { name: string; blurb: string; tab: string; screen: '/economy' | '/military' };
+type Target = { name: string; blurb: string; tab: string; screen: '/economy' | '/military' | '/market' };
 /** What a tap on each part of the town opens. */
 function describe(id: string, level: number): Target {
   if (id === 'keep') return { name: 'Your seat of power', blurb: 'The heart of your settlement. It grows as your rank rises.', tab: 'finances', screen: '/economy' };
   if (id === 'ship') return { name: 'Your fleet', blurb: 'Ships built at the shipyard. Command them from the Navy tab.', tab: 'navy', screen: '/military' };
+  if (id === 'market') return { name: 'Marketplace', blurb: 'Buy and sell food, timber and stone at the day’s prices.', tab: 'businesses', screen: '/market' };
   const b = BUSINESS_TYPES.find((x) => x.id === id);
   if (b) return { name: b.name, blurb: level > 0 ? `Level ${level}. ${b.description}` : `Not built yet. ${b.description}`, tab: 'businesses', screen: '/economy' };
   const i = INSTITUTION_TYPES.find((x) => x.id === id);

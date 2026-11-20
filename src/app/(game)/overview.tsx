@@ -1,5 +1,8 @@
 import { router } from 'expo-router';
-import { StyleSheet, Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+
+import { tap } from '@/utils/haptics';
 
 import { SettlementScene } from '@/components/art/SettlementScene';
 import { CampaignCard } from '@/components/ui/CampaignCard';
@@ -101,7 +104,7 @@ export default function OverviewScreen() {
   const nextProgress = next ? (state.reputation - stage.reputation) / (next.reputation - stage.reputation) : 1;
 
   return (
-    <GameScreen banner="overview" title="Overview" subtitle={date.label}>
+    <GameScreen title="Overview" subtitle={date.label}>
       <SettlementScene state={state} title={state.player.name} subtitle={`${stage.name} · ${home.name}`} />
 
       {state.world.offers.length > 0 ? (
@@ -124,7 +127,19 @@ export default function OverviewScreen() {
         <StatTile icon="restaurant-outline" label="Food in stores" value={String(Math.floor(state.resources.food))} />
         <StatTile icon="trending-up-outline" label="Food / hour" value={perHour(rates.food)} />
       </View>
-      <GameButton variant="secondary" label="Visit the marketplace" onPress={() => router.push('/market')} />
+      <View style={styles.tiles}>
+        {([
+          ['storefront-outline', 'Market', () => router.push('/market')],
+          ['hammer-outline', 'Build', () => router.navigate({ pathname: '/economy', params: { tab: 'businesses', n: String(Date.now()) } })],
+          ['shield-outline', 'Army', () => router.navigate('/military')],
+          ['map-outline', 'Map', () => router.navigate('/map')],
+        ] as const).map(([icon, label, go]) => (
+          <Pressable key={label} accessibilityRole="button" accessibilityLabel={label} onPress={() => { tap('light'); go(); }} style={styles.action}>
+            <Ionicons name={icon} size={26} color={colors.goldBright} />
+            <Text style={styles.actionLabel}>{label}</Text>
+          </Pressable>
+        ))}
+      </View>
       {rates.food < 0 || state.resources.food < 100 ? (
         <Panel>
           <Text style={styles.stageLine}>{rates.food < 0 ? 'Your army eats more than you grow.' : 'Your food stores are low.'}</Text>
@@ -200,6 +215,8 @@ export default function OverviewScreen() {
 const styles = StyleSheet.create({
   name: { fontFamily: fonts.serif, fontSize: 24, fontWeight: '800', color: colors.parchment },
   status: { fontFamily: fonts.serif, fontSize: 16, fontStyle: 'italic', color: colors.goldBright, marginTop: 2 },
+  action: { flex: 1, alignItems: 'center', gap: 4, paddingVertical: spacing.md, backgroundColor: colors.navyLight, borderRadius: 12, borderWidth: 1.5, borderColor: colors.bronze, borderBottomWidth: 4 },
+  actionLabel: { fontFamily: fonts.serif, fontSize: 13, fontWeight: '700', color: colors.parchment, letterSpacing: 1, textTransform: 'uppercase' },
   meta: { fontFamily: fonts.sans, fontSize: 13, lineHeight: 19, color: colors.parchmentDim, marginTop: 4 },
   tiles: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm },
   stageLine: { fontFamily: fonts.serif, fontSize: 16, color: colors.parchment, marginBottom: spacing.sm },
