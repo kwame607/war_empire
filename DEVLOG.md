@@ -315,3 +315,7 @@ Known notes:
 ## v0.37 — Institution Art
 - Institution cards (Barracks, Library, Academy, Armoury, Intelligence Bureau, Shipyard) show 3D-rendered pictures instead of flat illustrations; locked ones are dimmed.
 - Made with `tools/render/hero.html` + `runh.js` (three.js, 16:9 hero shot of the existing building models on grass/sky; `OUT=dir node runh.js barracks library ...`). Output goes to `assets/institutions/*.jpg`.
+
+## v0.38 — Business Art and game-style cards
+- Rendered pictures for all five businesses (farm, timber camp, quarry, workshop, market) added to `assets/institutions`.
+- Building cards now work like game cards: the picture fills the top, the name sits on a dark fade across the bottom, and the level or lock badge floats on the corner.

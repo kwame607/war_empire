@@ -16,16 +16,7 @@ import { costText } from '@/utils/format';
 type Icon = keyof typeof Ionicons.glyphMap;
 
 function Header({ type, right, dim }: { type: InstitutionType; right: React.ReactNode; dim?: boolean }) {
-  return (
-    <>
-    <InstitutionArt id={type.id} dim={dim} />
-    <View style={styles.header}>
-      <Ionicons name={type.icon as Icon} size={26} color={colors.gold} />
-      <Text style={styles.name}>{type.name}</Text>
-      {right}
-    </View>
-    </>
-  );
+  return <InstitutionArt id={type.id} title={type.name} icon={type.icon as Icon} badge={right} dim={dim} />;
 }
 
 type OwnedProps = { state: GameState; instance: InstitutionInstance; onUpgrade: (id: string) => ActionResult };

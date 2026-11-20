@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { test } from 'node:test';
 
+import { BUSINESS_TYPES } from '../data/businesses';
 import { INSTITUTION_TYPES } from '../data/institutions';
 import { DIAGRAMS } from '../data/diagrams';
 import { diagramShapes, visibleScenes } from '../utils/diagramShapes';
@@ -236,9 +237,9 @@ test('market events are stable, last four days and only move their own good', ()
   assert.ok(seen > 10 && seen < 90);
 });
 
-test('every institution has rendered art on disk', () => {
+test('every institution and business has rendered art on disk', () => {
   const src = fs.readFileSync('src/data/institutionArt.ts', 'utf8');
-  for (const t of INSTITUTION_TYPES) {
+  for (const t of [...INSTITUTION_TYPES, ...BUSINESS_TYPES]) {
     assert.ok(src.includes(`${t.id}: require`), t.id);
     assert.ok(fs.existsSync(`assets/institutions/${t.id}.jpg`), t.id);
   }

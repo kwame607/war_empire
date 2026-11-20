@@ -1,7 +1,7 @@
 <!doctype html><html><body style="margin:0;background:#000"><canvas id="c"></canvas>
 <script type="module">
 import { THREE, M, tree } from './lib.js';
-import { barracks, library, academy, armoury, bureau, shipyard } from './buildings.js';
+import { barracks, library, academy, armoury, bureau, shipyard, farm, timber, quarry, workshop, market } from './buildings.js';
 const q = new URLSearchParams(location.search);
 const W = Number(q.get('w') || 960), H = Number(q.get('h') || 540); const name = q.get('b');
 const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('c'), antialias: true, preserveDrawingBuffer: true });
@@ -22,7 +22,7 @@ const ground = new THREE.Mesh(new THREE.PlaneGeometry(700, 700), water ? (() => 
 if (water) { const bank = new THREE.Mesh(new THREE.BoxGeometry(60, 1, 14), M.ground([8, 2])); bank.position.set(0, -0.5, -16); bank.receiveShadow = true; scene.add(bank); }
 else { const path = new THREE.Mesh(new THREE.PlaneGeometry(4, 60), M.dirt([1, 12])); path.rotation.x = -Math.PI / 2; path.position.set(0, 0.01, 18); path.receiveShadow = true; scene.add(path); }
 import('./lib.js').then(()=>{});
-const obj = { barracks, library, academy, armoury, bureau, shipyard }[name](); scene.add(obj);
+const obj = { barracks, library, academy, armoury, bureau, shipyard, farm, timber, quarry, workshop, market }[name](); scene.add(obj);
 const box = new THREE.Box3().setFromObject(obj); const c = box.getCenter(new THREE.Vector3()); const size = box.getSize(new THREE.Vector3());
 const cam = new THREE.PerspectiveCamera(32, W / H, 0.5, 300);
 const rad = box.getBoundingSphere(new THREE.Sphere()).radius; const dist = rad / Math.sin(THREE.MathUtils.degToRad(32 / 2)) * Number(q.get('k') || 0.82);
