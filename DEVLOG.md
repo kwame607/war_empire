@@ -327,3 +327,7 @@ Known notes:
 ## v0.40 — Living Home
 - Overview is picture-first: the settlement scene is the hero (taller, no second banner), with four big action tiles (Market, Build, Army, Map). Tapping the market in town opens the Marketplace.
 - Celebrations: finished buildings, upgrades, troops, ships and rank-ups pop a toast; gold ones burst gold sparks (respects Reduce Motion).
+
+## v0.41 — Command Window
+- Battle orders are a grid of icon tiles directly under the battlefield (locked doctrines show a padlock). Tap a tile to read its summary and checks, then confirm with the big Order button, so you no longer scroll past army and enemy panels to give an order.
+- Battle deployment, Marketplace and Profile now open with rendered banners.

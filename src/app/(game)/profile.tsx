@@ -24,7 +24,7 @@ export default function ProfileScreen() {
   const stage = PROGRESSION_STAGES[getStageIndex(state)];
 
   return (
-    <GameScreen title="Profile" subtitle={`${state.player.name} · ${stage.name}`}>
+    <GameScreen banner="overview" title="Profile" subtitle={`${state.player.name} · ${stage.name}`}>
       <SectionHeader title={`Chronicle of deeds · ${ACHIEVEMENTS.filter((a) => state.achievements[a.id] !== undefined).length}/${ACHIEVEMENTS.length}`} />
       {CHAPTERS.map((ch, ci) => {
         const list = ACHIEVEMENTS.filter((a) => a.chapter === ci);

@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -22,6 +23,7 @@ import { intelCost, provisionsFood } from '@/game/military';
 import { sumUnits } from '@/game/selectors';
 import type { ActionResult, Battle, GameState, OrderId, Provisions } from '@/game/types';
 import { useGame } from '@/store/GameProvider';
+import { tap } from '@/utils/haptics';
 import { colors, fonts, spacing } from '@/theme';
 
 export default function BattleScreen() {
@@ -55,7 +57,7 @@ function Deploy({ state, scenarioId }: { state: GameState; scenarioId: string })
   const short = Math.max(0, Math.ceil(need - state.resources.food));
 
   return (
-    <GameScreen title={sc.name} subtitle={`${sc.difficulty} · ${sc.terrain} · ${sc.weather}`} showBack>
+    <GameScreen banner="military" title={sc.name} subtitle={`${sc.difficulty} · ${sc.terrain} · ${sc.weather}`} showBack>
       <Panel>
         <Text style={styles.body}>{sc.blurb}</Text>
         <Text style={styles.meta}>Rumour: {sc.rumour}</Text>
@@ -172,6 +174,18 @@ function Deploy({ state, scenarioId }: { state: GameState; scenarioId: string })
 // The battle itself
 // ---------------------------------------------------------------------------
 
+const ORDER_ICON: Record<OrderId, keyof typeof Ionicons.glyphMap> = {
+  hold: 'shield-outline',
+  advance: 'arrow-up-circle-outline',
+  concentrate: 'locate-outline',
+  fortify: 'construct-outline',
+  envelop: 'git-compare-outline',
+  horns: 'git-branch-outline',
+  feint: 'return-down-back-outline',
+  scorch: 'flame-outline',
+  retreat: 'flag-outline',
+};
+
 const CHECK_MARK: Record<Check['status'], string> = { ok: '✓', bad: '✗', unknown: '?' };
 const CHECK_COLOR: Record<Check['status'], string> = { ok: '#7DBE7D', bad: '#E58A8A', unknown: colors.parchmentDim };
 
@@ -205,6 +219,7 @@ function Active({ state, battle, onLeave }: { state: GameState; battle: Battle; 
     finish(giveOrder(id));
   };
 
+  const [chosen, setChosen] = useState<OrderId>('hold');
   const supplyLeft = Math.max(0, battle.player.supply);
   const known = (battle.enemy.lastStance ?? null);
 
@@ -216,6 +231,62 @@ function Active({ state, battle, onLeave }: { state: GameState; battle: Battle; 
         <Chip tone="muted" label={`Weather: ${battle.weather}`} />
         <Chip tone="muted" label={`Led by ${leader.name}`} />
       </View>
+
+      <SectionHeader title="Command window" />
+      <View style={styles.grid}>
+        {ORDERS.map((o) => {
+          const locked = !!o.doctrine && (state.knowledge[o.doctrine] ?? 0) < 2;
+          const on = chosen === o.id;
+          return (
+            <Pressable
+              key={o.id}
+              accessibilityRole="button"
+              accessibilityLabel={`${o.name}${locked ? ' (locked)' : ''}`}
+              onPress={() => { tap('light'); setChosen(o.id); }}
+              style={[styles.tile, on && styles.tileOn, locked && { opacity: 0.55 }]}>
+              <Ionicons name={locked ? 'lock-closed-outline' : ORDER_ICON[o.id]} size={26} color={on ? colors.charcoal : colors.goldBright} />
+              <Text style={[styles.tileText, on && { color: colors.charcoal }]} numberOfLines={2}>{o.name}</Text>
+            </Pressable>
+          );
+        })}
+      </View>
+      {(() => {
+        const o = ORDERS.find((x) => x.id === chosen)!;
+        if (o.doctrine && (state.knowledge[o.doctrine] ?? 0) < 2) {
+          return (
+            <View style={styles.locked}>
+              <Text style={styles.lockedTitle}>{o.name} (locked)</Text>
+              <Text style={styles.meta}>Study the matching historical record in Knowledge to understand this doctrine.</Text>
+            </View>
+          );
+        }
+        const checks = orderChecks(state, battle, o.id);
+        const sprung = o.twoStep && battle.setup?.kind === (o.id === 'envelop' ? 'envelop' : 'feint');
+        const practiced = o.doctrine && (state.knowledge[o.doctrine] ?? 0) >= 3;
+        return (
+          <Panel>
+            <View style={styles.row}>
+              <Text style={styles.title}>{o.name}</Text>
+              {o.doctrine ? <Chip label={practiced ? 'Doctrine · practised' : 'Doctrine'} /> : null}
+            </View>
+            <Text style={styles.meta}>{o.summary}</Text>
+            {sprung ? <Text style={[styles.meta, { color: colors.goldBright }]}>The first step is done. Order it again to complete the manoeuvre.</Text> : null}
+            {checks.map((c) => (
+              <Text key={c.label} style={[styles.check, { color: CHECK_COLOR[c.status] }]}>
+                {CHECK_MARK[c.status]} {c.label}
+              </Text>
+            ))}
+            <View style={{ marginTop: spacing.md }}>
+              <GameButton
+                variant={o.id === 'retreat' ? 'danger' : 'primary'}
+                label={sprung ? (o.id === 'envelop' ? 'Spring the trap' : 'Turn and strike') : o.twoStep ? `${o.name} (step 1)` : `Order: ${o.name}`}
+                onPress={() => order(o.id)}
+              />
+            </View>
+          </Panel>
+        );
+      })()}
+      <Text style={styles.meta}>The enemy commander adapts, so do not repeat yourself too often.</Text>
 
       <SectionHeader title="Your army" />
       <Panel>
@@ -261,45 +332,6 @@ function Active({ state, battle, onLeave }: { state: GameState; battle: Battle; 
         </Text>
       </Panel>
 
-      <SectionHeader title="Command window" />
-      <Text style={styles.meta}>Choose your order for this round. The enemy commander adapts, so do not repeat yourself too often.</Text>
-      {ORDERS.map((o) => {
-        if (o.doctrine && (state.knowledge[o.doctrine] ?? 0) < 2) {
-          return (
-            <View key={o.id} style={styles.locked}>
-              <Text style={styles.lockedTitle}>{o.name} (locked)</Text>
-              <Text style={styles.meta}>Study the matching historical record in Knowledge to understand this doctrine.</Text>
-            </View>
-          );
-        }
-        const checks = orderChecks(state, battle, o.id);
-        const sprung = o.twoStep && battle.setup?.kind === (o.id === 'envelop' ? 'envelop' : 'feint');
-        const practiced = o.doctrine && (state.knowledge[o.doctrine] ?? 0) >= 3;
-        return (
-          <Panel key={o.id}>
-            <View style={styles.row}>
-              <Text style={styles.title}>{o.name}</Text>
-              {o.doctrine ? <Chip label={practiced ? 'Doctrine · practised' : 'Doctrine'} /> : null}
-            </View>
-            <Text style={styles.meta}>{o.summary}</Text>
-            {sprung ? <Text style={[styles.meta, { color: colors.goldBright }]}>The first step is done. Order it again to complete the manoeuvre.</Text> : null}
-            {checks.map((c) => (
-              <Text key={c.label} style={[styles.check, { color: CHECK_COLOR[c.status] }]}>
-                {CHECK_MARK[c.status]} {c.label}
-              </Text>
-            ))}
-            <View style={{ marginTop: spacing.md }}>
-              <GameButton
-                compact
-                variant={o.id === 'retreat' ? 'danger' : 'primary'}
-                label={sprung ? (o.id === 'envelop' ? 'Spring the trap' : 'Turn and strike') : o.twoStep ? `${o.name} (step 1)` : o.name}
-                onPress={() => order(o.id)}
-              />
-            </View>
-          </Panel>
-        );
-      })}
-
       <SectionHeader title="Or delegate" />
       <Text style={styles.meta}>
         {leader.isPlayer
@@ -344,6 +376,10 @@ function Active({ state, battle, onLeave }: { state: GameState; battle: Battle; 
 }
 
 const styles = StyleSheet.create({
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  tile: { width: '31.5%', flexGrow: 1, minHeight: 78, alignItems: 'center', justifyContent: 'center', gap: 4, padding: 8, borderRadius: 12, borderWidth: 1.5, borderBottomWidth: 4, borderColor: colors.bronze, backgroundColor: colors.navyLight },
+  tileOn: { backgroundColor: colors.gold, borderColor: colors.goldBright, borderBottomColor: '#7a5c14' },
+  tileText: { fontFamily: fonts.serif, fontSize: 12, fontWeight: '700', color: colors.parchment, textAlign: 'center' },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   title: { flex: 1, fontFamily: fonts.serif, fontSize: 18, fontWeight: '800', color: colors.parchment },

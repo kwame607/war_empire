@@ -33,7 +33,7 @@ export default function MarketScreen() {
   };
 
   return (
-    <GameScreen title="Marketplace" subtitle="Buy and sell by the day's prices" showBack>
+    <GameScreen banner="economy" title="Marketplace" subtitle="Buy and sell by the day's prices" showBack>
       <Panel>
         <Text style={styles.body}>Traders cry their wares between the awnings. Prices shift each day with the seasons and the caravans. Buy when it is cheap, sell when it is dear. Merchants always pay less than they ask.</Text>
         <Text style={styles.meta}>New prices in {formatDuration(marketRefreshIn(state))} · Your haggling: {h}% off asking and {h}% better when selling (from administration).</Text>
