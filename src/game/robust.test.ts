@@ -5,6 +5,7 @@ import { DIAGRAMS } from '../data/diagrams';
 import { diagramShapes, visibleScenes } from '../utils/diagramShapes';
 import { TOWN_SLOTS, keepSpriteForStage } from '../data/townLayout';
 import { blocksFor, frontLine, layoutArmy } from '../data/battleLayout';
+import { tacticView } from '../data/tactics';
 import { createNewGame } from './engine';
 import { startBattle } from './military';
 import { sendSpy } from './intel';
@@ -179,4 +180,22 @@ test('every case file has art and a full set of hidden objects', async () => {
     assert.equal((txt.slice(start, nextScene).match(/\{ id: '/g) ?? []).length, 10, inv.id);
     if (inv.requires) assert.ok(INVESTIGATIONS.some((i) => i.id === inv.requires));
   }
+});
+
+test('tacticView arranges armies per order and keeps everyone on the field', () => {
+  const mk = (order: string, success: boolean | null, setup: { kind: string } | null) => ({
+    round: 2, rounds: [{ round: 1, order, stance: 'x', playerLoss: 1, enemyLoss: 1, playerMorale: 50, enemyMorale: 50, success, notes: ['n'] }], setup,
+  }) as never;
+  const counts = { spearmen: 40, archers: 20, cavalry: 20 };
+  const f = frontLine(2, null);
+  for (const order of ['hold', 'advance', 'concentrate', 'fortify', 'retreat', 'scorch', 'envelop', 'horns', 'feint']) {
+    for (const [ok, setup] of [[true, null], [false, null], [null, { kind: order }]] as const) {
+      const v = tacticView(mk(order, ok, setup), layoutArmy(counts, 8, 'p', f, false), layoutArmy(counts, 8, 'e', f, false), f);
+      for (const r of [...v.mine, ...v.theirs]) assert.ok(Math.abs(r.sx) <= 18.5 && Math.abs(r.sd) <= 17, `${order} ${r.key}`);
+      assert.ok(v.caption);
+    }
+  }
+  const closed = tacticView(mk('envelop', true, null), layoutArmy(counts, 8, 'p', f, false), layoutArmy(counts, 8, 'e', f, false), f);
+  assert.ok(closed.surround && closed.arrows.length > 0);
+  assert.ok(closed.mine.some((r) => r.key.includes('cavalry') && r.sd < 0));
 });

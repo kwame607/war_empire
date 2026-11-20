@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import Svg, { Ellipse, Polygon, Polyline } from 'react-native-svg';
 import { AccessibilityInfo, Animated, Easing, Image, StyleSheet, Text, View } from 'react-native';
 
 import { BATTLE_FIELD, BATTLE_FIELDS, BATTLE_PPU, BATTLE_SIN, BATTLE_SPRITES } from '@/data/battleAssets';
-import { enemyAsSeen, frontLine, isFlanking, layoutArmy, type Counts } from '@/data/battleLayout';
+import { enemyAsSeen, frontLine, layoutArmy, type Counts } from '@/data/battleLayout';
+import { tacticView, type Arrow } from '@/data/tactics';
 import { estimateEnemy } from '@/game/battle';
 import { sumUnits } from '@/game/selectors';
 import type { Battle } from '@/game/types';
@@ -236,6 +238,72 @@ function Loss({ value, x, y, color, round }: { value: number; x: number; y: numb
   );
 }
 
+
+const ARROW_TONE = { you: '#8FB4FF', foe: '#FF9A8F', retreat: '#E8C766' } as const;
+
+/** Dashed tactical arrows, a ring round an encircled enemy and a flickering fire line, drawn over the field. */
+function TacticLayer({ arrows, surround, fire, round, width, height, pos, motion }: { arrows: Arrow[]; surround: boolean; fire: boolean; round: number; width: number; height: number; pos: (sx: number, sd: number) => { x: number; y: number }; motion: boolean }) {
+  const [t] = useState(() => new Animated.Value(motion ? 0 : 1));
+  const [flick] = useState(() => new Animated.Value(0));
+  useEffect(() => {
+    if (!motion) { t.setValue(1); return; }
+    t.setValue(0);
+    Animated.timing(t, { toValue: 1, duration: 700, delay: 250, easing: Easing.out(Easing.quad), useNativeDriver: true }).start();
+  }, [round, t, motion]);
+  useEffect(() => {
+    if (!fire || !motion) return;
+    const loop = Animated.loop(Animated.sequence([Animated.timing(flick, { toValue: 1, duration: 350, useNativeDriver: true }), Animated.timing(flick, { toValue: 0, duration: 350, useNativeDriver: true })]));
+    loop.start();
+    return () => loop.stop();
+  }, [fire, motion, flick]);
+  const c = pos(0, 0);
+  const rx = 6.5 * BATTLE_PPU * (width / BATTLE_FIELD.w);
+  const ry = 3.2 * BATTLE_PPU * BATTLE_SIN * (width / BATTLE_FIELD.w);
+  const eyc = pos(0, -6).y;
+  return (
+    <>
+      <Animated.View pointerEvents="none" style={{ position: 'absolute', left: 0, top: 0, width, height, zIndex: 1500, opacity: t }}>
+        <Svg width={width} height={height}>
+          {surround ? <Ellipse cx={c.x} cy={eyc} rx={rx * 1.5} ry={ry * 1.6} stroke="#E8C766" strokeWidth={2} strokeDasharray="6 5" fill="rgba(232,199,102,0.08)" /> : null}
+          {arrows.map((a, i) => {
+            const pts = a.pts.map(([x, y]) => pos(x, y));
+            const e = pts[pts.length - 1];
+            const q = pts[pts.length - 2];
+            const ang = Math.atan2(e.y - q.y, e.x - q.x);
+            const h = 9;
+            const head = [[e.x, e.y], [e.x - h * Math.cos(ang - 0.5), e.y - h * Math.sin(ang - 0.5)], [e.x - h * Math.cos(ang + 0.5), e.y - h * Math.sin(ang + 0.5)]].map((v) => v.join(',')).join(' ');
+            const col = ARROW_TONE[a.tone];
+            return (
+              <React.Fragment key={i}>
+                <Polyline points={pts.map((v) => `${v.x},${v.y}`).join(' ')} stroke={col} strokeWidth={3} strokeDasharray="7 5" strokeLinejoin="round" strokeLinecap="round" fill="none" opacity={0.95} />
+                <Polygon points={head} fill={col} />
+              </React.Fragment>
+            );
+          })}
+        </Svg>
+      </Animated.View>
+      {fire ? (
+        <Animated.View pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, top: c.y - 10, height: 22, zIndex: 900, opacity: flick.interpolate({ inputRange: [0, 1], outputRange: [0.55, 0.95] }) }}>
+          <Svg width={width} height={22}>
+            {[0.1, 0.25, 0.4, 0.55, 0.7, 0.85].map((f, i) => (
+              <Ellipse key={i} cx={width * f} cy={11} rx={22} ry={i % 2 ? 7 : 9} fill={i % 2 ? '#E8742A' : '#F2A93B'} opacity={0.75} />
+            ))}
+          </Svg>
+        </Animated.View>
+      ) : null}
+    </>
+  );
+}
+
+function TacticBanner({ title, text, round }: { title: string; text: string; round: number }) {
+  return (
+    <View key={round} pointerEvents="none" style={styles.banner}>
+      <Text style={styles.bannerTitle}>{title}</Text>
+      <Text style={styles.bannerText}>{text}</Text>
+    </View>
+  );
+}
+
 /** The battle drawn as two armies on a 3D-rendered field. They close and clash as rounds pass. */
 export function BattleField({ battle }: { battle: Battle }) {
   const [width, setWidth] = useState(360);
@@ -255,10 +323,10 @@ export function BattleField({ battle }: { battle: Battle }) {
   const playerTotal = sumUnits(battle.player.initial);
   const enemyTotal = (est.total[0] + est.total[1]) / 2;
   const perBlock = Math.max(6, Math.ceil(Math.max(playerTotal, enemyTotal) / 8));
-  const front = frontLine(battle.round, battle.lastOrder);
-  const flanking = isFlanking(battle.lastOrder);
-  const mine = layoutArmy(battle.player.units as Counts, perBlock, 'p', front, flanking);
-  const theirs = layoutArmy(seen.counts, perBlock, 'e', front, false);
+  const front = frontLine(battle.round, null);
+  const view = tacticView(battle, layoutArmy(battle.player.units as Counts, perBlock, 'p', front, false), layoutArmy(seen.counts, perBlock, 'e', front, false), front);
+  const mine = view.mine;
+  const theirs = view.theirs;
   const all = [...mine, ...theirs].sort((a, b) => a.sd - b.sd);
   const last = battle.rounds[battle.rounds.length - 1];
   const tint = WEATHER_TINT[battle.weather];
@@ -284,6 +352,7 @@ export function BattleField({ battle }: { battle: Battle }) {
         <Burst x={mid.x} y={mid.y} round={battle.round} scale={scale} />
         {last ? <Loss value={last.playerLoss} x={pos(0, front + 8).x} y={pos(0, front + 8).y} color="#8FB4FF" round={battle.round} /> : null}
         {last ? <Loss value={last.enemyLoss} x={pos(0, -front - 8).x} y={pos(0, -front - 8).y} color="#FF9A8F" round={battle.round} /> : null}
+        <TacticLayer arrows={view.arrows} surround={view.surround} fire={view.fire} round={battle.round} width={width} height={height} pos={pos} motion={motion} />
         <Weather kind={battle.weather} width={width} height={height} motion={motion} />
         {tint ? <View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: tint, zIndex: 2000 }]} /> : null}
         <View pointerEvents="none" style={styles.hud}>
@@ -296,6 +365,7 @@ export function BattleField({ battle }: { battle: Battle }) {
             <View style={styles.track}><View style={[styles.fill, { width: `${Math.max(0, Math.min(100, battle.enemy.morale))}%`, backgroundColor: '#C0485A' }]} /></View>
           </View>
         </View>
+        {view.caption ? <TacticBanner title={view.caption.title} text={view.caption.text} round={battle.round} /> : null}
         {seen.guessed ? <Text pointerEvents="none" style={styles.guess}>Enemy shown from estimates</Text> : null}
       </Animated.View>
     </View>
@@ -309,5 +379,8 @@ const styles = StyleSheet.create({
   sideTitle: { fontFamily: fonts.serif, fontSize: 13, fontWeight: '800' },
   track: { height: 5, borderRadius: 3, backgroundColor: 'rgba(255,255,255,0.18)', marginTop: 4, overflow: 'hidden' },
   fill: { height: 5, borderRadius: 3 },
+  banner: { position: 'absolute', zIndex: 3000, left: 8, right: 8, bottom: 22, padding: 8, borderRadius: 8, backgroundColor: 'rgba(11,18,32,0.82)', borderWidth: 1, borderColor: colors.gold },
+  bannerTitle: { fontFamily: fonts.serif, fontSize: 13, fontWeight: '800', color: colors.gold },
+  bannerText: { fontFamily: fonts.sans, fontSize: 11, color: 'rgba(237,227,204,0.92)', marginTop: 2 },
   guess: { position: 'absolute', zIndex: 3000, left: 8, bottom: 6, fontFamily: fonts.sans, fontSize: 11, color: 'rgba(237,227,204,0.85)' },
 });

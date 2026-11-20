@@ -294,3 +294,8 @@ Known notes:
 ## v0.32 — More Case Files
 - Two new rendered scenes: **Dawn After the Battle** (an army camp at first light: tents, campfire, wagon, banners, spears, shields) and **The Spymaster’s Study** (stone study with bookshelves, fireplace, window light, desk, chandelier). Each hides ten objects; new objects: spyglass, hourglass, wax seal stamp.
 - Case files unlock in a chain (tent → camp → study). Generalised `process_scene.py`; `camp()` / `study()` builders in `tools/render/scenes.js`.
+
+## v0.33 — Battle Tactics
+- Battle screen now shows the order you gave: dashed tactical arrows (blue = you, red = enemy, gold = withdrawal), formation changes per order, a caption banner naming the tactic and its step, a ring round an encircled enemy, and a fire line for the strategic withdrawal.
+- Two-step tactics (double envelopment, feigned retreat) show step 1 (centre gives ground / feigned flight), then the trap closing or failing.
+- Logic lives in `src/data/tactics.ts` (pure, tested); drawing in `BattleField.tsx`. Reduce Motion respected.
