@@ -1,6 +1,7 @@
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 
+import { ToastHost } from '@/components/ui/ToastHost';
 import { OfflineModal } from '@/components/ui/OfflineModal';
 import { GameProvider } from '@/store/GameProvider';
 import { colors } from '@/theme';
@@ -16,6 +17,7 @@ export default function RootLayout() {
       <StatusBar style="light" />
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.navy } }} />
       <OfflineModal />
+      <ToastHost />
     </GameProvider>
   );
 }

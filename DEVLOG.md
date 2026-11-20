@@ -277,3 +277,10 @@ Known notes:
 - Battle units rebuilt as articulated 3D soldiers (`tools/render/soldiers.js`): proper legs, tunics, mail/plate/leather armour, bronze and great helms with crests, painted round and tower shields, spears with pennants, archers with bows and quivers, mounted lancers on anatomically built horses; per-soldier skin, stride and tilt variation.
 - Units are larger on the field (blocks of 5×2 / 4×2 / 2×2 riders, scale 1.5) so the detail reads on a phone.
 - Battlefields now have atmosphere: darker vignette corners, distant haze and film grain baked in.
+
+## v0.30 — Interactive UI
+- Buttons, selectable cards, record cards and report cards squish under the finger and spring back (`PressableScale`), with a light haptic tap on buttons, cards and tab presses.
+- Cards cascade in on screen load (staggered fade and slide); progress bars animate to new values.
+- Resource numbers count up or down on big changes (purchase, reward, battle) as well as flashing.
+- Toasts slide down for achievements, completed campaign acts, scholarship rewards and new events (`ToastHost`, driven by the game log).
+- All motion respects Reduce Motion.

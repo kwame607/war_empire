@@ -1,12 +1,13 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, Text, View } from 'react-native';
 
 import { Portrait } from '@/components/art/Portrait';
 import { NavyTab } from '@/components/military/NavyTab';
 import { WarRoomTab } from '@/components/military/WarRoomTab';
 import { IntelTab } from '@/components/military/IntelTab';
 import { UnitChips } from '@/components/military/UnitChips';
+import { PressableScale } from '@/components/ui/PressableScale';
 import { Chip } from '@/components/ui/Chip';
 import { GameButton } from '@/components/ui/GameButton';
 import { GameScreen } from '@/components/ui/GameScreen';
@@ -334,7 +335,7 @@ function ReportsTab({ state }: { state: GameState }) {
         const lost = sumUnits(r.playerInitial) - sumUnits(r.playerFinal);
         const killed = sumUnits(r.enemyInitial) - sumUnits(r.enemyFinal);
         return (
-          <Pressable key={r.id} accessibilityRole="button" onPress={() => router.push({ pathname: '/report/[id]', params: { id: r.id } })}>
+          <PressableScale key={r.id} accessibilityRole="button" onPress={() => router.push({ pathname: '/report/[id]', params: { id: r.id } })}>
             <Panel>
               <View style={styles.cmdRow}>
                 <Text style={[styles.title, { flex: 1 }]}>{r.scenarioName}</Text>
@@ -344,7 +345,7 @@ function ReportsTab({ state }: { state: GameState }) {
                 You lost {lost} · they lost {killed} · led by {r.leader.name}
               </Text>
             </Panel>
-          </Pressable>
+          </PressableScale>
         );
       })}
     </>

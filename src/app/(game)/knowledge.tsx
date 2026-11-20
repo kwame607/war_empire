@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
+import { PressableScale } from '@/components/ui/PressableScale';
 import { Chip } from '@/components/ui/Chip';
 import { GameScreen } from '@/components/ui/GameScreen';
 import { Panel } from '@/components/ui/Panel';
@@ -38,7 +39,7 @@ export default function KnowledgeScreen() {
       {KNOWLEDGE_ENTRIES.map((entry) => {
         const stage = state.knowledge[entry.id] ?? 0;
         return (
-          <Pressable
+          <PressableScale
             key={entry.id}
             accessibilityRole="button"
             onPress={() => router.push({ pathname: '/record/[id]', params: { id: entry.id } })}>
@@ -52,7 +53,7 @@ export default function KnowledgeScreen() {
                 <Chip label={stage === 0 ? 'Not yet examined' : KNOWLEDGE_STAGE_NAMES[stage]} tone={stage === 0 ? 'muted' : 'gold'} />
               </View>
             </Panel>
-          </Pressable>
+          </PressableScale>
         );
       })}
       <SectionHeader title="Test your knowledge" />

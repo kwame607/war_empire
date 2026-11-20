@@ -1,4 +1,6 @@
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
+
+import { PressableScale } from '@/components/ui/PressableScale';
 
 import { colors, fonts, radius } from '@/theme';
 import { tap } from '@/utils/haptics';
@@ -16,21 +18,15 @@ type Props = {
 export function GameButton({ label, onPress, variant = 'primary', compact, muted }: Props) {
   const textColor = variant === 'primary' ? colors.charcoal : colors.parchment;
   return (
-    <Pressable
+    <PressableScale
       accessibilityRole="button"
       onPress={() => {
         tap('light');
         onPress();
       }}
-      style={({ pressed }) => [
-        styles.base,
-        compact && styles.compact,
-        variants[variant],
-        muted && { opacity: 0.5 },
-        pressed && { opacity: 0.75, transform: [{ scale: 0.98 }] },
-      ]}>
+      style={[styles.base, compact && styles.compact, variants[variant], muted && { opacity: 0.5 }]}>
       <Text style={[styles.label, compact && styles.labelCompact, { color: textColor }]}>{label}</Text>
-    </Pressable>
+    </PressableScale>
   );
 }
 

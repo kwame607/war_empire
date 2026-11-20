@@ -3,6 +3,7 @@ import { Redirect, Tabs } from 'expo-router';
 
 import { useGame } from '@/store/GameProvider';
 import { colors, fonts } from '@/theme';
+import { tap } from '@/utils/haptics';
 
 type IconName = keyof typeof Ionicons.glyphMap;
 
@@ -39,6 +40,7 @@ export default function GameLayout() {
         <Tabs.Screen
           key={name}
           name={name}
+          listeners={{ tabPress: () => tap('light') }}
           options={{
             title,
             tabBarIcon: ({ focused, size }) => (
