@@ -173,6 +173,8 @@ export type GameState = {
   lastEventId: string | null;
   /** Achievement id -> when it was earned (ms). */
   achievements: Record<string, number>;
+  /** Quiz question id -> when it was first answered correctly (ms). */
+  quiz: Record<string, number>;
 };
 
 export type NewGameConfig = {

@@ -74,6 +74,9 @@ export function migrateState(raw: unknown): GameState | null {
   // v10 -> v11: achievements. Existing progress counts, but with no retro rewards (see below).
   if (s.version < 11) next.achievements = {};
 
+  // v11 -> v12: history quiz
+  if (s.version < 12) next.quiz = {};
+
   next.version = SAVE_VERSION;
   return next as unknown as GameState;
 }

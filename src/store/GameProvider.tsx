@@ -39,6 +39,7 @@ import {
   startExpedition,
   upgradeInstitution,
 } from '@/game/military';
+import { answerQuiz } from '@/game/quiz';
 import { resolveEvent } from '@/game/events';
 import { tap } from '@/utils/haptics';
 import type { ActionResult, EnvoyKind, GameState, IntelTopic, NavalTactic, NewGameConfig, OfflineSummary, OrderId, Provisions, UnitId } from '@/game/types';
@@ -62,6 +63,8 @@ type GameContextValue = {
   removeSave: () => Promise<void>;
   buy: (typeId: string) => ActionResult;
   /** Answers the waiting random event with the chosen option. */
+  /** Answers a history question. */
+  answer: (id: string, choice: number) => ActionResult & { correct?: boolean; explain?: string };
   decide: (choice: number) => ActionResult & { outcome?: string };
   upgrade: (typeId: string) => ActionResult;
   discover: (entryId: string) => void;
@@ -229,6 +232,15 @@ export function GameProvider({ children }: { children: ReactNode }) {
         setHasSave(false);
         setOfflineSummary(null);
         commit(null);
+      },
+      answer: (id, choice) => {
+        let extra: { correct?: boolean; explain?: string } = {};
+        const res = apply((s, now) => {
+          const r = answerQuiz(s, id, choice, now);
+          extra = { correct: r.correct, explain: r.explain };
+          return r;
+        });
+        return { ...res, ...extra };
       },
       decide: (choice) => {
         let outcome: string | undefined;

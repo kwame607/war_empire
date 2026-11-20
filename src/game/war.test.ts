@@ -95,7 +95,7 @@ describe('war', () => {
     const { war: _w, ...rest } = createNewGame(cfg, T0);
     void _w;
     const m = migrateState(JSON.parse(JSON.stringify({ ...rest, version: 6 })))!;
-    assert.equal(m.version, 11);
+    assert.equal(m.version, 12);
     assert.equal(m.war, null);
   });
 });

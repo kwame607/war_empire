@@ -1,4 +1,4 @@
-export const SAVE_VERSION = 11;
+export const SAVE_VERSION = 12;
 
 /** Production counts for at most this long while the player is away. */
 export const OFFLINE_CAP_SECONDS = 12 * 3600;

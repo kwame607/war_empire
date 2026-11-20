@@ -110,3 +110,26 @@ test('achievements unlock once and pay once', async () => {
   assert.equal(s2.resources.gold, s1.resources.gold);
   assert.equal(s2.achievements['first-trade'], 1000);
 });
+
+test('quiz: wrong answers cost nothing, right answers pay once, data is sound', async () => {
+  const { answerQuiz, openQuestions } = await import('./quiz');
+  const { QUIZ } = await import('../data/quiz');
+  const { KNOWLEDGE_ENTRIES } = await import('../data/knowledge');
+  for (const q of QUIZ) {
+    assert.ok(KNOWLEDGE_ENTRIES.some((e) => e.id === q.entryId), q.id);
+    assert.ok(q.answer >= 0 && q.answer < q.options.length, q.id);
+    assert.equal(new Set(q.options).size, q.options.length, q.id);
+  }
+  const s0 = { ...base(), knowledge: { cannae: 1 } };
+  assert.equal(openQuestions(s0).length, 3);
+  assert.equal(answerQuiz(s0, 'horns-1', 2, 1).ok, false); // not discovered
+  const wrong = answerQuiz(s0, 'cannae-1', 0, 1);
+  assert.ok(wrong.ok && wrong.correct === false && wrong.state === s0);
+  const right = answerQuiz(s0, 'cannae-1', 1, 1);
+  assert.ok(right.ok && right.correct);
+  if (right.ok) {
+    assert.ok(right.state.resources.gold > s0.resources.gold);
+    assert.equal(answerQuiz(right.state, 'cannae-1', 1, 2).ok, false);
+    assert.equal(openQuestions(right.state).length, 2);
+  }
+});

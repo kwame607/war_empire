@@ -254,3 +254,7 @@ Known notes:
 ## v0.24 — Deeds
 - 18 achievements in five chapters (Foundations, The Learned Ruler, The Sword, The Realm, Legend), each with a small gold/reputation reward, paid once. Shown on the Profile screen with per-chapter progress.
 - Save version 11 (`achievements`). Existing games earn what they already qualify for on the next tick, so veterans get a one-time catch-up of rewards.
+
+## v0.25 — Scholar
+- 18 history questions (three per record) on the Knowledge screen, one at a time, unlocked by discovering the record. Correct answers pay 25 gold + 2 reputation once; wrong answers cost nothing and can be retried.
+- Save version 12 (`quiz`).

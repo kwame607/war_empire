@@ -5,6 +5,7 @@ import { Chip } from '@/components/ui/Chip';
 import { GameScreen } from '@/components/ui/GameScreen';
 import { Panel } from '@/components/ui/Panel';
 import { ProgressBar } from '@/components/ui/ProgressBar';
+import { QuizCard } from '@/components/ui/QuizCard';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { KNOWLEDGE_ENTRIES, KNOWLEDGE_STAGE_NAMES } from '@/data/knowledge';
 import { formatDuration } from '@/game/selectors';
@@ -54,6 +55,9 @@ export default function KnowledgeScreen() {
           </Pressable>
         );
       })}
+      <SectionHeader title="Test your knowledge" />
+      <QuizCard state={state} />
+
       <Text style={styles.meta}>More records from every era and continent will be added over time.</Text>
     </GameScreen>
   );
