@@ -1,4 +1,4 @@
-import { StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { PressableScale } from '@/components/ui/PressableScale';
 
@@ -25,6 +25,7 @@ export function GameButton({ label, onPress, variant = 'primary', compact, muted
         onPress();
       }}
       style={[styles.base, compact && styles.compact, variants[variant], muted && { opacity: 0.5 }]}>
+      {variant !== 'secondary' ? <View pointerEvents="none" style={styles.shine} /> : null}
       <Text style={[styles.label, compact && styles.labelCompact, { color: textColor }]}>{label}</Text>
     </PressableScale>
   );
@@ -38,14 +39,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 24,
     borderWidth: 1.5,
+    borderBottomWidth: 4,
+    overflow: 'hidden',
   },
+  shine: { position: 'absolute', left: 0, right: 0, top: 0, height: '45%', backgroundColor: 'rgba(255,255,255,0.18)' },
   compact: { minHeight: 44, paddingHorizontal: 14 },
   label: { fontFamily: fonts.serif, fontSize: 17, fontWeight: '700', letterSpacing: 2, textTransform: 'uppercase', textAlign: 'center' },
   labelCompact: { fontSize: 14, letterSpacing: 1 },
 });
 
 const variants = StyleSheet.create({
-  primary: { backgroundColor: colors.gold, borderColor: colors.goldBright },
-  secondary: { backgroundColor: 'transparent', borderColor: colors.bronze },
-  danger: { backgroundColor: colors.burgundy, borderColor: colors.burgundyBright },
+  primary: { backgroundColor: colors.gold, borderColor: colors.goldBright, borderBottomColor: '#7a5c14' },
+  secondary: { backgroundColor: 'rgba(11,18,32,0.55)', borderColor: colors.bronze, borderBottomColor: '#4a3820' },
+  danger: { backgroundColor: colors.burgundy, borderColor: colors.burgundyBright, borderBottomColor: '#3a0f16' },
 });

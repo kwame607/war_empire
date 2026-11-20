@@ -101,7 +101,7 @@ export default function OverviewScreen() {
   const nextProgress = next ? (state.reputation - stage.reputation) / (next.reputation - stage.reputation) : 1;
 
   return (
-    <GameScreen title="Overview" subtitle={date.label}>
+    <GameScreen banner="overview" title="Overview" subtitle={date.label}>
       <SettlementScene state={state} title={state.player.name} subtitle={`${stage.name} · ${home.name}`} />
 
       {state.world.offers.length > 0 ? (

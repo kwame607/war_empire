@@ -57,7 +57,7 @@ export default function MilitaryScreen() {
 
   if (idx < MILITARY_UNLOCK_STAGE) {
     return (
-      <GameScreen title="Military" subtitle="Commanders, armies and campaigns">
+      <GameScreen banner="military" title="Military" subtitle="Commanders, armies and campaigns">
         <LockedNotice
           title="Locked: no army yet"
           description={`Every ruler starts as a civilian. Military institutions open when you reach "${need.name}".`}
@@ -76,7 +76,7 @@ export default function MilitaryScreen() {
   }
 
   return (
-    <GameScreen title="Military" subtitle="Commanders, armies and campaigns">
+    <GameScreen banner="military" title="Military" subtitle="Commanders, armies and campaigns">
       {state.battle ? (
         <Panel tone="burgundy">
           <Text style={styles.heading}>Battle in progress</Text>

@@ -19,7 +19,7 @@ export default function KnowledgeScreen() {
   const now = state.lastTickAt;
 
   return (
-    <GameScreen title="Knowledge" subtitle="Learn from the history of war">
+    <GameScreen banner="knowledge" title="Knowledge" subtitle="Learn from the history of war">
       {state.study ? (
         <Panel tone="burgundy">
           <Text style={styles.studyTitle}>Scholars at work</Text>

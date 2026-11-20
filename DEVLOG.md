@@ -319,3 +319,7 @@ Known notes:
 ## v0.38 — Business Art and game-style cards
 - Rendered pictures for all five businesses (farm, timber camp, quarry, workshop, market) added to `assets/institutions`.
 - Building cards now work like game cards: the picture fills the top, the name sits on a dark fade across the bottom, and the level or lock badge floats on the corner.
+
+## v0.39 — Game Frame
+- Each main tab (Overview, Economy, Knowledge, Military, Map) opens with a wide rendered 3D banner with the title over it and a round profile button (`GameScreen banner=...`; art in `assets/banners`, made by `hero.html` b_* scenes).
+- Panels have bronze borders, an inner line and gold corner studs; buttons are raised with a shine and thick bottom edge.

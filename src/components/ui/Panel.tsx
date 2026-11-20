@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { Animated, Easing, StyleSheet, type ViewStyle } from 'react-native';
+import { Animated, Easing, StyleSheet, View, type ViewStyle } from 'react-native';
 
 import { colors, radius, spacing } from '@/theme';
 import { nextStagger, useMotion } from '@/utils/motion';
@@ -20,16 +20,28 @@ export function Panel({ children, tone = 'dark', style }: Props) {
     return () => anim.stop();
   }, [t, motion]);
   return (
-    <Animated.View style={[styles.base, toneStyles[tone], style, { opacity: t, transform: [{ translateY: t.interpolate({ inputRange: [0, 1], outputRange: [14, 0] }) }] }]}>{children}</Animated.View>
+    <Animated.View style={[styles.base, toneStyles[tone], style, { opacity: t, transform: [{ translateY: t.interpolate({ inputRange: [0, 1], outputRange: [14, 0] }) }] }]}>{tone === 'dark' ? <View pointerEvents="none" style={styles.inner} /> : null}
+      {tone === 'dark' ? (['tl', 'tr', 'bl', 'br'] as const).map((c) => <View key={c} pointerEvents="none" style={[styles.stud, studPos[c]]} />) : null}
+      {children}
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
-  base: { borderRadius: radius.md, borderWidth: 1, padding: spacing.md },
+  base: { borderRadius: radius.md, borderWidth: 1.5, padding: spacing.md },
+  inner: { position: 'absolute', left: 3, right: 3, top: 3, bottom: 3, borderRadius: radius.md - 3, borderWidth: 1, borderColor: 'rgba(201,162,39,0.16)' },
+  stud: { position: 'absolute', width: 7, height: 7, backgroundColor: colors.gold, borderWidth: 1, borderColor: '#5a431f', transform: [{ rotate: '45deg' }] },
+});
+
+const studPos = StyleSheet.create({
+  tl: { left: -4, top: -4 },
+  tr: { right: -4, top: -4 },
+  bl: { left: -4, bottom: -4 },
+  br: { right: -4, bottom: -4 },
 });
 
 const toneStyles = StyleSheet.create({
-  dark: { backgroundColor: colors.navyLight, borderColor: colors.line },
+  dark: { backgroundColor: colors.navyLight, borderColor: colors.bronze },
   parchment: { backgroundColor: colors.parchment, borderColor: colors.bronze },
   burgundy: { backgroundColor: colors.burgundy, borderColor: colors.gold },
 });

@@ -32,7 +32,7 @@ export default function EconomyScreen() {
   }
 
   return (
-    <GameScreen title="Economy" subtitle="Acquire · Earn · Upgrade · Unlock · Expand">
+    <GameScreen banner="economy" title="Economy" subtitle="Acquire · Earn · Upgrade · Unlock · Expand">
       <SegmentedControl
         options={[
           { value: 'finances', label: 'Finances' },

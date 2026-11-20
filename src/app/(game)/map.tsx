@@ -23,7 +23,7 @@ export default function MapScreen() {
   const explored = new Set(state.explored);
 
   return (
-    <GameScreen title="World Map" subtitle={`${explored.size} of ${SETTLEMENTS.length} settlements explored`}>
+    <GameScreen banner="map" title="World Map" subtitle={`${explored.size} of ${SETTLEMENTS.length} settlements explored`}>
       <SegmentedControl
         options={[
           { value: 'map', label: 'Map' },

@@ -1,7 +1,7 @@
 <!doctype html><html><body style="margin:0;background:#000"><canvas id="c"></canvas>
 <script type="module">
 import { THREE, M, tree } from './lib.js';
-import { barracks, library, academy, armoury, bureau, shipyard, farm, timber, quarry, workshop, market } from './buildings.js';
+import { keepHall, keepCastle, regiment, sailingShip, cottage, barracks, library, academy, armoury, bureau, shipyard, farm, timber, quarry, workshop, market } from './buildings.js';
 const q = new URLSearchParams(location.search);
 const W = Number(q.get('w') || 960), H = Number(q.get('h') || 540); const name = q.get('b');
 const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('c'), antialias: true, preserveDrawingBuffer: true });
@@ -17,11 +17,26 @@ scene.add(new THREE.HemisphereLight(0xcfd8ee, 0x6a5a40, 1.4));
 const sun = new THREE.DirectionalLight(0xffd29a, 3.6); sun.position.set(12, 14, 14); sun.castShadow = true; sun.shadow.mapSize.set(4096, 4096);
 const s = sun.shadow.camera; s.left = -20; s.right = 20; s.top = 20; s.bottom = -20; s.far = 90; sun.shadow.bias = -0.0004; scene.add(sun);
 const rim = new THREE.DirectionalLight(0xffb98a, 1.0); rim.position.set(-10, 6, -8); scene.add(rim);
-const water = name === 'shipyard';
-const ground = new THREE.Mesh(new THREE.PlaneGeometry(700, 700), water ? (() => { const m = M.water().clone(); m.roughness = 0.6; m.metalness = 0; return m; })() : M.ground([120, 120])); ground.rotation.x = -Math.PI / 2; ground.position.y = water ? -0.35 : -0.02; ground.receiveShadow = true; scene.add(ground);
+const water = name === 'shipyard' || name === 'b_map';
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(700, 700), water ? (() => { const m = M.water().clone(); m.roughness = 0.6; m.metalness = 0; return m; })() : M.ground([120, 120])); ground.rotation.x = -Math.PI / 2; ground.position.y = water ? (name === 'b_map' ? -0.15 : -0.35) : -0.02; ground.receiveShadow = true; scene.add(ground);
 if (water) { const bank = new THREE.Mesh(new THREE.BoxGeometry(60, 1, 14), M.ground([8, 2])); bank.position.set(0, -0.5, -16); bank.receiveShadow = true; scene.add(bank); }
 else { const path = new THREE.Mesh(new THREE.PlaneGeometry(4, 60), M.dirt([1, 12])); path.rotation.x = -Math.PI / 2; path.position.set(0, 0.01, 18); path.receiveShadow = true; scene.add(path); }
 import('./lib.js').then(()=>{});
+const BANNERS = {
+  b_overview: [[keepHall, 0, 0, 0, 1], [cottage, -13, 3, 0.3, 1], [cottage, 13, 4, -0.3, 1], [library, -26, 0, 0.2, 0.9], [market, 24, 2, 0, 0.9]],
+  b_economy: [[market, 0, 2, 0, 1], [workshop, -15, -1, 0.3, 1], [farm, 17, -1, -0.2, 1], [timber, 33, 0, -0.4, 0.9]],
+  b_knowledge: [[library, -2, 0, 0, 1], [academy, 17, 0, -0.2, 1], [bureau, -18, 0, 0.3, 1]],
+  b_military: [[barracks, -4, 0, 0.3, 0.9], [armoury, 16, 0, -0.3, 1], [() => regiment('spearmen', 'p'), -6, 15, 0, 0.6]],
+  b_map: [[shipyard, 0, 0, 0, 1], [() => sailingShip(true), 16, 6, 0.5, 1.0], [() => sailingShip(true), -17, 8, -0.6, 0.8]],
+};
+if (BANNERS[name]) {
+  const g = new THREE.Group();
+  for (const [fn, x, z, ry, sc] of BANNERS[name]) { const o = fn(); o.position.set(x, 0, z); o.rotation.y = ry; o.scale.setScalar(sc); g.add(o); }
+  scene.add(g); const bb = new THREE.Box3().setFromObject(g); const cc = bb.getCenter(new THREE.Vector3()); const sz = bb.getSize(new THREE.Vector3());
+  const cam2 = new THREE.PerspectiveCamera(26, W / H, 0.5, 300); const dist = Math.max(sz.x / (2 * Math.tan(THREE.MathUtils.degToRad(13)) * (W / H)), sz.y * 1.9) * Number(q.get('k') || 1.15);
+  cam2.position.set(cc.x + Math.sin(0.28) * dist, cc.y + dist * 0.28, cc.z + Math.cos(0.28) * dist); cam2.lookAt(cc.x, cc.y - sz.y * 0.05, cc.z);
+  renderer.render(scene, cam2); window.done = true;
+} else {
 const obj = { barracks, library, academy, armoury, bureau, shipyard, farm, timber, quarry, workshop, market }[name](); scene.add(obj);
 const box = new THREE.Box3().setFromObject(obj); const c = box.getCenter(new THREE.Vector3()); const size = box.getSize(new THREE.Vector3());
 const cam = new THREE.PerspectiveCamera(32, W / H, 0.5, 300);
@@ -30,4 +45,5 @@ const az = Number(q.get('az') || 0.62), el = Number(q.get('el') || 0.30);
 cam.position.set(c.x + Math.sin(az) * Math.cos(el) * dist, c.y + Math.sin(el) * dist, c.z + Math.cos(az) * Math.cos(el) * dist); cam.lookAt(c.x, c.y - size.y * 0.05, c.z);
 for (let i = 0; i < 26; i++) { const a = -1.2 + i * 0.1 + Math.sin(i * 7.1) * 0.05; const d = 38 + (i % 5) * 6; const t = tree(Math.sin(a) * d - 0, -Math.cos(a) * d - 8, 1.4 + (i % 3) * 0.4, i % 4 ? 'pine' : 'oak', i + 3); if (!water) scene.add(t); }
 renderer.render(scene, cam); window.done = true;
+}
 </script></body></html>
