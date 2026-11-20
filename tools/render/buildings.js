@@ -253,17 +253,59 @@ function hull(len, wid, hgt, mat) {
   const p = g.attributes.position; for (let i = 0; i < p.count; i++) { const y = p.getY(i); const k = 0.55 + 0.45 * (y / hgt); p.setZ(i, p.getZ(i) * Math.min(1, k)); }
   g.computeVertexNormals(); const m = new THREE.Mesh(g, mat); m.castShadow = m.receiveShadow = true; return m;
 }
+function hull2(len, wid, mat) {
+  // side profile: raised stern, low waist, high curved bow
+  const sh = new THREE.Shape();
+  sh.moveTo(-len / 2, 2.5); sh.quadraticCurveTo(-len / 2 + 1.4, 1.2, 0, 1.15); sh.quadraticCurveTo(len / 2 - 1.5, 1.35, len / 2, 3.0);
+  sh.lineTo(len / 2 - 0.35, 3.0); sh.quadraticCurveTo(len / 2 - 0.9, 0.5, len / 2 - 2.2, 0.05); sh.lineTo(-len / 2 + 2.0, 0.05); sh.quadraticCurveTo(-len / 2 + 0.2, 0.6, -len / 2, 2.5);
+  const g = new THREE.ExtrudeGeometry(sh, { depth: wid, bevelEnabled: false, steps: 1 }); g.translate(0, 0, -wid / 2);
+  const p = g.attributes.position; for (let i = 0; i < p.count; i++) { const y = p.getY(i), x = p.getX(i); const k = 0.38 + 0.62 * Math.min(1, y / 1.5); const end = 1 - 0.55 * Math.pow(Math.abs(x) / (len / 2), 3); p.setZ(i, p.getZ(i) * Math.min(1, k) * end); }
+  g.computeVertexNormals(); const m = new THREE.Mesh(g, mat); m.castShadow = m.receiveShadow = true; return m;
+}
 export function sailingShip(sails = true) {
   const g = new THREE.Group();
-  const hl = hull(8.4, 2.6, 1.6, M.wood([2, 1], 0x6b4528, false)); g.add(hl);
-  g.add(box(8.0, 0.14, 2.3, M.wood([2, 1], 0x9a7242, false), 0.2, 1.52, 0));
-  g.add(box(2.2, 0.9, 2.2, M.wood([1, 1], 0x5e3d22), -3.4, 1.55, 0));
-  g.add(box(8.2, 0.12, 0.08, M.gold(), 0.2, 1.2, 1.12), box(8.2, 0.12, 0.08, M.gold(), 0.2, 1.2, -1.12));
-  const mast = cyl(0.12, 0.16, 8.5, M.woodDark(), 0.6, 1.5, 0, 8); g.add(mast);
-  g.add(cyl(0.07, 0.07, 3.8, M.woodDark(), 0.6, 6.4, 0, 6)).children.at(-1).rotation.x = Math.PI / 2;
-  if (sails) { const sail = new THREE.Mesh(new THREE.PlaneGeometry(3.6, 4.4, 10, 8), M.cloth(0xe9e0c8)); sail.position.set(0.9, 4.2, 0); sail.rotation.y = Math.PI / 2; const p = sail.geometry.attributes.position; for (let i = 0; i < p.count; i++) p.setZ(i, 0.55 * Math.sin(((p.getX(i) / 3.6) + 0.5) * Math.PI) * (1 - Math.abs(p.getY(i)) / 5)); sail.geometry.computeVertexNormals(); sail.castShadow = true; g.add(sail); const cross = new THREE.Mesh(new THREE.PlaneGeometry(0.6, 3.6), M.cloth(0xa33440)); cross.position.set(1.5, 4.4, 0); cross.rotation.y = Math.PI / 2; g.add(cross); }
-  g.add(at(banner(0xa33440, 1.4), 0.6, 8.4, 0));
-  const bow = box(0.15, 1.6, 0.15, M.woodDark(), 4.4, 0.7, 0); bow.rotation.z = -0.9; g.add(bow);
+  const L = 9.6, W = 2.9;
+  const dark = M.woodDark(); const plank = M.wood([5, 1], 0x6b4528, false);
+  g.add(hull2(L, W, plank));
+  // painted strakes and gunwale
+  for (const s of [-1, 1]) {
+    g.add(box(L - 2.4, 0.16, 0.06, M.flat(0xa33440), 0.1, 0.95, s * 1.28));
+    g.add(box(L - 2.4, 0.07, 0.07, M.gold(), 0.1, 1.2, s * 1.36));
+    g.add(box(L - 2.2, 0.12, 0.12, dark, 0.0, 1.62, s * 1.34));
+  }
+  // deck, aft castle and fore deck
+  g.add(box(L - 3.0, 0.14, 2.3, M.wood([3, 1], 0xa07a48, false), -0.1, 1.45, 0));
+  g.add(box(2.4, 0.95, 2.3, M.wood([1, 1], 0x5e3d22), -3.5, 1.5, 0));
+  g.add(box(2.6, 0.12, 2.5, M.wood([1, 1], 0x9a7242, false), -3.5, 2.45, 0));
+  for (const s of [-1, 1]) { g.add(box(2.5, 0.5, 0.07, dark, -3.5, 2.55, s * 1.2)); }
+  g.add(box(0.08, 0.5, 2.4, dark, -4.75, 2.55, 0));
+  g.add(box(1.8, 0.7, 2.0, M.wood([1, 1], 0x5e3d22), 3.0, 1.5, 0));
+  // shields along the rails
+  for (let i = 0; i < 9; i++) for (const s of [-1, 1]) {
+    const sx = -1.8 + i * 0.62; const shield = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.06, 14), M.stripe([0xa33440, 0xd4ac4f, 0xede3cc][i % 3], 0x2a2018));
+    shield.rotation.x = Math.PI / 2; shield.position.set(sx, 1.95 + (Math.abs(sx) > 2 ? 0.05 : 0), s * 1.42); shield.castShadow = true; g.add(shield);
+  }
+  // oars
+  for (let i = 0; i < 7; i++) for (const s of [-1, 1]) {
+    const ang = -s * 0.88; const x = -2.1 + i * 0.7;
+    const oar = cyl(0.045, 0.045, 2.4, M.wood([1, 3], 0x9a7242), x, 0.93, s * 2.37, 6); oar.rotation.x = ang; g.add(oar);
+    const blade = box(0.26, 0.7, 0.04, M.wood([1, 1], 0x9a7242, false), x, 0.3, s * 3.14); blade.rotation.x = ang; g.add(blade);
+  }
+  // carved prow, gilded beak, bronze ram, stern post
+  const neck = cyl(0.17, 0.22, 1.9, M.gold(), 0, 0, 0, 8); neck.position.set(4.95, 3.35, 0); neck.rotation.z = -0.5; g.add(neck);
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.36, 10, 8), M.gold()); head.position.set(5.5, 4.35, 0); head.castShadow = true; g.add(head);
+  const snout = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.7, 8), M.gold()); snout.position.set(5.95, 4.3, 0); snout.rotation.z = -Math.PI / 2; g.add(snout);
+  const ram = new THREE.Mesh(new THREE.ConeGeometry(0.26, 1.2, 8), M.metal()); ram.position.set(4.35, 0.6, 0); ram.rotation.z = -Math.PI / 2; ram.castShadow = true; g.add(ram);
+  const stern = cyl(0.13, 0.17, 1.8, M.gold(), 0, 0, 0, 8); stern.position.set(-4.95, 3.3, 0); stern.rotation.z = 0.35; g.add(stern);
+  // masts, yards and bellied square sails
+  const mast = (x, h) => { g.add(cyl(0.12, 0.17, h, dark, x, 1.5, 0, 8)); const y = cyl(0.07, 0.07, 4.4, dark, x, 1.5 + h * 0.78, 0, 6); y.rotation.x = Math.PI / 2; g.add(y); return y; };
+  mast(0.7, 8.8); mast(-2.3, 6.4);
+  const sail = (x, h, w, y0, c1, c2) => { const sl = new THREE.Mesh(new THREE.PlaneGeometry(w, h, 10, 8), M.stripe(c1, c2)); sl.rotation.y = Math.PI / 2; sl.position.set(x + 0.15, y0 + h / 2, 0); const p = sl.geometry.attributes.position; for (let i = 0; i < p.count; i++) { const u = p.getX(i) / (w / 2), v = p.getY(i) / (h / 2); p.setZ(i, 0.55 * (1 - u * u) * (1 - 0.3 * v * v)); } sl.geometry.computeVertexNormals(); sl.castShadow = true; sl.material = sl.material.clone(); sl.material.side = THREE.DoubleSide; return sl; };
+  if (sails) { g.add(sail(0.7, 4.8, 4.2, 3.6, 0xa33440, 0xede3cc)); g.add(sail(-2.3, 3.4, 3.4, 3.2, 0xd4ac4f, 0xede3cc)); }
+  // rigging
+  const line = (x1, y1, x2, y2) => { const dx = x2 - x1, dy = y2 - y1; const l = cyl(0.025, 0.025, Math.hypot(dx, dy), dark, (x1 + x2) / 2, 0, 0, 4); l.position.y = (y1 + y2) / 2; l.rotation.z = -Math.atan2(dx, dy); return l; };
+  g.add(line(0.7, 10.2, 4.6, 3.1), line(0.7, 10.2, -4.6, 2.9), line(-2.3, 7.8, 0.7, 9.8), line(-2.3, 7.8, -4.4, 2.6));
+  g.add(at(banner(0xa33440, 1.5), 0.7, 10.2, 0), at(banner(0xd4ac4f, 1.1), -2.3, 7.8, 0));
   return g;
 }
 export function shipyard() {

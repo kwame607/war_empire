@@ -17,9 +17,9 @@ scene.add(new THREE.HemisphereLight(0xcfd8ee, 0x6a5a40, 1.4));
 const sun = new THREE.DirectionalLight(0xffd29a, 3.6); sun.position.set(12, 14, 14); sun.castShadow = true; sun.shadow.mapSize.set(4096, 4096);
 const s = sun.shadow.camera; s.left = -20; s.right = 20; s.top = 20; s.bottom = -20; s.far = 90; sun.shadow.bias = -0.0004; scene.add(sun);
 const rim = new THREE.DirectionalLight(0xffb98a, 1.0); rim.position.set(-10, 6, -8); scene.add(rim);
-const water = name === 'shipyard' || name === 'b_map';
-const ground = new THREE.Mesh(new THREE.PlaneGeometry(700, 700), water ? (() => { const m = M.water().clone(); m.roughness = 0.6; m.metalness = 0; return m; })() : M.ground([120, 120])); ground.rotation.x = -Math.PI / 2; ground.position.y = water ? (name === 'b_map' ? -0.15 : -0.35) : -0.02; ground.receiveShadow = true; scene.add(ground);
-if (water) { const bank = new THREE.Mesh(new THREE.BoxGeometry(60, 1, 14), M.ground([8, 2])); bank.position.set(0, -0.5, -16); bank.receiveShadow = true; scene.add(bank); }
+const water = name === 'shipyard' || name === 'ship' || name === 'b_map' || name === 'b_navy' || name === 'b_sea';
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(700, 700), water ? (() => { const m = M.water().clone(); m.roughness = 0.6; m.metalness = 0; return m; })() : M.ground([120, 120])); ground.rotation.x = -Math.PI / 2; ground.position.y = water ? (name.startsWith('b_') ? -0.15 : -0.35) : -0.02; ground.receiveShadow = true; scene.add(ground);
+if (water && name !== 'b_navy' && name !== 'b_sea') { const bank = new THREE.Mesh(new THREE.BoxGeometry(60, 1, 14), M.ground([8, 2])); bank.position.set(0, -0.5, -16); bank.receiveShadow = true; scene.add(bank); }
 else { const path = new THREE.Mesh(new THREE.PlaneGeometry(4, 60), M.dirt([1, 12])); path.rotation.x = -Math.PI / 2; path.position.set(0, 0.01, 18); path.receiveShadow = true; scene.add(path); }
 import('./lib.js').then(()=>{});
 const BANNERS = {
@@ -27,6 +27,8 @@ const BANNERS = {
   b_economy: [[market, 0, 2, 0, 1], [workshop, -15, -1, 0.3, 1], [farm, 17, -1, -0.2, 1], [timber, 33, 0, -0.4, 0.9]],
   b_knowledge: [[library, -2, 0, 0, 1], [academy, 17, 0, -0.2, 1], [bureau, -18, 0, 0.3, 1]],
   b_military: [[barracks, -4, 0, 0.3, 0.9], [armoury, 16, 0, -0.3, 1], [() => regiment('spearmen', 'p'), -6, 15, 0, 0.6]],
+  b_navy: [[() => sailingShip(true), 0, 2, 0.15, 1.15], [() => sailingShip(true), -14, -6, 0.05, 1.0], [() => sailingShip(true), 14, -7, 0.25, 1.0], [() => sailingShip(true), -26, -14, 0.1, 0.9], [() => sailingShip(true), 27, -15, 0.2, 0.9]],
+  b_sea: [[() => { const g = new THREE.Group(); const m = new THREE.Mesh(new THREE.BoxGeometry(46, 0.1, 6), new THREE.MeshBasicMaterial({ visible: false })); m.position.y = -2; g.add(m); return g; }, 0, 0, 0, 1]],
   b_map: [[shipyard, 0, 0, 0, 1], [() => sailingShip(true), 16, 6, 0.5, 1.0], [() => sailingShip(true), -17, 8, -0.6, 0.8]],
 };
 if (BANNERS[name]) {
@@ -37,7 +39,7 @@ if (BANNERS[name]) {
   cam2.position.set(cc.x + Math.sin(0.28) * dist, cc.y + dist * 0.28, cc.z + Math.cos(0.28) * dist); cam2.lookAt(cc.x, cc.y - sz.y * 0.05, cc.z);
   renderer.render(scene, cam2); window.done = true;
 } else {
-const obj = { barracks, library, academy, armoury, bureau, shipyard, farm, timber, quarry, workshop, market }[name](); scene.add(obj);
+const obj = { ship: () => sailingShip(true), barracks, library, academy, armoury, bureau, shipyard, farm, timber, quarry, workshop, market }[name](); scene.add(obj);
 const box = new THREE.Box3().setFromObject(obj); const c = box.getCenter(new THREE.Vector3()); const size = box.getSize(new THREE.Vector3());
 const cam = new THREE.PerspectiveCamera(32, W / H, 0.5, 300);
 const rad = box.getBoundingSphere(new THREE.Sphere()).radius; const dist = rad / Math.sin(THREE.MathUtils.degToRad(32 / 2)) * Number(q.get('k') || 0.82);

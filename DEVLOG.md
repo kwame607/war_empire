@@ -331,3 +331,7 @@ Known notes:
 ## v0.41 — Command Window
 - Battle orders are a grid of icon tiles directly under the battlefield (locked doctrines show a padlock). Tap a tile to read its summary and checks, then confirm with the big Order button, so you no longer scroll past army and enemy panels to give an order.
 - Battle deployment, Marketplace and Profile now open with rendered banners.
+
+## v0.42 — Fleet
+- New warship model (`sailingShip` in tools/render/buildings.js): curved hull with raised bow and stern, gilded prow, bronze ram, shield-lined rails, oars, two masts with bellied striped sails and rigging. Re-rendered the town ship and shipyard sprites and the Shipyard card, map banner.
+- Navy tab opens with a FleetScene: your ships riding on a rendered sea (up to eight, bobbing), plus an EngagementScene in "Last engagement" showing both fleets with the sunk ships faded.

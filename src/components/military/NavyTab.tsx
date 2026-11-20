@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Alert, StyleSheet, Text, View } from 'react-native';
 
+import { EngagementScene, FleetScene } from '@/components/art/FleetScene';
 import { Chip } from '@/components/ui/Chip';
 import { GameButton } from '@/components/ui/GameButton';
 import { LockedNotice } from '@/components/ui/LockedNotice';
@@ -40,6 +41,7 @@ export function NavyTab({ state }: { state: GameState }) {
 
   return (
     <>
+      <FleetScene ships={state.fleet.ships} building={pendingShips(state)} />
       <Panel>
         <Text style={styles.title}>
           Fleet: {state.fleet.ships} warship{state.fleet.ships === 1 ? '' : 's'} (capacity {cap})
@@ -117,6 +119,7 @@ export function NavyTab({ state }: { state: GameState }) {
         <>
           <SectionHeader title="Last engagement" />
           <Panel>
+            <EngagementScene mine={last.shipsBefore} myLost={last.shipsLost} theirs={last.enemyBefore} theirLost={last.enemyLost} />
             <Chip tone={last.won ? 'gold' : 'burgundy'} label={`${last.won ? 'Victory' : 'Defeat'} against ${last.rivalName}`} />
             <Text style={styles.meta}>
               Ships lost {last.shipsLost} of {last.shipsBefore} · Enemy lost {last.enemyLost} of {last.enemyBefore}

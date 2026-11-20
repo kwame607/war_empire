@@ -19,7 +19,7 @@ export const TOWN_SPRITES: Record<string, TownSprite> = {
   library: { src: require('../../assets/town/library.png'), w: 409, h: 360, ax: 225.0, ay: 228.0 },
   market: { src: require('../../assets/town/market.png'), w: 347, h: 232, ax: 199.8, ay: 138.6 },
   quarry: { src: require('../../assets/town/quarry.png'), w: 437, h: 303, ax: 258.0, ay: 196.2 },
-  ship: { src: require('../../assets/town/ship.png'), w: 230, h: 233, ax: 117.6, ay: 190.2 },
+  ship: { src: require('../../assets/town/ship.png'), w: 264, h: 278, ax: 157.2, ay: 223.8 },
   shipyard: { src: require('../../assets/town/shipyard.png'), w: 382, h: 331, ax: 195.0, ay: 191.4 },
   timber: { src: require('../../assets/town/timber.png'), w: 459, h: 415, ax: 229.8, ay: 272.4 },
   workshop: { src: require('../../assets/town/workshop.png'), w: 293, h: 295, ax: 166.8, ay: 216.6 },

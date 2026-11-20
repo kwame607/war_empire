@@ -7,5 +7,7 @@ export const BANNERS = {
   knowledge: require('../../assets/banners/knowledge.jpg'),
   military: require('../../assets/banners/military.jpg'),
   map: require('../../assets/banners/map.jpg'),
+  navy: require('../../assets/banners/navy.jpg'),
+  sea: require('../../assets/banners/sea.jpg'),
 } satisfies Record<string, ImageSourcePropType>;
 export type BannerKey = keyof typeof BANNERS;
