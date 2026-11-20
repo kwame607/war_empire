@@ -16,7 +16,6 @@ import { maybeSpawnEvent } from './events';
 import {
   BUILD_SLOTS,
   OFFLINE_CAP_SECONDS,
-  FOOD_BUY_PRICE,
   SAVE_VERSION,
   SCOUT_COST_GOLD,
   SCOUT_SECONDS,
@@ -301,23 +300,6 @@ export function buyBusiness(input: GameState, typeId: string, now: number): Acti
       reputation: state.reputation + 2,
       attributes: { ...state.attributes, administration: state.attributes.administration + 0.25 },
       log: addLog(state.log, now, `Construction of ${type.name} has begun.`),
-    },
-  };
-}
-
-/** Buys food from merchants at a fixed price per unit. */
-export function buyFood(input: GameState, amount: number, now: number): ActionResult {
-  const state = tick(input, now);
-  const n = Math.floor(amount);
-  if (!(n > 0)) return fail('Choose how much food to buy.');
-  const cost = n * FOOD_BUY_PRICE;
-  if (state.resources.gold < cost) return fail(`Buying ${n} food costs ${cost} gold. You have ${Math.floor(state.resources.gold)}.`);
-  return {
-    ok: true,
-    state: {
-      ...state,
-      resources: { ...state.resources, gold: state.resources.gold - cost, food: state.resources.food + n },
-      log: addLog(state.log, now, `Merchants delivered ${n} food for ${cost} gold.`),
     },
   };
 }

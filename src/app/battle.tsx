@@ -16,7 +16,8 @@ import { getOrder, ORDERS } from '@/data/orders';
 import { getScenario } from '@/data/scenarios';
 import { estimateEnemy, getLeader, orderChecks, type Check } from '@/game/battle';
 import { ReportCard } from '@/components/military/IntelTab';
-import { EXPEDITION_SECONDS, FOOD_BUY_PRICE } from '@/game/constants';
+import { EXPEDITION_SECONDS } from '@/game/constants';
+import { quoteFor } from '@/game/market';
 import { intelCost, provisionsFood } from '@/game/military';
 import { sumUnits } from '@/game/selectors';
 import type { ActionResult, Battle, GameState, OrderId, Provisions } from '@/game/types';
@@ -41,7 +42,7 @@ export default function BattleScreen() {
 // ---------------------------------------------------------------------------
 
 function Deploy({ state, scenarioId }: { state: GameState; scenarioId: string }) {
-  const { beginBattle, beginExpedition, buyFood } = useGame();
+  const { beginBattle, beginExpedition, trade } = useGame();
   const sc = getScenario(scenarioId);
   const [intel, setIntel] = useState<'0' | '1' | '2'>('0');
   const [prov, setProv] = useState<Provisions>('standard');
@@ -50,6 +51,7 @@ function Deploy({ state, scenarioId }: { state: GameState; scenarioId: string })
   const men = sumUnits(state.army.units);
   const leader = getLeader(state, state.army.commanderId);
   const need = provisionsFood(men, prov);
+  const price = quoteFor(state, 'food').buy;
   const short = Math.max(0, Math.ceil(need - state.resources.food));
 
   return (
@@ -124,15 +126,16 @@ function Deploy({ state, scenarioId }: { state: GameState; scenarioId: string })
         </Text>
         {short > 0 ? (
           <>
-            <Text style={styles.meta}>You are {short} short. Buy from merchants at {FOOD_BUY_PRICE} gold each, or grow it on a Grain Farm (20 food an hour).</Text>
+            <Text style={styles.meta}>You are {short} short. Buy from merchants at {price} gold each today, or grow it on a Grain Farm (20 food an hour).</Text>
             <GameButton
               variant="secondary"
-              label={`Buy ${short} food for ${short * FOOD_BUY_PRICE} gold`}
+              label={`Buy ${short} food for ${Math.ceil(short * price)} gold`}
               onPress={() => {
-                const r = buyFood(short);
+                const r = trade('food', short, 'buy');
                 if (!r.ok) Alert.alert('Cannot buy', r.reason);
               }}
             />
+            <GameButton variant="secondary" label="Visit the marketplace" onPress={() => router.push('/market')} />
             <GameButton variant="secondary" label="Go build a Grain Farm" onPress={() => router.push('/economy')} />
           </>
         ) : (

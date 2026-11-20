@@ -304,3 +304,7 @@ Known notes:
 - Merchants: buy food for gold (2 gold each) via `buyFood` in the engine.
 - Battle deployment shows food in stores vs needed, with a one-tap "Buy N food" and a shortcut to build a Grain Farm. The not-enough-food error now gives exact numbers.
 - Dashboard shows food in stores and food per hour (net of army upkeep), with a warning when low or negative.
+
+## v0.35 — Marketplace
+- New Marketplace screen (`/market`, `src/game/market.ts`): buy and sell food, timber and stone. Prices shift each game day with the season and passing caravans (deterministic, so reloading cannot reroll them); merchants pay 60% of asking; administration gives haggling discounts.
+- Replaces the flat food purchase. Battle setup now uses today's food price and links to the marketplace; Overview has a Visit the marketplace button.

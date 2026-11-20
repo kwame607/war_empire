@@ -6,7 +6,8 @@ import { diagramShapes, visibleScenes } from '../utils/diagramShapes';
 import { TOWN_SLOTS, keepSpriteForStage } from '../data/townLayout';
 import { blocksFor, frontLine, layoutArmy } from '../data/battleLayout';
 import { tacticView } from '../data/tactics';
-import { buyFood, createNewGame } from './engine';
+import { createNewGame } from './engine';
+import { GOODS, marketQuotes, quoteFor, tradeGood } from './market';
 import { startBattle } from './military';
 import { sendSpy } from './intel';
 import { runSimulation } from './mastery';
@@ -200,14 +201,23 @@ test('tacticView arranges armies per order and keeps everyone on the field', () 
   assert.ok(closed.mine.some((r) => r.key.includes('cavalry') && r.sd < 0));
 });
 
-test('buyFood trades gold for food and refuses what you cannot afford', () => {
+test('marketplace: prices are stable per day, selling pays less than buying, trades move gold and goods', () => {
   const s = base();
-  const r = buyFood(s, 50, 1_000_000);
-  assert.ok(r.ok);
-  if (r.ok) {
-    assert.equal(Math.round(r.state.resources.food - s.resources.food), 50);
-    assert.equal(Math.round(s.resources.gold - r.state.resources.gold), 100);
+  const q1 = marketQuotes(s);
+  assert.deepEqual(q1, marketQuotes(s));
+  assert.equal(q1.length, GOODS.length);
+  for (const q of q1) assert.ok(q.sell < q.buy);
+  const buy = tradeGood(s, 'food', 50, 'buy', 1_000_000);
+  assert.ok(buy.ok);
+  if (buy.ok) {
+    assert.equal(Math.round(buy.state.resources.food - s.resources.food), 50);
+    assert.ok(buy.state.resources.gold < s.resources.gold);
+    const sell = tradeGood(buy.state, 'food', 50, 'sell', 1_000_000);
+    assert.ok(sell.ok);
+    if (sell.ok) assert.ok(sell.state.resources.gold < s.resources.gold, 'no free money from round trips');
   }
-  assert.equal(buyFood(s, 0, 1_000_000).ok, false);
-  assert.equal(buyFood(s, 1_000_000, 1_000_000).ok, false);
+  assert.equal(tradeGood(s, 'food', 0, 'buy', 1_000_000).ok, false);
+  assert.equal(tradeGood(s, 'stone', 1_000_000, 'buy', 1_000_000).ok, false);
+  assert.equal(tradeGood(s, 'wood', 1_000_000, 'sell', 1_000_000).ok, false);
+  assert.ok(quoteFor(s, 'wood').buy > 0);
 });

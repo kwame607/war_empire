@@ -1,3 +1,4 @@
+import { tradeGood, type GoodId } from '@/game/market';
 import {
   createContext,
   useCallback,
@@ -14,7 +15,6 @@ import { OFFLINE_SUMMARY_MIN_SECONDS } from '@/game/constants';
 import {
   buildOfflineSummary,
   buyBusiness,
-  buyFood,
   createNewGame,
   discoverKnowledge,
   fastForward,
@@ -74,7 +74,7 @@ type GameContextValue = {
   discover: (entryId: string) => void;
   study: (entryId: string) => ActionResult;
   scout: (settlementId: string) => ActionResult;
-  buyFood: (amount: number) => ActionResult;
+  trade: (good: GoodId, amount: number, mode: 'buy' | 'sell') => ActionResult;
   buyInstitution: (typeId: string) => ActionResult;
   upgradeInstitution: (typeId: string) => ActionResult;
   recruit: (unitId: UnitId, count: number) => ActionResult;
@@ -265,7 +265,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
         });
         return { ...res, outcome };
       },
-      buyFood: (amount) => apply((s, now) => buyFood(s, amount, now)),
+      trade: (good, amount, mode) => apply((s, now) => tradeGood(s, good, amount, mode, now)),
       buy: (typeId) => apply((s, now) => buyBusiness(s, typeId, now)),
       upgrade: (typeId) => apply((s, now) => upgradeBusiness(s, typeId, now)),
       study: (entryId) => apply((s, now) => startStudy(s, entryId, now)),
