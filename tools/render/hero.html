@@ -1,0 +1,33 @@
+<!doctype html><html><body style="margin:0;background:#000"><canvas id="c"></canvas>
+<script type="module">
+import { THREE, M, tree } from './lib.js';
+import { barracks, library, academy, armoury, bureau, shipyard } from './buildings.js';
+const q = new URLSearchParams(location.search);
+const W = Number(q.get('w') || 960), H = Number(q.get('h') || 540); const name = q.get('b');
+const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('c'), antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(W, H, false); renderer.setPixelRatio(1); renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.15; renderer.outputColorSpace = THREE.SRGBColorSpace;
+const scene = new THREE.Scene();
+// dusk-gold sky gradient
+const sc = document.createElement('canvas'); sc.width = 4; sc.height = 256; const sx = sc.getContext('2d'); const gr = sx.createLinearGradient(0, 0, 0, 256);
+gr.addColorStop(0, '#3a5f94'); gr.addColorStop(0.55, '#d9b27a'); gr.addColorStop(1, '#f2d9a8'); sx.fillStyle = gr; sx.fillRect(0, 0, 4, 256);
+const skyTex = new THREE.CanvasTexture(sc); skyTex.colorSpace = THREE.SRGBColorSpace; scene.background = skyTex;
+scene.fog = new THREE.Fog(0xe9cf9f, 45, 140);
+scene.add(new THREE.HemisphereLight(0xcfd8ee, 0x6a5a40, 1.4));
+const sun = new THREE.DirectionalLight(0xffd29a, 3.6); sun.position.set(12, 14, 14); sun.castShadow = true; sun.shadow.mapSize.set(4096, 4096);
+const s = sun.shadow.camera; s.left = -20; s.right = 20; s.top = 20; s.bottom = -20; s.far = 90; sun.shadow.bias = -0.0004; scene.add(sun);
+const rim = new THREE.DirectionalLight(0xffb98a, 1.0); rim.position.set(-10, 6, -8); scene.add(rim);
+const water = name === 'shipyard';
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(700, 700), water ? (() => { const m = M.water().clone(); m.roughness = 0.6; m.metalness = 0; return m; })() : M.ground([120, 120])); ground.rotation.x = -Math.PI / 2; ground.position.y = water ? -0.35 : -0.02; ground.receiveShadow = true; scene.add(ground);
+if (water) { const bank = new THREE.Mesh(new THREE.BoxGeometry(60, 1, 14), M.ground([8, 2])); bank.position.set(0, -0.5, -16); bank.receiveShadow = true; scene.add(bank); }
+else { const path = new THREE.Mesh(new THREE.PlaneGeometry(4, 60), M.dirt([1, 12])); path.rotation.x = -Math.PI / 2; path.position.set(0, 0.01, 18); path.receiveShadow = true; scene.add(path); }
+import('./lib.js').then(()=>{});
+const obj = { barracks, library, academy, armoury, bureau, shipyard }[name](); scene.add(obj);
+const box = new THREE.Box3().setFromObject(obj); const c = box.getCenter(new THREE.Vector3()); const size = box.getSize(new THREE.Vector3());
+const cam = new THREE.PerspectiveCamera(32, W / H, 0.5, 300);
+const rad = box.getBoundingSphere(new THREE.Sphere()).radius; const dist = rad / Math.sin(THREE.MathUtils.degToRad(32 / 2)) * Number(q.get('k') || 0.82);
+const az = Number(q.get('az') || 0.62), el = Number(q.get('el') || 0.30);
+cam.position.set(c.x + Math.sin(az) * Math.cos(el) * dist, c.y + Math.sin(el) * dist, c.z + Math.cos(az) * Math.cos(el) * dist); cam.lookAt(c.x, c.y - size.y * 0.05, c.z);
+for (let i = 0; i < 26; i++) { const a = -1.2 + i * 0.1 + Math.sin(i * 7.1) * 0.05; const d = 38 + (i % 5) * 6; const t = tree(Math.sin(a) * d - 0, -Math.cos(a) * d - 8, 1.4 + (i % 3) * 0.4, i % 4 ? 'pine' : 'oak', i + 3); if (!water) scene.add(t); }
+renderer.render(scene, cam); window.done = true;
+</script></body></html>

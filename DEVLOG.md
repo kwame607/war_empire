@@ -311,3 +311,7 @@ Known notes:
 
 ## v0.36 — Market News
 - Four-day market events (famine, bumper harvest, fire, great felling, a lord's wall, new quarry) swing one good's price sharply; shown as a news panel in the Marketplace. Derived from the game day, no save change.
+
+## v0.37 — Institution Art
+- Institution cards (Barracks, Library, Academy, Armoury, Intelligence Bureau, Shipyard) show 3D-rendered pictures instead of flat illustrations; locked ones are dimmed.
+- Made with `tools/render/hero.html` + `runh.js` (three.js, 16:9 hero shot of the existing building models on grass/sky; `OUT=dir node runh.js barracks library ...`). Output goes to `assets/institutions/*.jpg`.

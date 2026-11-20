@@ -3,7 +3,7 @@ import { Alert, StyleSheet, Text, View } from 'react-native';
 
 import { Chip } from '@/components/ui/Chip';
 import { GameButton } from '@/components/ui/GameButton';
-import { Illustration } from '@/components/art/Illustration';
+import { InstitutionArt } from '@/components/art/InstitutionArt';
 import { Panel } from '@/components/ui/Panel';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { getInstitutionType } from '@/data/institutions';
@@ -15,10 +15,10 @@ import { costText } from '@/utils/format';
 
 type Icon = keyof typeof Ionicons.glyphMap;
 
-function Header({ type, right }: { type: InstitutionType; right: React.ReactNode }) {
+function Header({ type, right, dim }: { type: InstitutionType; right: React.ReactNode; dim?: boolean }) {
   return (
     <>
-    <Illustration id={type.id} />
+    <InstitutionArt id={type.id} dim={dim} />
     <View style={styles.header}>
       <Ionicons name={type.icon as Icon} size={26} color={colors.gold} />
       <Text style={styles.name}>{type.name}</Text>
@@ -82,7 +82,7 @@ export function AvailableInstitutionCard({ state, type, onBuy }: AvailableProps)
   const affordable = canAfford(state.resources, type.cost);
   return (
     <Panel style={blocker ? { opacity: 0.8 } : undefined}>
-      <Header type={type} right={blocker ? <Chip tone="muted" label="Locked" /> : null} />
+      <Header type={type} dim={!!blocker} right={blocker ? <Chip tone="muted" label="Locked" /> : null} />
       <Text style={styles.desc}>{type.description}</Text>
       <Text style={styles.effect}>Level 1: {type.effects[0]}</Text>
       <Text style={styles.meta}>
