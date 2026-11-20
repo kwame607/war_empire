@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Svg, { Polygon } from 'react-native-svg';
 
+import { Bob, Clouds, Smoke } from '@/components/art/TownLife';
 import { TOWN_PPU, TOWN_SIN, TOWN_SPRITES, TOWN_TERRAIN } from '@/data/townAssets';
 import { GameButton } from '@/components/ui/GameButton';
 import { BUSINESS_TYPES } from '@/data/businesses';
@@ -70,8 +71,21 @@ export function SettlementScene({ state, title, subtitle }: { state: GameState; 
           const p = pos(it.sx, it.sd);
           const id = it.key.startsWith('ship') ? 'ship' : it.key;
           const isPicked = picked?.id === id;
-          return <Pressable key={it.key} onPress={() => setPicked({ id, level: levels[id] ?? 0 })} style={{ position: 'absolute', left: p.x - s.ax * scale, top: p.y - s.ay * scale, width: s.w * scale, height: s.h * scale, opacity: picked && !isPicked ? 0.82 : 1 }}><Image source={s.src} style={{ width: s.w * scale, height: s.h * scale }} /></Pressable>;
+          const sprite = <Image source={s.src} style={{ width: s.w * scale, height: s.h * scale }} />;
+          return (
+            <Pressable key={it.key} onPress={() => setPicked({ id, level: levels[id] ?? 0 })} style={{ position: 'absolute', left: p.x - s.ax * scale, top: p.y - s.ay * scale, width: s.w * scale, height: s.h * scale, opacity: picked && !isPicked ? 0.82 : 1 }}>
+              {id === 'ship' ? <Bob phase={(it.key.charCodeAt(4) % 4) * 500}>{sprite}</Bob> : sprite}
+            </Pressable>
+          );
         })}
+        {items
+          .filter((it) => ['keep', 'workshop', 'armoury', 'barracks', 'market'].includes(it.key))
+          .map((it) => {
+            const sp = TOWN_SPRITES[it.sprite];
+            const p = pos(it.sx, it.sd);
+            return <Smoke key={`smoke-${it.key}`} x={p.x - (sp.ax - sp.w * 0.62) * scale} y={p.y - sp.ay * scale + sp.h * 0.12 * scale} scale={scale} />;
+          })}
+        <Clouds sceneW={sceneW} sceneH={sceneH} />
       </ScrollView>
       {picked ? (
         <View style={styles.caption}>

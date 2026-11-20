@@ -262,3 +262,7 @@ Known notes:
 ## v0.26 — Campaigns
 - Each civilisation now has a four-act story (Sikaman: The Golden Stool; Niani: Rivers of Gold; Fjordlands: The Long Winter; Aurelia: The Road to the Forum; Serene: Pearl of the Lagoon) with a goal per act, gold/reputation rewards and a finale. Shown on Overview. Acts advance one per tick so each beat is seen.
 - Progress is stored in `achievements` under `camp:<id>` keys (Profile counts only real achievements), so no save-version bump.
+
+## v0.27 — Living Town
+- The town scene is now animated: clouds drift across, smoke rises from the keep, workshop, armoury, barracks and market, and ships bob on the water. All native-driver loops (cheap), skipped when the phone's "Reduce Motion" setting is on.
+- `src/components/art/TownLife.tsx`.
