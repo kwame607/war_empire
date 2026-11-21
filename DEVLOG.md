@@ -338,3 +338,6 @@ Known notes:
 
 ## v0.43 — Enemy Fleet
 - Enemy warships have their own look (`ship_e`: dark hull, charcoal and crimson sails, black pennants) so sea battles read at a glance. Used in the engagement scene; `sailingShip(sails, enemy)` in tools/render/buildings.js.
+
+## v0.44 — Spoils of War
+- Battle result word (VICTORY / DEFEAT / ...) slams in with a bounce and a haptic; the report's rewards are a LootReveal row of tiles (gold, food, timber, stone, renown) that pop in one by one and count up. Reduce Motion shows them instantly.

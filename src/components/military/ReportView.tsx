@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 
+import { LootReveal } from '@/components/art/LootReveal';
 import { ResultBanner } from '@/components/art/ResultBanner';
 import { UnitChips } from '@/components/military/UnitChips';
 import { Chip } from '@/components/ui/Chip';
@@ -27,13 +28,6 @@ export function ReportView({ report: r }: { report: BattleReport }) {
   const lost = sumUnits(r.playerInitial) - sumUnits(r.playerFinal);
   const killed = sumUnits(r.enemyInitial) - sumUnits(r.enemyFinal);
   const rw = r.rewards;
-  const rewardParts = [
-    rw.gold ? `${rw.gold} gold` : null,
-    rw.food ? `${rw.food} food` : null,
-    rw.wood ? `${rw.wood} wood` : null,
-    rw.stone ? `${rw.stone} stone` : null,
-    rw.reputation ? `reputation ${rw.reputation > 0 ? '+' : ''}${rw.reputation}` : null,
-  ].filter(Boolean);
 
   return (
     <>
@@ -46,7 +40,7 @@ export function ReportView({ report: r }: { report: BattleReport }) {
         <Text style={styles.meta}>
           Against {r.enemyName} · {r.rounds.length} round{r.rounds.length === 1 ? '' : 's'}
         </Text>
-        <Text style={styles.meta}>Rewards: {rewardParts.length ? rewardParts.join(', ') : 'none'}</Text>
+        <LootReveal rewards={rw} />
       </Panel>
 
       <SectionHeader title="Casualties" />

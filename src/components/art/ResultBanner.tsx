@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Animated, Easing, Image, StyleSheet, Text, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
 import { BATTLE_FIELD, BATTLE_FIELDS, BATTLE_PPU, BATTLE_SIN, BATTLE_SPRITES } from '@/data/battleAssets';
@@ -7,6 +7,8 @@ import { layoutArmy, type Counts } from '@/data/battleLayout';
 import { sumUnits } from '@/game/selectors';
 import type { BattleReport } from '@/game/types';
 import { fonts } from '@/theme';
+import { tap } from '@/utils/haptics';
+import { useMotion } from '@/utils/motion';
 
 const LOOK: Record<BattleReport['result'], { word: string; color: string; tint: string; line: string }> = {
   victory: { word: 'VICTORY', color: '#F0CC72', tint: 'rgba(30,20,0,0.35)', line: 'The field is yours.' },
@@ -18,6 +20,19 @@ const LOOK: Record<BattleReport['result'], { word: string; color: string; tint: 
 /** A wide picture of the field as it ended, with the result written across it. */
 export function ResultBanner({ report }: { report: BattleReport }) {
   const [width, setWidth] = useState(360);
+  const motion = useMotion();
+  const [pop] = useState(() => new Animated.Value(motion ? 0 : 1));
+  const result = report.result;
+  useEffect(() => {
+    if (!motion) {
+      pop.setValue(1);
+      return;
+    }
+    pop.setValue(0);
+    const timer = setTimeout(() => tap(result === 'victory' ? 'success' : result === 'defeat' ? 'heavy' : 'light'), 350);
+    Animated.timing(pop, { toValue: 1, duration: 800, delay: 250, easing: Easing.out(Easing.back(1.6)), useNativeDriver: true }).start();
+    return () => clearTimeout(timer);
+  }, [pop, motion, result]);
   const scale = width / BATTLE_FIELD.w;
   const height = BATTLE_FIELD.h * scale * 0.82;
   const look = LOOK[report.result];
@@ -36,14 +51,14 @@ export function ResultBanner({ report }: { report: BattleReport }) {
           return <Image key={r.key} source={s.src} style={{ position: 'absolute', left: p.x - s.ax * scale, top: p.y - s.ay * scale, width: s.w * scale, height: s.h * scale, opacity: report.result === 'defeat' && r.sprite.endsWith('_p') ? 0.8 : 1 }} />;
         })}
         <View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: look.tint }]} />
-        <View pointerEvents="none" style={styles.center}>
+        <Animated.View pointerEvents="none" style={[styles.center, { opacity: pop.interpolate({ inputRange: [0, 0.4], outputRange: [0, 1], extrapolate: 'clamp' }), transform: [{ scale: pop.interpolate({ inputRange: [0, 1], outputRange: [1.6, 1] }) }] }]}>
           <Svg width={Math.min(260, width * 0.7)} height={14} viewBox="0 0 260 14">
             <Path d="M0 7 H110 M150 7 H260" stroke={look.color} strokeWidth={1.5} opacity={0.8} />
             <Path d="M130 1 L137 7 L130 13 L123 7 Z" fill={look.color} />
           </Svg>
           <Text style={[styles.word, { color: look.color }]}>{look.word}</Text>
           <Text style={styles.line}>{look.line}</Text>
-        </View>
+        </Animated.View>
       </View>
     </View>
   );
