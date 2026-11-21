@@ -335,3 +335,6 @@ Known notes:
 ## v0.42 — Fleet
 - New warship model (`sailingShip` in tools/render/buildings.js): curved hull with raised bow and stern, gilded prow, bronze ram, shield-lined rails, oars, two masts with bellied striped sails and rigging. Re-rendered the town ship and shipyard sprites and the Shipyard card, map banner.
 - Navy tab opens with a FleetScene: your ships riding on a rendered sea (up to eight, bobbing), plus an EngagementScene in "Last engagement" showing both fleets with the sunk ships faded.
+
+## v0.43 — Enemy Fleet
+- Enemy warships have their own look (`ship_e`: dark hull, charcoal and crimson sails, black pennants) so sea battles read at a glance. Used in the engagement scene; `sailingShip(sails, enemy)` in tools/render/buildings.js.

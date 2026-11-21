@@ -262,14 +262,15 @@ function hull2(len, wid, mat) {
   const p = g.attributes.position; for (let i = 0; i < p.count; i++) { const y = p.getY(i), x = p.getX(i); const k = 0.38 + 0.62 * Math.min(1, y / 1.5); const end = 1 - 0.55 * Math.pow(Math.abs(x) / (len / 2), 3); p.setZ(i, p.getZ(i) * Math.min(1, k) * end); }
   g.computeVertexNormals(); const m = new THREE.Mesh(g, mat); m.castShadow = m.receiveShadow = true; return m;
 }
-export function sailingShip(sails = true) {
+export function sailingShip(sails = true, enemy = false) {
   const g = new THREE.Group();
   const L = 9.6, W = 2.9;
-  const dark = M.woodDark(); const plank = M.wood([5, 1], 0x6b4528, false);
+  const dark = M.woodDark(); const plank = M.wood([5, 1], enemy ? 0x3a3236 : 0x6b4528, false);
+  const C = enemy ? { red: 0x2b2b33, gold: 0x8a8d96, cream: 0x6e6a72, band: 0x7a1f26, ban: 0x1a1a20, ban2: 0x7a1f26 } : { red: 0xa33440, gold: 0xd4ac4f, cream: 0xede3cc, band: 0xa33440, ban: 0xa33440, ban2: 0xd4ac4f };
   g.add(hull2(L, W, plank));
   // painted strakes and gunwale
   for (const s of [-1, 1]) {
-    g.add(box(L - 2.4, 0.16, 0.06, M.flat(0xa33440), 0.1, 0.95, s * 1.28));
+    g.add(box(L - 2.4, 0.16, 0.06, M.flat(C.band), 0.1, 0.95, s * 1.28));
     g.add(box(L - 2.4, 0.07, 0.07, M.gold(), 0.1, 1.2, s * 1.36));
     g.add(box(L - 2.2, 0.12, 0.12, dark, 0.0, 1.62, s * 1.34));
   }
@@ -282,7 +283,7 @@ export function sailingShip(sails = true) {
   g.add(box(1.8, 0.7, 2.0, M.wood([1, 1], 0x5e3d22), 3.0, 1.5, 0));
   // shields along the rails
   for (let i = 0; i < 9; i++) for (const s of [-1, 1]) {
-    const sx = -1.8 + i * 0.62; const shield = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.06, 14), M.stripe([0xa33440, 0xd4ac4f, 0xede3cc][i % 3], 0x2a2018));
+    const sx = -1.8 + i * 0.62; const shield = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.06, 14), M.stripe([C.red, C.gold, C.cream][i % 3], 0x2a2018));
     shield.rotation.x = Math.PI / 2; shield.position.set(sx, 1.95 + (Math.abs(sx) > 2 ? 0.05 : 0), s * 1.42); shield.castShadow = true; g.add(shield);
   }
   // oars
@@ -301,11 +302,11 @@ export function sailingShip(sails = true) {
   const mast = (x, h) => { g.add(cyl(0.12, 0.17, h, dark, x, 1.5, 0, 8)); const y = cyl(0.07, 0.07, 4.4, dark, x, 1.5 + h * 0.78, 0, 6); y.rotation.x = Math.PI / 2; g.add(y); return y; };
   mast(0.7, 8.8); mast(-2.3, 6.4);
   const sail = (x, h, w, y0, c1, c2) => { const sl = new THREE.Mesh(new THREE.PlaneGeometry(w, h, 10, 8), M.stripe(c1, c2)); sl.rotation.y = Math.PI / 2; sl.position.set(x + 0.15, y0 + h / 2, 0); const p = sl.geometry.attributes.position; for (let i = 0; i < p.count; i++) { const u = p.getX(i) / (w / 2), v = p.getY(i) / (h / 2); p.setZ(i, 0.55 * (1 - u * u) * (1 - 0.3 * v * v)); } sl.geometry.computeVertexNormals(); sl.castShadow = true; sl.material = sl.material.clone(); sl.material.side = THREE.DoubleSide; return sl; };
-  if (sails) { g.add(sail(0.7, 4.8, 4.2, 3.6, 0xa33440, 0xede3cc)); g.add(sail(-2.3, 3.4, 3.4, 3.2, 0xd4ac4f, 0xede3cc)); }
+  if (sails) { g.add(sail(0.7, 4.8, 4.2, 3.6, enemy ? 0x2b2b33 : 0xa33440, enemy ? 0x7a1f26 : 0xede3cc)); g.add(sail(-2.3, 3.4, 3.4, 3.2, enemy ? 0x7a1f26 : 0xd4ac4f, enemy ? 0x2b2b33 : 0xede3cc)); }
   // rigging
   const line = (x1, y1, x2, y2) => { const dx = x2 - x1, dy = y2 - y1; const l = cyl(0.025, 0.025, Math.hypot(dx, dy), dark, (x1 + x2) / 2, 0, 0, 4); l.position.y = (y1 + y2) / 2; l.rotation.z = -Math.atan2(dx, dy); return l; };
   g.add(line(0.7, 10.2, 4.6, 3.1), line(0.7, 10.2, -4.6, 2.9), line(-2.3, 7.8, 0.7, 9.8), line(-2.3, 7.8, -4.4, 2.6));
-  g.add(at(banner(0xa33440, 1.5), 0.7, 10.2, 0), at(banner(0xd4ac4f, 1.1), -2.3, 7.8, 0));
+  g.add(at(banner(C.ban, 1.5), 0.7, 10.2, 0), at(banner(C.ban2, 1.1), -2.3, 7.8, 0));
   return g;
 }
 export function shipyard() {
@@ -376,7 +377,7 @@ export function keepCastle(big = false) {
   return g;
 }
 
-BUILDINGS.farm = farm; BUILDINGS.timber = timber; BUILDINGS.quarry = quarry; BUILDINGS.workshop = workshop; BUILDINGS.market = market; BUILDINGS.library = library; BUILDINGS.academy = academy; BUILDINGS.bureau = bureau; BUILDINGS.armoury = armoury; BUILDINGS.shipyard = shipyard; BUILDINGS.ship = () => sailingShip(true); 
+BUILDINGS.farm = farm; BUILDINGS.timber = timber; BUILDINGS.quarry = quarry; BUILDINGS.workshop = workshop; BUILDINGS.market = market; BUILDINGS.library = library; BUILDINGS.academy = academy; BUILDINGS.bureau = bureau; BUILDINGS.armoury = armoury; BUILDINGS.shipyard = shipyard; BUILDINGS.ship = () => sailingShip(true); BUILDINGS.ship_e = () => sailingShip(true, true); 
 
 // ---------- terrain ----------
 import { sandTexture } from './lib.js';

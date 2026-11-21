@@ -46,8 +46,9 @@ const styles = StyleSheet.create({
 export function EngagementScene({ mine, myLost, theirs, theirLost }: { mine: number; myLost: number; theirs: number; theirLost: number }) {
   const [w, setW] = useState(360);
   const h = Math.max(150, w * 0.4);
-  const sp = TOWN_SPRITES.ship;
   const k = Math.min(0.5, w / 760);
+  const sp = TOWN_SPRITES.ship;
+  const spE = TOWN_SPRITES.ship_e;
   const side = (n: number, lost: number, left: boolean) =>
     Array.from({ length: Math.min(4, n) }, (_, i) => {
       const x = left ? 0.12 + (i % 2) * 0.17 : 0.88 - (i % 2) * 0.17;
@@ -59,11 +60,14 @@ export function EngagementScene({ mine, myLost, theirs, theirLost }: { mine: num
   return (
     <View style={[styles.frame, { height: h, marginBottom: 8 }]} onLayout={(e) => setW(e.nativeEvent.layout.width)}>
       <Image source={BANNERS.sea} style={StyleSheet.absoluteFill} resizeMode="cover" accessibilityIgnoresInvertColors />
-      {all.map((s) => (
-        <View key={s.key} style={{ position: 'absolute', left: s.x * w - sp.ax * k, top: s.y * h - sp.ay * k, width: sp.w * k, height: sp.h * k, opacity: s.sunk ? 0.3 : 1, transform: [{ scaleX: s.left ? 1 : -1 }, { rotate: s.sunk ? '18deg' : '0deg' }], zIndex: Math.round(s.y * 100) }}>
-          <Image source={sp.src} style={{ width: sp.w * k, height: sp.h * k }} accessibilityIgnoresInvertColors />
-        </View>
-      ))}
+      {all.map((s) => {
+        const t = s.left ? sp : spE;
+        return (
+          <View key={s.key} style={{ position: 'absolute', left: s.x * w - t.ax * k, top: s.y * h - t.ay * k, width: t.w * k, height: t.h * k, opacity: s.sunk ? 0.3 : 1, transform: [{ scaleX: s.left ? 1 : -1 }, { rotate: s.sunk ? '18deg' : '0deg' }], zIndex: Math.round(s.y * 100) }}>
+            <Image source={t.src} style={{ width: t.w * k, height: t.h * k }} accessibilityIgnoresInvertColors />
+          </View>
+        );
+      })}
       <View style={styles.cap} pointerEvents="none">
         <Text style={styles.sub}>You {mine - myLost} of {mine} afloat · Them {theirs - theirLost} of {theirs} afloat</Text>
       </View>
